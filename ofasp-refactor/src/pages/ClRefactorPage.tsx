@@ -104,13 +104,13 @@ ENDPGM`;
       {/* 설정 패널 */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          리팩토링 설정
+          {t('clRefactor.settingsTitle')}
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              대상 언어 선택
+              {t('clRefactor.targetLanguage')}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {targetLanguages.map((lang) => (
@@ -140,7 +140,7 @@ ENDPGM`;
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              빠른 작업
+              {t('clRefactor.quickActions')}
             </label>
             <div className="space-y-2">
               <button
@@ -148,13 +148,13 @@ ENDPGM`;
                 className="w-full flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <DocumentTextIcon className="w-4 h-4 mr-2" />
-                샘플 CL 로드
+                {t('clRefactor.loadSample')}
               </button>
               <button
                 className="w-full flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <CloudArrowUpIcon className="w-4 h-4 mr-2" />
-                파일 업로드
+                {t('common.upload')}
               </button>
             </div>
           </div>
@@ -167,7 +167,7 @@ ENDPGM`;
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              CL 소스 코드
+              {t('clRefactor.sourceCode')}
             </h3>
             <div className="flex space-x-2">
               <button
@@ -180,7 +180,7 @@ ENDPGM`;
                 ) : (
                   <PlayIcon className="w-4 h-4 mr-2" />
                 )}
-                {isRefactoring ? '리팩토링 중...' : '리팩토링 실행'}
+                {isRefactoring ? t('clRefactor.refactoring') : t('clRefactor.executeRefactor')}
               </button>
             </div>
           </div>
@@ -188,7 +188,7 @@ ENDPGM`;
             <textarea
               value={sourceCode}
               onChange={(e) => setSourceCode(e.target.value)}
-              placeholder="CL 소스 코드를 입력하세요..."
+              placeholder={t('clRefactor.sourcePlaceholder')}
               className="w-full h-96 font-mono text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -198,12 +198,12 @@ ENDPGM`;
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {targetLanguage.toUpperCase()} 코드
+              {t('clRefactor.refactoredCode')}
             </h3>
             {refactoredCode && (
               <button className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
                 <CloudArrowDownIcon className="w-4 h-4 mr-2" />
-                다운로드
+                {t('common.download')}
               </button>
             )}
           </div>
@@ -213,7 +213,7 @@ ENDPGM`;
                 <div className="text-center">
                   <ArrowPathIcon className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
                   <p className="text-gray-600 dark:text-gray-400">
-                    CL 코드를 {targetLanguage.toUpperCase()}로 변환 중...
+                    {t('clRefactor.converting', { language: targetLanguage.toUpperCase() })}
                   </p>
                 </div>
               </div>
@@ -221,7 +221,7 @@ ENDPGM`;
               <textarea
                 value={refactoredCode}
                 readOnly
-                placeholder={`리팩토링된 ${targetLanguage.toUpperCase()} 코드가 여기에 표시됩니다...`}
+                placeholder={t('clRefactor.refactoredPlaceholder', { language: targetLanguage.toUpperCase() })}
                 className="w-full h-96 font-mono text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-gray-900 dark:text-white resize-none"
               />
             )}
@@ -232,31 +232,31 @@ ENDPGM`;
       {/* CL 명령어 참조 */}
       <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          주요 CL 명령어 변환 참조
+          {t('clRefactor.commandReference')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">파일 작업</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-2">{t('clRefactor.fileOperations')}</h4>
             <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-              <div>CPYF → cp/copy</div>
-              <div>DLTF → rm/unlink</div>
-              <div>CRTPF → touch/create</div>
+              {tn('clRefactor.commands.fileOps').map((cmd: string, index: number) => (
+                <div key={index}>{cmd}</div>
+              ))}
             </div>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">프로그램 실행</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-2">{t('clRefactor.programExecution')}</h4>
             <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-              <div>CALL → function call</div>
-              <div>SBMJOB → background exec</div>
-              <div>EVOKE → subprocess</div>
+              {tn('clRefactor.commands.programExec').map((cmd: string, index: number) => (
+                <div key={index}>{cmd}</div>
+              ))}
             </div>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">변수 처리</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-2">{t('clRefactor.variableHandling')}</h4>
             <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-              <div>DCL VAR → variable declaration</div>
-              <div>CHGVAR → assignment</div>
-              <div>RCVF → input/read</div>
+              {tn('clRefactor.commands.variables').map((cmd: string, index: number) => (
+                <div key={index}>{cmd}</div>
+              ))}
             </div>
           </div>
         </div>
