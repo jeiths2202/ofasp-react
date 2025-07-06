@@ -619,6 +619,14 @@ public class ${programName.replace('.cob', '').replace('-', '_')} {
     setIsTerminalOpen(true);
   };
 
+  // Check if the converted Java code contains user input
+  const isInteractiveProgram = (javaCode: string): boolean => {
+    return javaCode.includes('scanner.nextLine()') || 
+           javaCode.includes('Integer.parseInt(scanner.nextLine())') ||
+           javaCode.includes('Double.parseDouble(scanner.nextLine())') ||
+           javaCode.includes('System.out.print(');
+  };
+
   const executeJavaCode = async (command: string): Promise<string> => {
     // 실제 Java 컴파일 및 실행 시뮬레이션
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -1077,7 +1085,7 @@ Execution completed successfully.`;
         isOpen={isTerminalOpen}
         onClose={() => setIsTerminalOpen(false)}
         title="Java Execution Terminal"
-        command="java EMPPAY01"
+        command={`java ${fileName.replace('.cob', '').replace('-', '_')}${isInteractiveProgram(refactoredCode) ? ' --interactive' : ''}`}
         onExecute={executeJavaCode}
       />
     </div>

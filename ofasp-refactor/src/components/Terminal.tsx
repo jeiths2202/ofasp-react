@@ -43,8 +43,8 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
     setOutput([`$ ${command}`, '']);
     
     try {
-      // Check if this is an interactive program (contains ACCEPT statements)
-      if (command.includes('TAX01') || command.includes('HELLO01')) {
+      // Check if this is an interactive program
+      if (command.includes('--interactive')) {
         await executeInteractiveProgram();
       } else {
         const result = await onExecute(command);
@@ -58,11 +58,26 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
   };
 
   const executeInteractiveProgram = async () => {
+    // Extract class name from command
+    const className = command.split(' ')[1] || 'Program';
+    
     // Simulate compilation
-    setOutput(prev => [...prev, 'Compiling Java code...', 'javac Tax01.java', '', 'Running Java application...', 'java Tax01', '']);
+    setOutput(prev => [...prev, 'Compiling Java code...', `javac ${className}.java`, '', 'Running Java application...', `java ${className}`, '']);
     
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Determine program type and execute accordingly
+    if (className.toLowerCase().includes('tax')) {
+      await executeTaxProgram();
+    } else if (className.toLowerCase().includes('hello')) {
+      await executeHelloProgram();
+    } else {
+      // Generic interactive program
+      await executeGenericProgram(className);
+    }
+  };
+
+  const executeTaxProgram = async () => {
     // Start interactive execution
     setOutput(prev => [...prev, '所得税計算システム', '==================']);
     
@@ -104,6 +119,22 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
       `手取り年収：¥${netIncome.toLocaleString()} 円`,
       '', 'Execution completed successfully.'
     ]);
+  };
+
+  const executeHelloProgram = async () => {
+    setOutput(prev => [...prev, 'お名前を入力してください：']);
+    await waitForUserInput('お名前を入力してください：');
+    
+    const name = currentInput || '田中太郎';
+    setOutput(prev => [...prev, `${name}様`, '', 'Execution completed successfully.']);
+  };
+
+  const executeGenericProgram = async (className: string) => {
+    setOutput(prev => [...prev, `${className} program started.`, '値を入力してください：']);
+    await waitForUserInput('値を入力してください：');
+    
+    const value = currentInput || 'default';
+    setOutput(prev => [...prev, `入力値: ${value}`, '', 'Execution completed successfully.']);
   };
 
   const waitForUserInput = (prompt: string): Promise<void> => {
