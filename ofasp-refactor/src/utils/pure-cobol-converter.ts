@@ -509,6 +509,36 @@ public class ${className} {
       }
     }
     
+    // ACCEPT statement handling
+    if (stmt.startsWith('ACCEPT')) {
+      const match = stmt.match(/ACCEPT\s+([\w-]+)/);
+      if (match) {
+        const variable = this.toCamelCase(match[1]);
+        return `${indent}${variable} = Integer.parseInt(scanner.nextLine());`;
+      }
+    }
+    
+    // COMPUTE statement handling
+    if (stmt.startsWith('COMPUTE')) {
+      const match = stmt.match(/COMPUTE\s+([\w-]+)\s*=\s*(.+)/);
+      if (match) {
+        const target = this.toCamelCase(match[1]);
+        const expression = this.convertComputeExpression(match[2].trim());
+        return `${indent}${target} = ${expression};`;
+      }
+    }
+    
+    // MULTIPLY statement handling
+    if (stmt.startsWith('MULTIPLY')) {
+      const match = stmt.match(/MULTIPLY\s+([\w.-]+)\s+BY\s+([\w.-]+)\s+GIVING\s+([\w-]+)/);
+      if (match) {
+        const operand1 = this.convertValue(match[1]);
+        const operand2 = this.convertValue(match[2]);
+        const target = this.toCamelCase(match[3]);
+        return `${indent}${target} = ${operand1} * ${operand2};`;
+      }
+    }
+    
     // File operations - now supported with actual data files
     if (stmt.includes('OPEN INPUT')) {
       const match = stmt.match(/OPEN INPUT\s+([\w-]+)/);
@@ -559,16 +589,9 @@ ${indent}}`;
       if (text.startsWith('"') && text.endsWith('"')) {
         return `${indent}System.out.println(${text});`;
       } else {
-        // Handle multiple parts
-        const parts = text.split(/\s+/);
-        const javaParts = parts.map(part => {
-          if (part.startsWith('"') && part.endsWith('"')) {
-            return part;
-          } else {
-            return this.toCamelCase(part);
-          }
-        });
-        return `${indent}System.out.println(${javaParts.join(' + ')});`;
+        // Handle multiple parts including variables and literals
+        const convertedText = this.convertDisplayText(text);
+        return `${indent}System.out.println(${convertedText});`;
       }
     }
     
@@ -681,6 +704,76 @@ ${indent}}`;
     }
     // Handle complex conditions
     return this.toCamelCase(condition);
+  }
+  
+  private convertComputeExpression(expression: string): string {
+    // Handle COBOL arithmetic expressions
+    let result = expression;
+    
+    // Replace COBOL variables with Java variables
+    result = result.replace(/([\w-]+)/g, (match) => {
+      // Don't convert numbers or operators
+      if (/^[\d.]+$/.test(match) || ['+', '-', '*', '/', '(', ')'].includes(match)) {
+        return match;
+      }
+      return this.toCamelCase(match);
+    });
+    
+    return result;
+  }
+  
+  private convertDisplayText(text: string): string {
+    // Handle mixed display text with variables and literals
+    const parts: string[] = [];
+    let currentPart = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      
+      if (char === '"') {
+        if (inQuotes) {
+          // End of quoted string
+          currentPart += char;
+          parts.push(currentPart);
+          currentPart = '';
+          inQuotes = false;
+        } else {
+          // Start of quoted string
+          if (currentPart.trim()) {
+            // Convert variables before the quote
+            const variables = currentPart.trim().split(/\s+/);
+            for (const variable of variables) {
+              if (variable) {
+                parts.push(`currencyFormat.format(${this.toCamelCase(variable)})`);
+              }
+            }
+            currentPart = '';
+          }
+          currentPart += char;
+          inQuotes = true;
+        }
+      } else if (char === ' ' && !inQuotes) {
+        if (currentPart.trim()) {
+          // This is a variable name
+          parts.push(`currencyFormat.format(${this.toCamelCase(currentPart.trim())})`);
+          currentPart = '';
+        }
+      } else {
+        currentPart += char;
+      }
+    }
+    
+    // Handle remaining part
+    if (currentPart.trim()) {
+      if (inQuotes) {
+        parts.push(currentPart);
+      } else {
+        parts.push(`currencyFormat.format(${this.toCamelCase(currentPart.trim())})`);
+      }
+    }
+    
+    return parts.join(' + ');
   }
   
   
