@@ -6,10 +6,10 @@ interface DocumentPageProps {
 }
 
 const DocumentPage: React.FC<DocumentPageProps> = ({ isDarkMode }) => {
-  const sampleMarkdown = `# ASP Manager ドキュメント
+  const sampleMarkdown = `# OpenASP Manager ドキュメント
 
 ## 概要
-ASP Managerは、OpenASPシステムの管理インターフェースです。
+OpenASP Managerは、OpenASPシステムの管理インターフェースです。
 
 ### 主な機能
 - **ダッシュボード**: システムの概要を一目で確認

@@ -50,11 +50,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-lg">A</span>
+            <span className="text-white font-bold text-lg">O</span>
           </div>
           {effectiveExpanded && (
             <span className="ml-3 text-lg font-semibold text-gray-900 dark:text-white animate-fade-in">
-              ASP Manager
+              OpenASP Manager
             </span>
           )}
         </div>
