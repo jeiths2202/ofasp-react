@@ -6,45 +6,21 @@ interface DocumentPageProps {
 }
 
 const DocumentPage: React.FC<DocumentPageProps> = ({ isDarkMode }) => {
-  const sampleMarkdown = `# OpenASP Manager ドキュメント
-
-## 概要
-OpenASP Managerは、OpenASPシステムの管理インターフェースです。
-
-### 主な機能
-- **ダッシュボード**: システムの概要を一目で確認
-- **ユーザー管理**: アカウントの作成・編集・削除
-- **SMEDマップ管理**: 画面定義の管理
-- **プログラム管理**: 各種プログラムの設定
-
-## コード例
-
-\`\`\`javascript
-// APIへの接続例
-const connectToAPI = async () => {
-  const response = await fetch('http://localhost:8000/api/health');
-  const data = await response.json();
-  return data;
-};
-\`\`\`
-
-## テーブル例
-
-| 機能 | 説明 | ステータス |
-|------|------|------------|
-| ダッシュボード | システム概要表示 | ✅ 完了 |
-| ユーザー管理 | アカウント管理 | 🚧 開発中 |
-| SMED管理 | 画面定義管理 | 📋 計画中 |
-
-## 画像の表示
-![サンプル画像](https://via.placeholder.com/600x300)
-
-> **注意**: このドキュメントはサンプルです。実際の内容は後で更新されます。
-`;
-
+  
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <MarkdownRenderer content={sampleMarkdown} isDarkMode={isDarkMode} />
+    <div className={`h-full ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+      <div className="flex h-full">
+        <div className="flex-1 p-6">
+          <MarkdownRenderer 
+            content="# ASP 문서
+
+이 페이지는 현재 개발 중입니다.
+
+RAG 기반 채팅은 채팅 페이지에서 이용하실 수 있습니다."
+            isDarkMode={isDarkMode}
+          />
+        </div>
+      </div>
     </div>
   );
 };

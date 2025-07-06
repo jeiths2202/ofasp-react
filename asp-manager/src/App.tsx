@@ -4,8 +4,6 @@ import {
   UserGroupIcon,
   DocumentTextIcon,
   CpuChipIcon,
-  ChartBarIcon,
-  BookOpenIcon,
   ChatBubbleLeftRightIcon,
   PlayIcon,
   CommandLineIcon,
@@ -13,8 +11,8 @@ import {
 import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
 import DashboardPage from './pages/DashboardPage';
-import DocumentPage from './pages/DocumentPage';
 import SmedMapPage from './pages/SmedMapPage';
+import ChatPage from './pages/ChatPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 
@@ -94,8 +92,6 @@ function App() {
     { id: 'accounts', label: 'アカウント管理', icon: <UserGroupIcon /> },
     { id: 'smed-maps', label: 'SMEDマップ管理', icon: <DocumentTextIcon />, badge: 3 },
     { id: 'programs', label: 'プログラム管理', icon: <CpuChipIcon /> },
-    { id: 'reports', label: 'レポート', icon: <ChartBarIcon /> },
-    { id: 'docs', label: 'ドキュメント', icon: <BookOpenIcon /> },
     { id: 'chat', label: 'チャット', icon: <ChatBubbleLeftRightIcon /> },
   ];
 
@@ -169,23 +165,8 @@ function App() {
           </div>
         );
         break;
-      case 'docs':
-        content = <DocumentPage isDarkMode={theme.mode === 'dark'} />;
-        break;
       case 'chat':
-        content = (
-          <div className="p-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              チャット機能
-            </h2>
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
-              <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">
-                チャット機能は開発中です
-              </p>
-            </div>
-          </div>
-        );
+        content = <ChatPage isDarkMode={theme.mode === 'dark'} />;
         break;
       case 'smed-maps':
         content = <SmedMapPage isDarkMode={theme.mode === 'dark'} />;

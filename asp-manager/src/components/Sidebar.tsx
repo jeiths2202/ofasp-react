@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
-  Cog6ToothIcon,
   MoonIcon,
   SunIcon,
   ArrowRightOnRectangleIcon,
@@ -188,15 +187,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </button>
 
-          {/* 設定 */}
-          <button className="w-full flex items-center px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-            <Cog6ToothIcon className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" />
-            {effectiveExpanded && (
-              <span className="ml-3 text-sm text-gray-700 dark:text-gray-300 animate-fade-in">
-                設定
-              </span>
-            )}
-          </button>
         </div>
 
         {/* ユーザー情報 */}
