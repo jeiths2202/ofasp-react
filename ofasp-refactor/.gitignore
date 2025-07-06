@@ -21,3 +21,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# Tunnel logs
+*.log
+bore_*.log
+tunnel_*.log
+serveo_*.log
+
+# Tunnel binaries  
+bore
+cloudflared*
