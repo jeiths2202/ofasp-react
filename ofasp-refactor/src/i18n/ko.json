@@ -12,6 +12,7 @@
     "save": "저장",
     "download": "다운로드",
     "upload": "업로드",
+    "selectFile": "파일 선택",
     "execute": "실행",
     "refresh": "새로고침",
     "close": "닫기"
@@ -22,7 +23,7 @@
   },
   "dashboard": {
     "title": "OpenASP Refactor Tool",
-    "subtitle": "Fujitsu ASP 애플리케이션을 Open 환경으로 마이그레이션하는 리팩토링 도구입니다.",
+    "subtitle": "ASP 애플리케이션을 Open 환경으로 마이그레이션하는 리팩토링 도구입니다.",
     "cobolTitle": "COBOL Refactoring",
     "cobolDescription": "COBOL 프로그램을 Java, C, Shell Script, Python으로 변환합니다.",
     "cobolFeatures": [
@@ -55,7 +56,7 @@
   },
   "cobolRefactor": {
     "title": "COBOL 리팩토링",
-    "subtitle": "Fujitsu ASP COBOL 프로그램을 Open 환경의 다양한 언어로 리팩토링합니다.",
+    "subtitle": "ASP COBOL 프로그램을 Open 환경의 다양한 언어로 리팩토링합니다.",
     "settingsTitle": "리팩토링 설정",
     "targetLanguage": "대상 언어 선택",
     "quickActions": "빠른 작업",

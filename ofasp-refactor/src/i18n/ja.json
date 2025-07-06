@@ -12,6 +12,7 @@
     "save": "保存",
     "download": "ダウンロード",
     "upload": "アップロード",
+    "selectFile": "ファイル選択",
     "execute": "実行",
     "refresh": "更新",
     "close": "閉じる"
@@ -22,7 +23,7 @@
   },
   "dashboard": {
     "title": "OpenASP Refactor Tool",
-    "subtitle": "Fujitsu ASPアプリケーションをOpen環境に移行するリファクタリングツールです。",
+    "subtitle": "ASPアプリケーションをOpen環境に移行するリファクタリングツールです。",
     "cobolTitle": "COBOLリファクタリング",
     "cobolDescription": "COBOLプログラムをJava、C、Shell Script、Pythonに変換します。",
     "cobolFeatures": [
@@ -55,7 +56,7 @@
   },
   "cobolRefactor": {
     "title": "COBOLリファクタリング",
-    "subtitle": "Fujitsu ASP COBOLプログラムをOpen環境の様々な言語にリファクタリングします。",
+    "subtitle": "ASP COBOLプログラムをOpen環境の様々な言語にリファクタリングします。",
     "settingsTitle": "リファクタリング設定",
     "targetLanguage": "対象言語選択",
     "quickActions": "クイックアクション",
@@ -70,7 +71,7 @@
   },
   "clRefactor": {
     "title": "CLリファクタリング",
-    "subtitle": "Fujitsu ASP CL(Control Language)スクリプトをOpen環境のインタープリター言語にリファクタリングします。",
+    "subtitle": "ASP CL(Control Language)スクリプトをOpen環境のインタープリター言語にリファクタリングします。",
     "settingsTitle": "リファクタリング設定",
     "targetLanguage": "対象言語選択",
     "quickActions": "クイックアクション",
