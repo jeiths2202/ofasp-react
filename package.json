@@ -1,7 +1,7 @@
 {
-  "name": "openasp-smed-web",
+  "name": "openasp-system",
   "version": "0.5.1",
-  "description": "OpenASP SMED Web Migration System",
+  "description": "OpenASP System",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",

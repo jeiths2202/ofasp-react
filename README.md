@@ -1,6 +1,6 @@
-# OpenASP SMED Web Migration System
+# OpenASP System
 
-OpenASP SMED (Screen Map Edit Definition) 웹 마이그레이션 시스템입니다.
+OpenASP (Open Application Service Platform) 시스템입니다.
 
 ## 주요 기능
 
