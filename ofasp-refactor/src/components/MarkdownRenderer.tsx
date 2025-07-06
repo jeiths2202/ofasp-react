@@ -13,7 +13,11 @@ interface MarkdownRendererProps {
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, isDarkMode }) => {
   return (
-    <div className="prose prose-sm dark:prose-invert max-w-none">
+    <div className={`prose prose-sm max-w-none ${
+      isDarkMode 
+        ? 'prose-invert text-white prose-headings:text-white prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white' 
+        : 'text-gray-900 prose-headings:text-gray-900 prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-gray-900'
+    }`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

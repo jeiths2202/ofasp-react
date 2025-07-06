@@ -12,6 +12,7 @@ import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
 import CobolRefactorPage from './pages/CobolRefactorPage';
 import ClRefactorPage from './pages/ClRefactorPage';
+import DocumentationPage from './pages/DocumentationPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 import { I18nContext, createI18nContextValue } from './hooks/useI18n';
@@ -111,6 +112,9 @@ function App() {
         break;
       case 'cl-refactor':
         content = <ClRefactorPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'docs':
+        content = <DocumentationPage isDarkMode={theme.mode === 'dark'} />;
         break;
       default:
         content = (
