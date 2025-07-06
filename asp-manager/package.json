@@ -1,6 +1,7 @@
 {
   "name": "asp-manager",
   "version": "0.1.0",
+  "description": "OpenASP Manager - 웹 기반 관리자 인터페이스",
   "private": true,
   "dependencies": {
     "@headlessui/react": "^2.2.4",

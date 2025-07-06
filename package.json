@@ -1,6 +1,7 @@
 {
-  "name": "app",
-  "version": "0.1.0",
+  "name": "openasp-smed-web",
+  "version": "0.5.1",
+  "description": "OpenASP SMED Web Migration System",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",

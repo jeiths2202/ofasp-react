@@ -1,6 +1,41 @@
-# Getting Started with Create React App
+# OpenASP SMED Web Migration System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+OpenASP SMED (Screen Map Edit Definition) 웹 마이그레이션 시스템입니다.
+
+## 주요 기능
+
+- **SMED 맵 기반 인증 플로우**: 터미널 스타일 UI를 통한 사용자 인증
+- **OpenASP Manager**: 웹 기반 관리자 인터페이스
+- **멀티 타입 프로그램 지원**: JAVA, COBOL, SHELL 프로그램 실행
+- **실시간 시스템 모니터링**: CPU, 메모리, 디스크 사용량 모니터링
+
+## 시스템 구성
+
+### 1. OpenASP SMED 웹 인터페이스 (포트 3000)
+- React + TypeScript 기반
+- SMED 맵 기반 터미널 스타일 UI
+- 사용자 인증 및 프로그램 실행
+
+### 2. OpenASP Manager (포트 3007)
+- 웹 기반 관리자 인터페이스
+- 대시보드 및 시스템 모니터링
+- SMED 맵 관리 및 설정
+
+### 3. OpenASP API Server (포트 8000)
+- Flask 기반 API 서버
+- 멀티 타입 프로그램 실행 지원
+- 실시간 시스템 정보 제공
+
+## 기술 스택
+
+- **Frontend**: React 19, TypeScript, Tailwind CSS
+- **Backend**: Flask (Python), psutil
+- **Database**: JSON 기반 설정 파일
+- **Program Support**: Java, COBOL, Shell Script
+
+---
+
+*이 프로젝트는 기존 Create React App을 기반으로 구축되었습니다.*
 
 ## Available Scripts
 
