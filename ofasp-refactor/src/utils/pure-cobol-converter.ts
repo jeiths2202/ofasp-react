@@ -453,8 +453,61 @@ public class ${className} {
     return javaCode;
   }
   
+  private evaluateContext: { inEvaluate: boolean, condition: string, whenIndent: number, firstWhen: boolean } = { inEvaluate: false, condition: '', whenIndent: 0, firstWhen: true };
+
   private convertStatement(stmt: string, indentLevel: number, program: CobolProgram): string {
     const indent = '    '.repeat(indentLevel);
+    
+    // EVALUATE statement handling
+    if (stmt.includes('EVALUATE')) {
+      const match = stmt.match(/EVALUATE\s+(.+)/);
+      if (match) {
+        this.evaluateContext = { inEvaluate: true, condition: match[1].trim(), whenIndent: indentLevel, firstWhen: true };
+        // For EVALUATE TRUE, use if-else if chain
+        if (match[1].trim() === 'TRUE') {
+          return `${indent}// Tax calculation based on income brackets`;
+        }
+        return `${indent}// EVALUATE ${match[1]}`;
+      }
+    }
+    
+    if (stmt.includes('WHEN') && this.evaluateContext.inEvaluate) {
+      const whenMatch = stmt.match(/WHEN\s+(.+)/);
+      if (whenMatch) {
+        const condition = whenMatch[1].trim();
+        if (condition === 'OTHER') {
+          return `${indent}else {`;
+        } else {
+          // Convert COBOL condition to Java
+          const javaCondition = this.convertCobolCondition(condition);
+          // First WHEN becomes if, subsequent WHENs become else if
+          let result = '';
+          if (this.evaluateContext.firstWhen) {
+            result = `${indent}if (${javaCondition}) {`;
+            this.evaluateContext.firstWhen = false;
+          } else {
+            result = `${indent}} else if (${javaCondition}) {`;
+          }
+          return result;
+        }
+      }
+    }
+    
+    if (stmt.includes('END-EVALUATE')) {
+      const result = `${indent}}`;
+      this.evaluateContext = { inEvaluate: false, condition: '', whenIndent: 0, firstWhen: true };
+      return result;
+    }
+    
+    // MOVE statement handling
+    if (stmt.startsWith('MOVE')) {
+      const match = stmt.match(/MOVE\s+(.+?)\s+TO\s+([\w-]+)/);
+      if (match) {
+        const value = this.convertValue(match[1].trim());
+        const target = this.toCamelCase(match[2]);
+        return `${indent}${target} = ${value};`;
+      }
+    }
     
     // File operations - now supported with actual data files
     if (stmt.includes('OPEN INPUT')) {
@@ -590,6 +643,46 @@ ${indent}}`;
     }
     return this.toCamelCase(condition);
   }
+  
+  private convertCobolCondition(condition: string): string {
+    // Handle COBOL comparison operators
+    if (condition.includes('<=')) {
+      const parts = condition.split('<=').map(p => p.trim());
+      const left = this.toCamelCase(parts[0]);
+      const right = this.convertValue(parts[1]);
+      return `${left} <= ${right}`;
+    }
+    if (condition.includes('>=')) {
+      const parts = condition.split('>=').map(p => p.trim());
+      const left = this.toCamelCase(parts[0]);
+      const right = this.convertValue(parts[1]);
+      return `${left} >= ${right}`;
+    }
+    if (condition.includes('<')) {
+      const parts = condition.split('<').map(p => p.trim());
+      const left = this.toCamelCase(parts[0]);
+      const right = this.convertValue(parts[1]);
+      return `${left} < ${right}`;
+    }
+    if (condition.includes('>')) {
+      const parts = condition.split('>').map(p => p.trim());
+      const left = this.toCamelCase(parts[0]);
+      const right = this.convertValue(parts[1]);
+      return `${left} > ${right}`;
+    }
+    if (condition.includes('=')) {
+      const parts = condition.split('=').map(p => p.trim());
+      const left = this.toCamelCase(parts[0]);
+      const right = this.convertValue(parts[1]);
+      if (right.startsWith('"') && right.endsWith('"')) {
+        return `${left}.equals(${right})`;
+      }
+      return `${left} == ${right}`;
+    }
+    // Handle complex conditions
+    return this.toCamelCase(condition);
+  }
+  
   
   private convertValue(value: string): string {
     value = value.trim();
