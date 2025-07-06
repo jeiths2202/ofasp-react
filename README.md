@@ -1,6 +1,6 @@
 # OpenASP System
 
-OpenASP (Open Application Service Platform) 시스템입니다.
+OpenASP(Open Advanced System Products) 시스템입니다.
 
 ## 주요 기능
 
