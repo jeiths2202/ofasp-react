@@ -15,8 +15,12 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
   const [currentInput, setCurrentInput] = useState('');
   const [waitingForInput, setWaitingForInput] = useState(false);
   const [inputPrompt, setInputPrompt] = useState('');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && command) {
@@ -26,9 +30,58 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
       setWaitingForInput(false);
       setInputPrompt('');
       setIsExecuting(false);
+      setPosition({ x: 0, y: 0 }); // Reset position
       executeCommand();
     }
   }, [isOpen, command]);
+
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Don't start drag if clicking on buttons or interactive elements
+    if ((e.target as HTMLElement).tagName === 'BUTTON' || 
+        (e.target as HTMLElement).tagName === 'svg' ||
+        (e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+    e.preventDefault(); // Prevent text selection during drag
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    // Keep terminal within viewport bounds
+    const maxX = window.innerWidth - 800; // assuming terminal width
+    const maxY = window.innerHeight - 600; // assuming terminal height
+    
+    setPosition({
+      x: Math.max(-400, Math.min(maxX, newX)),
+      y: Math.max(-300, Math.min(maxY, newY))
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart, position]);
 
   useEffect(() => {
     if (outputRef.current) {
@@ -172,9 +225,19 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-lg shadow-2xl w-4/5 h-4/5 max-w-4xl max-h-4xl flex flex-col">
+      <div 
+        ref={terminalRef}
+        className="bg-gray-900 rounded-lg shadow-2xl w-4/5 h-4/5 max-w-4xl max-h-4xl flex flex-col select-none"
+        style={{
+          transform: `translate(${position.x}px, ${position.y}px)`,
+          cursor: isDragging ? 'grabbing' : 'default'
+        }}
+      >
         {/* Terminal Header */}
-        <div className="bg-gray-800 rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-700">
+        <div 
+          className="bg-gray-800 rounded-t-lg px-4 py-3 flex items-center justify-between border-b border-gray-700 cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+        >
           <div className="flex items-center space-x-3">
             <div className="flex space-x-2">
               <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -192,7 +255,10 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
         </div>
 
         {/* Terminal Body */}
-        <div className="flex-1 bg-black text-green-400 font-mono text-sm overflow-hidden flex flex-col">
+        <div 
+          className="flex-1 bg-black text-green-400 font-mono text-sm overflow-hidden flex flex-col"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <div
             ref={outputRef}
             className="flex-1 overflow-y-auto p-4 whitespace-pre-wrap"
@@ -227,7 +293,10 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
         </div>
 
         {/* Terminal Footer */}
-        <div className="bg-gray-800 rounded-b-lg px-4 py-2 border-t border-gray-700">
+        <div 
+          className="bg-gray-800 rounded-b-lg px-4 py-2 border-t border-gray-700"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <div className="flex items-center justify-between text-xs text-gray-400">
             <span>Press Ctrl+C to interrupt</span>
             <span>{isExecuting ? 'Running...' : 'Ready'}</span>
