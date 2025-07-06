@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-OpenASP SMED API Server v0.5.1
+OpenASP API Server v0.5.1
 Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
 Fixed configuration loading and error handling
 """
@@ -13,6 +13,8 @@ import subprocess
 import threading
 import time
 import ctypes
+import psutil
+import shutil
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -577,6 +579,127 @@ def reload_smed_pgm():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/smed/files', methods=['GET'])
+def get_smed_files():
+    """SMEDファイル一覧取得"""
+    try:
+        if not SMED_DIR or not os.path.exists(SMED_DIR):
+            return jsonify({'error': 'SMED directory not found'}), 404
+        
+        files = []
+        for file in os.listdir(SMED_DIR):
+            # .smed拡張子があるファイルまたは拡張子なしのファイル（ディレクトリは除外）
+            file_path = os.path.join(SMED_DIR, file)
+            if os.path.isfile(file_path) and (file.endswith('.smed') or '.' not in file):
+                files.append(file)
+        
+        files.sort()  # ファイル名でソート
+        
+        return jsonify({
+            'success': True,
+            'files': files,
+            'count': len(files)
+        })
+    except Exception as e:
+        logger.error(f"SMEDファイル一覧取得エラー: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/smed/content/<filename>', methods=['GET'])
+def get_smed_content(filename):
+    """SMEDファイル内容取得"""
+    try:
+        if not SMED_DIR or not os.path.exists(SMED_DIR):
+            return jsonify({'error': 'SMED directory not found'}), 404
+        
+        # セキュリティチェック: ファイル名にパストラバーサルが含まれていないか確認
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        file_path = os.path.join(SMED_DIR, filename)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'File not found'}), 404
+        
+        # ファイル内容を読み取り（Shift_JISエンコーディングを試行）
+        try:
+            with open(file_path, 'r', encoding='shift_jis') as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            # Shift_JISで読めない場合はUTF-8を試行
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                # それでも読めない場合はバイナリで読んで適当にデコード
+                with open(file_path, 'rb') as f:
+                    raw_content = f.read()
+                    content = raw_content.decode('shift_jis', errors='replace')
+        
+        return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+        
+    except Exception as e:
+        logger.error(f"SMEDファイル内容取得エラー: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/system/info', methods=['GET'])
+def get_system_info():
+    """システム情報取得"""
+    try:
+        # CPU情報
+        cpu_percent = psutil.cpu_percent(interval=1)
+        cpu_count = psutil.cpu_count()
+        cpu_freq = psutil.cpu_freq()
+        
+        # メモリ情報
+        memory = psutil.virtual_memory()
+        
+        # ディスク情報
+        disk = psutil.disk_usage('/')
+        
+        # システム稼働時間
+        boot_time = psutil.boot_time()
+        uptime_seconds = time.time() - boot_time
+        uptime_hours = int(uptime_seconds // 3600)
+        uptime_minutes = int((uptime_seconds % 3600) // 60)
+        
+        return jsonify({
+            'success': True,
+            'cpu': {
+                'usage_percent': round(cpu_percent, 1),
+                'core_count': cpu_count,
+                'frequency': {
+                    'current': round(cpu_freq.current, 1) if cpu_freq else 0,
+                    'max': round(cpu_freq.max, 1) if cpu_freq else 0
+                }
+            },
+            'memory': {
+                'total': memory.total,
+                'available': memory.available,
+                'used': memory.used,
+                'percent': round(memory.percent, 1),
+                'total_gb': round(memory.total / (1024**3), 1),
+                'used_gb': round(memory.used / (1024**3), 1),
+                'available_gb': round(memory.available / (1024**3), 1)
+            },
+            'disk': {
+                'total': disk.total,
+                'used': disk.used,
+                'free': disk.free,
+                'percent': round((disk.used / disk.total) * 100, 1),
+                'total_gb': round(disk.total / (1024**3), 1),
+                'used_gb': round(disk.used / (1024**3), 1),
+                'free_gb': round(disk.free / (1024**3), 1)
+            },
+            'uptime': {
+                'hours': uptime_hours,
+                'minutes': uptime_minutes,
+                'formatted': f"{uptime_hours}時間 {uptime_minutes}分"
+            }
+        })
+    except Exception as e:
+        logger.error(f"システム情報取得エラー: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/multi_executor/status', methods=['GET'])
 def multi_executor_status():
     """Multi-Type Executor ??"""
@@ -592,7 +715,7 @@ def multi_executor_status():
     })
 
 if __name__ == '__main__':
-    logger.info("?? OpenASP SMED API Server v0.5.1 starting...")
+    logger.info("OpenASP API Server v0.5.1 starting...")
     logger.info("Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)")
     logger.info("Fixed configuration loading and error handling")
     

@@ -7,17 +7,19 @@ import {
   ChartBarIcon,
   BookOpenIcon,
   ChatBubbleLeftRightIcon,
-  PhotoIcon,
+  PlayIcon,
+  CommandLineIcon,
 } from '@heroicons/react/24/outline';
 import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
 import DashboardPage from './pages/DashboardPage';
 import DocumentPage from './pages/DocumentPage';
+import SmedMapPage from './pages/SmedMapPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 
 function App() {
-  const [theme, setTheme] = useState<Theme>({ mode: 'light' });
+  const [theme, setTheme] = useState<Theme>({ mode: 'dark' });
   const [activeMenuId, setActiveMenuId] = useState<string | null>('dashboard');
   const [tabs, setTabs] = useState<Tab[]>([
     {
@@ -36,6 +38,10 @@ function App() {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
       setTheme({ mode: savedTheme });
+    } else {
+      // デフォルトはダークモード
+      setTheme({ mode: 'dark' });
+      localStorage.setItem('theme', 'dark');
     }
   }, []);
 
@@ -66,13 +72,14 @@ function App() {
 
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'ダッシュボード', icon: <HomeIcon /> },
+    { id: 'asp-online', label: 'ASPオンライン', icon: <PlayIcon /> },
+    { id: 'asp-batch', label: 'ASPバッチ', icon: <CommandLineIcon /> },
     { id: 'accounts', label: 'アカウント管理', icon: <UserGroupIcon /> },
     { id: 'smed-maps', label: 'SMEDマップ管理', icon: <DocumentTextIcon />, badge: 3 },
     { id: 'programs', label: 'プログラム管理', icon: <CpuChipIcon /> },
     { id: 'reports', label: 'レポート', icon: <ChartBarIcon /> },
     { id: 'docs', label: 'ドキュメント', icon: <BookOpenIcon /> },
     { id: 'chat', label: 'チャット', icon: <ChatBubbleLeftRightIcon /> },
-    { id: 'images', label: '画像管理', icon: <PhotoIcon /> },
   ];
 
   const handleMenuSelect = useCallback((item: MenuItem) => {
@@ -90,6 +97,60 @@ function App() {
     switch (item.id) {
       case 'dashboard':
         content = <DashboardPage />;
+        break;
+      case 'asp-online':
+        content = (
+          <div className="p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              ASPオンライン処理
+            </h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                利用可能なオンラインプログラム
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {['MENU', 'LOGO', 'PGM1', 'PGM2', 'EIGYO001', 'EIGYO002', 'URIAGE001'].map((program) => (
+                  <div key={program} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-colors">
+                    <div className="flex items-center">
+                      <PlayIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3" />
+                      <span className="font-medium text-gray-900 dark:text-white">{program}</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      オンライン処理プログラム
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+        break;
+      case 'asp-batch':
+        content = (
+          <div className="p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              ASPバッチ処理
+            </h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                利用可能なバッチプログラム
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {['BATCH001', 'REPORT001', 'NOHINO001', 'NOHINO002', 'ZAIKO001'].map((program) => (
+                  <div key={program} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer transition-colors">
+                    <div className="flex items-center">
+                      <CommandLineIcon className="w-5 h-5 text-green-600 dark:text-green-400 mr-3" />
+                      <span className="font-medium text-gray-900 dark:text-white">{program}</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      バッチ処理プログラム
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
         break;
       case 'docs':
         content = <DocumentPage isDarkMode={theme.mode === 'dark'} />;
@@ -109,25 +170,8 @@ function App() {
           </div>
         );
         break;
-      case 'images':
-        content = (
-          <div className="p-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-              画像管理
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden group cursor-pointer">
-                  <img
-                    src={`https://via.placeholder.com/300x300?text=Image+${i + 1}`}
-                    alt={`サンプル画像 ${i + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+      case 'smed-maps':
+        content = <SmedMapPage isDarkMode={theme.mode === 'dark'} />;
         break;
       default:
         content = (
