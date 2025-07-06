@@ -16,8 +16,12 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
   const [waitingForInput, setWaitingForInput] = useState(false);
   const [inputPrompt, setInputPrompt] = useState('');
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [size, setSize] = useState({ width: 800, height: 600 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState('');
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const outputRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -31,6 +35,7 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
       setInputPrompt('');
       setIsExecuting(false);
       setPosition({ x: 0, y: 0 }); // Reset position
+      setSize({ width: 800, height: 600 }); // Reset size
       executeCommand();
     }
   }, [isOpen, command]);
@@ -53,27 +58,109 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-    
-    // Keep terminal within viewport bounds
-    const maxX = window.innerWidth - 800; // assuming terminal width
-    const maxY = window.innerHeight - 600; // assuming terminal height
-    
-    setPosition({
-      x: Math.max(-400, Math.min(maxX, newX)),
-      y: Math.max(-300, Math.min(maxY, newY))
-    });
+    if (isDragging) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      // Keep terminal within viewport bounds
+      const maxX = window.innerWidth - size.width;
+      const maxY = window.innerHeight - size.height;
+      
+      setPosition({
+        x: Math.max(-size.width/2, Math.min(maxX, newX)),
+        y: Math.max(-size.height/2, Math.min(maxY, newY))
+      });
+    } else if (isResizing) {
+      handleResize(e);
+    }
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsResizing(false);
+    setResizeDirection('');
+  };
+
+  // Resize handlers
+  const handleResizeStart = (e: React.MouseEvent, direction: string) => {
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeDirection(direction);
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height
+    });
+  };
+
+  const handleResize = (e: MouseEvent) => {
+    if (!isResizing) return;
+
+    const deltaX = e.clientX - resizeStart.x;
+    const deltaY = e.clientY - resizeStart.y;
+
+    let newWidth = resizeStart.width;
+    let newHeight = resizeStart.height;
+    let newX = position.x;
+    let newY = position.y;
+
+    // Handle horizontal resizing
+    if (resizeDirection.includes('right')) {
+      newWidth = Math.max(400, resizeStart.width + deltaX);
+    }
+    if (resizeDirection.includes('left')) {
+      newWidth = Math.max(400, resizeStart.width - deltaX);
+      newX = position.x + (resizeStart.width - newWidth);
+    }
+    
+    // Handle vertical resizing
+    if (resizeDirection.includes('bottom')) {
+      newHeight = Math.max(300, resizeStart.height + deltaY);
+    }
+    if (resizeDirection.includes('top')) {
+      newHeight = Math.max(300, resizeStart.height - deltaY);
+      newY = position.y + (resizeStart.height - newHeight);
+    }
+    
+    // Handle corner resizing
+    if (resizeDirection === 'top-left') {
+      newWidth = Math.max(400, resizeStart.width - deltaX);
+      newHeight = Math.max(300, resizeStart.height - deltaY);
+      newX = position.x + (resizeStart.width - newWidth);
+      newY = position.y + (resizeStart.height - newHeight);
+    }
+    if (resizeDirection === 'top-right') {
+      newWidth = Math.max(400, resizeStart.width + deltaX);
+      newHeight = Math.max(300, resizeStart.height - deltaY);
+      newY = position.y + (resizeStart.height - newHeight);
+    }
+    if (resizeDirection === 'bottom-left') {
+      newWidth = Math.max(400, resizeStart.width - deltaX);
+      newHeight = Math.max(300, resizeStart.height + deltaY);
+      newX = position.x + (resizeStart.width - newWidth);
+    }
+    if (resizeDirection === 'bottom-right') {
+      newWidth = Math.max(400, resizeStart.width + deltaX);
+      newHeight = Math.max(300, resizeStart.height + deltaY);
+    }
+
+    // Keep within viewport bounds
+    const maxWidth = window.innerWidth - newX;
+    const maxHeight = window.innerHeight - newY;
+    
+    newWidth = Math.min(newWidth, maxWidth);
+    newHeight = Math.min(newHeight, maxHeight);
+
+    setSize({ width: newWidth, height: newHeight });
+    if (resizeDirection.includes('left') || resizeDirection.includes('top') || 
+        resizeDirection.includes('top-left') || resizeDirection.includes('bottom-left')) {
+      setPosition({ x: newX, y: newY });
+    }
   };
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -81,7 +168,7 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStart, position]);
+  }, [isDragging, isResizing, dragStart, position, resizeStart, size]);
 
   useEffect(() => {
     if (outputRef.current) {
@@ -227,10 +314,14 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div 
         ref={terminalRef}
-        className="bg-gray-900 rounded-lg shadow-2xl w-4/5 h-4/5 max-w-4xl max-h-4xl flex flex-col select-none"
+        className="bg-gray-900 rounded-lg shadow-2xl flex flex-col select-none relative"
         style={{
           transform: `translate(${position.x}px, ${position.y}px)`,
-          cursor: isDragging ? 'grabbing' : 'default'
+          width: `${size.width}px`,
+          height: `${size.height}px`,
+          cursor: isDragging ? 'grabbing' : 'default',
+          minWidth: '400px',
+          minHeight: '300px'
         }}
       >
         {/* Terminal Header */}
@@ -302,6 +393,45 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
             <span>{isExecuting ? 'Running...' : 'Ready'}</span>
           </div>
         </div>
+
+        {/* Resize Handles */}
+        {/* Top edge */}
+        <div 
+          className="absolute top-0 left-2 right-2 h-1 cursor-n-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'top')}
+        />
+        {/* Bottom edge */}
+        <div 
+          className="absolute bottom-0 left-2 right-2 h-1 cursor-s-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'bottom')}
+        />
+        {/* Left edge */}
+        <div 
+          className="absolute top-2 bottom-2 left-0 w-1 cursor-w-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'left')}
+        />
+        {/* Right edge */}
+        <div 
+          className="absolute top-2 bottom-2 right-0 w-1 cursor-e-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'right')}
+        />
+        {/* Corner handles */}
+        <div 
+          className="absolute top-0 left-0 w-3 h-3 cursor-nw-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'top-left')}
+        />
+        <div 
+          className="absolute top-0 right-0 w-3 h-3 cursor-ne-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'top-right')}
+        />
+        <div 
+          className="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}
+        />
+        <div 
+          className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize hover:bg-blue-500 hover:opacity-50 transition-colors"
+          onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}
+        />
       </div>
     </div>
   );
