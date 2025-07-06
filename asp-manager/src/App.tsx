@@ -1,0 +1,201 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  HomeIcon,
+  UserGroupIcon,
+  DocumentTextIcon,
+  CpuChipIcon,
+  ChartBarIcon,
+  BookOpenIcon,
+  ChatBubbleLeftRightIcon,
+  PhotoIcon,
+} from '@heroicons/react/24/outline';
+import Sidebar from './components/Sidebar';
+import TabSystem from './components/TabSystem';
+import DashboardPage from './pages/DashboardPage';
+import DocumentPage from './pages/DocumentPage';
+import MarkdownRenderer from './components/MarkdownRenderer';
+import { MenuItem, Tab, Theme } from './types';
+
+function App() {
+  const [theme, setTheme] = useState<Theme>({ mode: 'light' });
+  const [activeMenuId, setActiveMenuId] = useState<string | null>('dashboard');
+  const [tabs, setTabs] = useState<Tab[]>([
+    {
+      id: 'dashboard',
+      title: 'ダッシュボード',
+      content: <DashboardPage />,
+      type: 'document',
+      timestamp: new Date(),
+    },
+  ]);
+  const [activeTabId, setActiveTabId] = useState<string>('dashboard');
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+
+  // テーマの初期化
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme({ mode: savedTheme });
+    }
+  }, []);
+
+  // テーマ変更時の処理
+  useEffect(() => {
+    if (theme.mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme.mode);
+  }, [theme]);
+
+  // サイドバー幅の監視
+  useEffect(() => {
+    const checkSidebarWidth = () => {
+      const sidebar = document.querySelector('.fixed.left-0');
+      if (sidebar) {
+        const width = sidebar.getBoundingClientRect().width;
+        setSidebarWidth(width);
+      }
+    };
+
+    checkSidebarWidth();
+    const interval = setInterval(checkSidebarWidth, 100);
+    return () => clearInterval(interval);
+  }, []);
+
+  const menuItems: MenuItem[] = [
+    { id: 'dashboard', label: 'ダッシュボード', icon: <HomeIcon /> },
+    { id: 'accounts', label: 'アカウント管理', icon: <UserGroupIcon /> },
+    { id: 'smed-maps', label: 'SMEDマップ管理', icon: <DocumentTextIcon />, badge: 3 },
+    { id: 'programs', label: 'プログラム管理', icon: <CpuChipIcon /> },
+    { id: 'reports', label: 'レポート', icon: <ChartBarIcon /> },
+    { id: 'docs', label: 'ドキュメント', icon: <BookOpenIcon /> },
+    { id: 'chat', label: 'チャット', icon: <ChatBubbleLeftRightIcon /> },
+    { id: 'images', label: '画像管理', icon: <PhotoIcon /> },
+  ];
+
+  const handleMenuSelect = useCallback((item: MenuItem) => {
+    setActiveMenuId(item.id);
+
+    // 既存のタブを確認
+    const existingTab = tabs.find((tab) => tab.id === item.id);
+    if (existingTab) {
+      setActiveTabId(item.id);
+      return;
+    }
+
+    // 新しいタブを作成
+    let content: React.ReactNode;
+    switch (item.id) {
+      case 'dashboard':
+        content = <DashboardPage />;
+        break;
+      case 'docs':
+        content = <DocumentPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'chat':
+        content = (
+          <div className="p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              チャット機能
+            </h2>
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center">
+              <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">
+                チャット機能は開発中です
+              </p>
+            </div>
+          </div>
+        );
+        break;
+      case 'images':
+        content = (
+          <div className="p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              画像管理
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden group cursor-pointer">
+                  <img
+                    src={`https://via.placeholder.com/300x300?text=Image+${i + 1}`}
+                    alt={`サンプル画像 ${i + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+        break;
+      default:
+        content = (
+          <div className="p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              {item.label}
+            </h2>
+            <MarkdownRenderer 
+              content={`# ${item.label}\n\nこの機能は現在開発中です。\n\n## 今後の予定\n- 基本機能の実装\n- UIの改善\n- テストの追加`}
+              isDarkMode={theme.mode === 'dark'}
+            />
+          </div>
+        );
+    }
+
+    const newTab: Tab = {
+      id: item.id,
+      title: item.label,
+      content: content,
+      type: 'document',
+      timestamp: new Date(),
+    };
+
+    setTabs([...tabs, newTab]);
+    setActiveTabId(item.id);
+  }, [tabs, theme.mode]);
+
+  const handleTabSelect = (tabId: string) => {
+    setActiveTabId(tabId);
+    setActiveMenuId(tabId);
+  };
+
+  const handleTabClose = (tabId: string) => {
+    const newTabs = tabs.filter((tab) => tab.id !== tabId);
+    setTabs(newTabs);
+
+    if (activeTabId === tabId) {
+      const newActiveTab = newTabs[newTabs.length - 1];
+      if (newActiveTab) {
+        setActiveTabId(newActiveTab.id);
+        setActiveMenuId(newActiveTab.id);
+      }
+    }
+  };
+
+  const handleThemeToggle = () => {
+    setTheme({ mode: theme.mode === 'light' ? 'dark' : 'light' });
+  };
+
+  return (
+    <div className="h-screen bg-gray-50 dark:bg-gray-950">
+      <Sidebar
+        menuItems={menuItems}
+        activeMenuId={activeMenuId}
+        onMenuSelect={handleMenuSelect}
+        theme={theme}
+        onThemeToggle={handleThemeToggle}
+        user={{ name: 'Admin', role: '管理者' }}
+      />
+      <TabSystem
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onTabSelect={handleTabSelect}
+        onTabClose={handleTabClose}
+        sidebarWidth={sidebarWidth}
+      />
+    </div>
+  );
+}
+
+export default App;
