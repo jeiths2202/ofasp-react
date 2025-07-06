@@ -19,7 +19,7 @@ import { Language } from './i18n';
 
 function App() {
   const [theme, setTheme] = useState<Theme>({ mode: 'dark' });
-  const [language, setLanguage] = useState<Language>('ko');
+  const [language, setLanguage] = useState<Language>('ja');
   const [activeMenuId, setActiveMenuId] = useState<string | null>('dashboard');
   const getDashboardContent = (t: (key: string) => string, tn: (key: string) => any) => (
     <div className="p-8">
@@ -150,11 +150,14 @@ function App() {
     }
 
     const savedLanguage = localStorage.getItem('language') as Language | null;
+    const envDefaultLang = process.env.REACT_APP_DEFAULT_LANG as Language || 'ja';
+    
     if (savedLanguage) {
       setLanguage(savedLanguage);
     } else {
-      setLanguage('ko');
-      localStorage.setItem('language', 'ko');
+      // 환경변수 또는 기본값으로 일본어 설정
+      setLanguage(envDefaultLang);
+      localStorage.setItem('language', envDefaultLang);
     }
   }, []);
 
