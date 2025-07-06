@@ -57,18 +57,18 @@ const TabSystem: React.FC<TabSystemProps> = ({
               className={classNames(
                 'flex items-center min-w-0 border-r border-gray-200 dark:border-gray-800',
                 {
-                  'bg-gray-50 dark:bg-gray-850': activeTabId === tab.id,
-                  'hover:bg-gray-50 dark:hover:bg-gray-850': activeTabId !== tab.id,
+                  'bg-white dark:bg-gray-900': activeTabId === tab.id,
+                  'hover:bg-gray-50 dark:hover:bg-gray-800': activeTabId !== tab.id,
                 }
               )}
             >
               <button
                 onClick={() => onTabSelect(tab.id)}
                 className={classNames(
-                  'flex items-center px-4 py-3 min-w-0 max-w-xs transition-colors',
+                  'flex items-center px-4 py-3 min-w-0 max-w-xs transition-colors w-full',
                   {
-                    'border-b-2 border-blue-500': activeTabId === tab.id,
-                    'border-b-2 border-transparent': activeTabId !== tab.id,
+                    'border-b-2 border-blue-500 bg-white dark:bg-gray-900': activeTabId === tab.id,
+                    'border-b-2 border-transparent bg-gray-100 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700': activeTabId !== tab.id,
                   }
                 )}
               >
@@ -76,8 +76,8 @@ const TabSystem: React.FC<TabSystemProps> = ({
                   className={classNames(
                     'text-sm font-medium truncate',
                     {
-                      'text-gray-900 dark:text-white': activeTabId === tab.id,
-                      'text-gray-600 dark:text-gray-400': activeTabId !== tab.id,
+                      'text-blue-600 dark:text-blue-400': activeTabId === tab.id,
+                      'text-gray-700 dark:text-gray-300': activeTabId !== tab.id,
                     }
                   )}
                 >
@@ -89,7 +89,7 @@ const TabSystem: React.FC<TabSystemProps> = ({
                   e.stopPropagation();
                   onTabClose(tab.id);
                 }}
-                className="p-1.5 mr-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors group"
+                className="p-1.5 mr-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors group"
               >
                 <XMarkIcon className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
               </button>
