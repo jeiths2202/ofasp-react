@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
   Cog6ToothIcon,
   MoonIcon,
   SunIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import classNames from 'classnames';
 import { MenuItem, Theme } from '../types';
@@ -32,6 +33,27 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ userId: string; app: string } | null>(null);
+
+  useEffect(() => {
+    // Check for stored user info
+    const userInfo = localStorage.getItem('openaspUser');
+    if (userInfo) {
+      try {
+        const parsedUser = JSON.parse(userInfo);
+        setCurrentUser(parsedUser);
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    if (window.confirm('ログアウトしますか？')) {
+      localStorage.removeItem('openaspUser');
+      window.location.reload();
+    }
+  };
 
   const effectiveExpanded = !isCollapsed || isHovered;
 
@@ -184,6 +206,25 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </button>
         </div>
+
+        {/* ユーザー情報 */}
+        {effectiveExpanded && currentUser && (
+          <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg animate-fade-in">
+            <div className="text-sm font-medium text-gray-900 dark:text-white">
+              {currentUser.userId}
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              OpenASP Refactor
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center px-2 py-1.5 text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-700 dark:text-red-400 rounded-md transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="w-3 h-3 mr-1" />
+              ログアウト
+            </button>
+          </div>
+        )}
 
         {/* バージョン情報 */}
         {effectiveExpanded && (

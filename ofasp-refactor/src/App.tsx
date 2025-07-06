@@ -22,6 +22,23 @@ function App() {
   const [theme, setTheme] = useState<Theme>({ mode: 'dark' });
   const [language, setLanguage] = useState<Language>('ja');
   const [activeMenuId, setActiveMenuId] = useState<string | null>('dashboard');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const userInfo = localStorage.getItem('openaspUser');
+    if (userInfo) {
+      try {
+        const parsedUser = JSON.parse(userInfo);
+        if (parsedUser.app === 'ofasp-refactor') {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+        localStorage.removeItem('openaspUser');
+      }
+    }
+  }, []);
   const getDashboardContent = (t: (key: string) => string, tn: (key: string) => any) => (
     <div className="p-8">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -254,6 +271,19 @@ function App() {
   };
 
   const i18nValue = createI18nContextValue(language, handleLanguageChange);
+
+  // Show login page if not logged in
+  if (!isLoggedIn) {
+    return (
+      <div className="h-screen">
+        <iframe 
+          src="/login.html" 
+          className="w-full h-full border-none"
+          title="OpenASP Refactor Login"
+        />
+      </div>
+    );
+  }
 
   return (
     <I18nContext.Provider value={i18nValue}>

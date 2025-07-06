@@ -21,6 +21,23 @@ import { MenuItem, Tab, Theme } from './types';
 function App() {
   const [theme, setTheme] = useState<Theme>({ mode: 'dark' });
   const [activeMenuId, setActiveMenuId] = useState<string | null>('dashboard');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check if user is logged in
+    const userInfo = localStorage.getItem('openaspUser');
+    if (userInfo) {
+      try {
+        const parsedUser = JSON.parse(userInfo);
+        if (parsedUser.app === 'asp-manager') {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+        localStorage.removeItem('openaspUser');
+      }
+    }
+  }, []);
   const [tabs, setTabs] = useState<Tab[]>([
     {
       id: 'dashboard',
@@ -220,6 +237,19 @@ function App() {
   const handleThemeToggle = () => {
     setTheme({ mode: theme.mode === 'light' ? 'dark' : 'light' });
   };
+
+  // Show login page if not logged in
+  if (!isLoggedIn) {
+    return (
+      <div className="h-screen">
+        <iframe 
+          src="/login.html" 
+          className="w-full h-full border-none"
+          title="OpenASP Manager Login"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen bg-gray-50 dark:bg-gray-950">
