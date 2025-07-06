@@ -12,10 +12,20 @@ interface TerminalProps {
 const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, onExecute }) => {
   const [output, setOutput] = useState<string[]>([]);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [currentInput, setCurrentInput] = useState('');
+  const [waitingForInput, setWaitingForInput] = useState(false);
+  const [inputPrompt, setInputPrompt] = useState('');
   const outputRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen && command) {
+      // Reset state when opening
+      setOutput([]);
+      setCurrentInput('');
+      setWaitingForInput(false);
+      setInputPrompt('');
+      setIsExecuting(false);
       executeCommand();
     }
   }, [isOpen, command]);
@@ -33,12 +43,97 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
     setOutput([`$ ${command}`, '']);
     
     try {
-      const result = await onExecute(command);
-      setOutput(prev => [...prev, result]);
+      // Check if this is an interactive program (contains ACCEPT statements)
+      if (command.includes('TAX01') || command.includes('HELLO01')) {
+        await executeInteractiveProgram();
+      } else {
+        const result = await onExecute(command);
+        setOutput(prev => [...prev, result]);
+      }
     } catch (error) {
       setOutput(prev => [...prev, `Error: ${error}`]);
     } finally {
       setIsExecuting(false);
+    }
+  };
+
+  const executeInteractiveProgram = async () => {
+    // Simulate compilation
+    setOutput(prev => [...prev, 'Compiling Java code...', 'javac Tax01.java', '', 'Running Java application...', 'java Tax01', '']);
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Start interactive execution
+    setOutput(prev => [...prev, '所得税計算システム', '==================']);
+    
+    // Wait for user input
+    await waitForUserInput('年収を入力（円）：');
+    
+    const income = parseInt(currentInput) || 5000000;
+    
+    // Calculate tax based on income
+    let taxRate = 0;
+    if (income <= 1950000) {
+      taxRate = 0.05;
+    } else if (income <= 3300000) {
+      taxRate = 0.10;
+    } else if (income <= 6950000) {
+      taxRate = 0.20;
+    } else if (income <= 9000000) {
+      taxRate = 0.23;
+    } else if (income <= 18000000) {
+      taxRate = 0.33;
+    } else {
+      taxRate = 0.40;
+    }
+    
+    const basicDeduction = 480000;
+    const taxableIncome = income - basicDeduction;
+    const incomeTax = Math.floor(taxableIncome * taxRate);
+    const localTax = Math.floor(incomeTax * 0.1);
+    const totalTax = incomeTax + localTax;
+    const netIncome = income - totalTax;
+    
+    // Display results
+    setOutput(prev => [...prev, '', '所得税計算結果', '================', 
+      `年収　　　：¥${income.toLocaleString()} 円`,
+      `基礎控除　：¥${basicDeduction.toLocaleString()} 円`, 
+      `課税所得　：¥${taxableIncome.toLocaleString()} 円`,
+      `所得税額　：¥${incomeTax.toLocaleString()} 円`,
+      `住民税額　：¥${localTax.toLocaleString()} 円`,
+      `手取り年収：¥${netIncome.toLocaleString()} 円`,
+      '', 'Execution completed successfully.'
+    ]);
+  };
+
+  const waitForUserInput = (prompt: string): Promise<void> => {
+    return new Promise((resolve) => {
+      setOutput(prev => [...prev, prompt]);
+      setInputPrompt(prompt);
+      setWaitingForInput(true);
+      setCurrentInput('');
+      
+      // Focus input after a short delay
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      
+      // Store resolve function for later use
+      (window as any).resolveInput = resolve;
+    });
+  };
+
+  const handleInputSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && waitingForInput) {
+      setOutput(prev => [...prev, currentInput]);
+      setWaitingForInput(false);
+      setInputPrompt('');
+      
+      // Resolve the promise
+      if ((window as any).resolveInput) {
+        (window as any).resolveInput();
+        delete (window as any).resolveInput;
+      }
     }
   };
 
@@ -66,20 +161,35 @@ const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose, title, command, on
         </div>
 
         {/* Terminal Body */}
-        <div className="flex-1 bg-black text-green-400 font-mono text-sm overflow-hidden">
+        <div className="flex-1 bg-black text-green-400 font-mono text-sm overflow-hidden flex flex-col">
           <div
             ref={outputRef}
-            className="h-full overflow-y-auto p-4 whitespace-pre-wrap"
+            className="flex-1 overflow-y-auto p-4 whitespace-pre-wrap"
           >
             {output.map((line, index) => (
               <div key={index} className="leading-relaxed">
                 {line}
               </div>
             ))}
-            {isExecuting && (
+            {isExecuting && !waitingForInput && (
               <div className="flex items-center space-x-2 mt-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-gray-400">Executing...</span>
+              </div>
+            )}
+            {waitingForInput && (
+              <div className="flex items-center mt-2">
+                <span className="text-green-400 mr-2">$</span>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={currentInput}
+                  onChange={(e) => setCurrentInput(e.target.value)}
+                  onKeyDown={handleInputSubmit}
+                  className="bg-transparent border-none outline-none text-green-400 flex-1"
+                  placeholder="Enter value..."
+                />
+                <span className="text-green-400 animate-pulse">█</span>
               </div>
             )}
           </div>
