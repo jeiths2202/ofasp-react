@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   CodeBracketIcon,
   ArrowPathIcon,
-  DocumentTextIcon,
   PlayIcon,
-  CloudArrowUpIcon,
-  CloudArrowDownIcon
+  CloudArrowDownIcon,
+  FolderOpenIcon
 } from '@heroicons/react/24/outline';
 import { useI18n } from '../hooks/useI18n';
 
@@ -19,6 +18,8 @@ const ClRefactorPage: React.FC<ClRefactorPageProps> = ({ isDarkMode }) => {
   const [targetLanguage, setTargetLanguage] = useState<'shell' | 'javascript' | 'python'>('shell');
   const [refactoredCode, setRefactoredCode] = useState('');
   const [isRefactoring, setIsRefactoring] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const targetLanguages = [
     { value: 'shell', label: t('languages.shell'), icon: '📜' },
@@ -70,24 +71,23 @@ print("Batch job completed")`}
     }, 2000);
   };
 
-  const sampleClCode = `PGM
-DCL VAR(&FILE) TYPE(*CHAR) LEN(50)
-DCL VAR(&COUNT) TYPE(*DEC) LEN(5 0)
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setSourceCode(content);
+        setFileName(file.name);
+        // 새 파일 선택 시 이전 변환 결과 초기화
+        setRefactoredCode('');
+      };
+      reader.readAsText(file);
+    }
+  };
 
-CHGVAR VAR(&FILE) VALUE('SAMPLE.DAT')
-CHGVAR VAR(&COUNT) VALUE(0)
-
-CPYF FROMFILE(LIBRARY/SRCFILE) TOFILE(LIBRARY/TGTFILE) +
-     MBROPT(*REPLACE) CRTFILE(*YES)
-
-CALL PGM(PROCESS_DATA) PARM(&FILE &COUNT)
-
-SNDPGMMSG MSG('Processing completed successfully')
-
-ENDPGM`;
-
-  const loadSample = () => {
-    setSourceCode(sampleClCode);
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -143,18 +143,19 @@ ENDPGM`;
               {t('clRefactor.quickActions')}
             </label>
             <div className="space-y-2">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".cl,.cle,.clp,.txt"
+                className="hidden"
+              />
               <button
-                onClick={loadSample}
+                onClick={handleFileSelect}
                 className="w-full flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
-                <DocumentTextIcon className="w-4 h-4 mr-2" />
-                {t('clRefactor.loadSample')}
-              </button>
-              <button
-                className="w-full flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                <CloudArrowUpIcon className="w-4 h-4 mr-2" />
-                {t('common.upload')}
+                <FolderOpenIcon className="w-4 h-4 mr-2" />
+                {t('common.selectFile')}
               </button>
             </div>
           </div>
