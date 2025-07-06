@@ -1,0 +1,117 @@
+{
+  "common": {
+    "dashboard": "대시보드",
+    "settings": "설정",
+    "documentation": "문서",
+    "chat": "채팅",
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "confirm": "확인",
+    "save": "저장",
+    "download": "다운로드",
+    "upload": "업로드",
+    "execute": "실행",
+    "refresh": "새로고침",
+    "close": "닫기"
+  },
+  "navigation": {
+    "cobolRefactor": "COBOL 리팩토링",
+    "clRefactor": "CL 리팩토링"
+  },
+  "dashboard": {
+    "title": "OpenASP Refactor Tool",
+    "subtitle": "Fujitsu ASP 애플리케이션을 Open 환경으로 마이그레이션하는 리팩토링 도구입니다.",
+    "cobolTitle": "COBOL Refactoring",
+    "cobolDescription": "COBOL 프로그램을 Java, C, Shell Script, Python으로 변환합니다.",
+    "cobolFeatures": [
+      "데이터 구조 변환",
+      "비즈니스 로직 마이그레이션", 
+      "파일 처리 로직 변환"
+    ],
+    "clTitle": "CL Refactoring",
+    "clDescription": "CL(Control Language) 스크립트를 Shell, JavaScript, Python으로 변환합니다.",
+    "clFeatures": [
+      "파일 작업 명령어 변환",
+      "프로그램 호출 로직 변환",
+      "배치 작업 스크립트 변환"
+    ],
+    "processTitle": "마이그레이션 프로세스",
+    "processSteps": [
+      {
+        "title": "소스 분석",
+        "description": "기존 ASP 소스코드 구조 분석"
+      },
+      {
+        "title": "변환 실행", 
+        "description": "대상 언어로 자동 변환"
+      },
+      {
+        "title": "검증 배포",
+        "description": "변환된 코드 검증 및 배포"
+      }
+    ]
+  },
+  "cobolRefactor": {
+    "title": "COBOL 리팩토링",
+    "subtitle": "Fujitsu ASP COBOL 프로그램을 Open 환경의 다양한 언어로 리팩토링합니다.",
+    "settingsTitle": "리팩토링 설정",
+    "targetLanguage": "대상 언어 선택",
+    "quickActions": "빠른 작업",
+    "loadSample": "샘플 COBOL 로드",
+    "sourceCode": "COBOL 소스 코드",
+    "sourcePlaceholder": "COBOL 소스 코드를 입력하세요...",
+    "refactoring": "리팩토링 중...",
+    "executeRefactor": "리팩토링 실행",
+    "refactoredCode": "코드",
+    "refactoredPlaceholder": "리팩토링된 {language} 코드가 여기에 표시됩니다...",
+    "converting": "COBOL 코드를 {language}로 변환 중..."
+  },
+  "clRefactor": {
+    "title": "CL 리팩토링",
+    "subtitle": "Fujitsu ASP CL(Control Language) 스크립트를 Open 환경의 인터프리터 언어로 리팩토링합니다.",
+    "settingsTitle": "리팩토링 설정",
+    "targetLanguage": "대상 언어 선택",
+    "quickActions": "빠른 작업",
+    "loadSample": "샘플 CL 로드",
+    "sourceCode": "CL 소스 코드",
+    "sourcePlaceholder": "CL 소스 코드를 입력하세요...",
+    "refactoring": "리팩토링 중...",
+    "executeRefactor": "리팩토링 실행",
+    "refactoredCode": "코드",
+    "refactoredPlaceholder": "리팩토링된 {language} 코드가 여기에 표시됩니다...",
+    "converting": "CL 코드를 {language}로 변환 중...",
+    "commandReference": "주요 CL 명령어 변환 참조",
+    "fileOperations": "파일 작업",
+    "programExecution": "프로그램 실행",
+    "variableHandling": "변수 처리",
+    "commands": {
+      "fileOps": [
+        "CPYF → cp/copy",
+        "DLTF → rm/unlink", 
+        "CRTPF → touch/create"
+      ],
+      "programExec": [
+        "CALL → function call",
+        "SBMJOB → background exec",
+        "EVOKE → subprocess"
+      ],
+      "variables": [
+        "DCL VAR → variable declaration",
+        "CHGVAR → assignment",
+        "RCVF → input/read"
+      ]
+    }
+  },
+  "languages": {
+    "java": "Java",
+    "c": "C", 
+    "shell": "Shell Script",
+    "python": "Python",
+    "javascript": "JavaScript"
+  },
+  "user": {
+    "role": "리팩토링 관리자"
+  }
+}

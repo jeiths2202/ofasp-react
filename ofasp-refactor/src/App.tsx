@@ -14,99 +14,80 @@ import CobolRefactorPage from './pages/CobolRefactorPage';
 import ClRefactorPage from './pages/ClRefactorPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
+import { I18nContext, createI18nContextValue } from './hooks/useI18n';
+import { Language } from './i18n';
 
 function App() {
   const [theme, setTheme] = useState<Theme>({ mode: 'dark' });
+  const [language, setLanguage] = useState<Language>('ko');
   const [activeMenuId, setActiveMenuId] = useState<string | null>('dashboard');
-  const [tabs, setTabs] = useState<Tab[]>([
-    {
-      id: 'dashboard',
-      title: 'ダッシュボード',
-      content: (
-        <div className="p-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            OpenASP Refactor Tool
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            Fujitsu ASP 애플리케이션을 Open 환경으로 마이그레이션하는 리팩토링 도구입니다.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center mb-4">
-                <CodeBracketIcon className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  COBOL Refactoring
-                </h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                COBOL 프로그램을 Java, C, Shell Script, Python으로 변환합니다.
-              </p>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                • 데이터 구조 변환
-                • 비즈니스 로직 마이그레이션
-                • 파일 처리 로직 변환
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center mb-4">
-                <CommandLineIcon className="w-8 h-8 text-green-600 dark:text-green-400 mr-3" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  CL Refactoring
-                </h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                CL(Control Language) 스크립트를 Shell, JavaScript, Python으로 변환합니다.
-              </p>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                • 파일 작업 명령어 변환
-                • 프로그램 호출 로직 변환
-                • 배치 작업 스크립트 변환
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
-              마이그레이션 프로세스
+  const getDashboardContent = (t: (key: string) => string, tn: (key: string) => any) => (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        {t('dashboard.title')}
+      </h1>
+      <p className="text-gray-600 dark:text-gray-400 mb-8">
+        {t('dashboard.subtitle')}
+      </p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center mb-4">
+            <CodeBracketIcon className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {t('dashboard.cobolTitle')}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-lg font-bold">
-                  1
-                </div>
-                <h4 className="font-medium text-blue-900 dark:text-blue-100">소스 분석</h4>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  기존 ASP 소스코드 구조 분석
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-lg font-bold">
-                  2
-                </div>
-                <h4 className="font-medium text-blue-900 dark:text-blue-100">변환 실행</h4>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  대상 언어로 자동 변환
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-lg font-bold">
-                  3
-                </div>
-                <h4 className="font-medium text-blue-900 dark:text-blue-100">검증 배포</h4>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  변환된 코드 검증 및 배포
-                </p>
-              </div>
-            </div>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {t('dashboard.cobolDescription')}
+          </p>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {tn('dashboard.cobolFeatures').map((feature: string, index: number) => (
+              <div key={index}>• {feature}</div>
+            ))}
           </div>
         </div>
-      ),
-      type: 'document',
-      timestamp: new Date(),
-    },
-  ]);
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center mb-4">
+            <CommandLineIcon className="w-8 h-8 text-green-600 dark:text-green-400 mr-3" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              {t('dashboard.clTitle')}
+            </h3>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {t('dashboard.clDescription')}
+          </p>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {tn('dashboard.clFeatures').map((feature: string, index: number) => (
+              <div key={index}>• {feature}</div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+          {t('dashboard.processTitle')}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          {tn('dashboard.processSteps').map((step: any, index: number) => (
+            <div key={index} className="text-center">
+              <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-2 text-lg font-bold">
+                {index + 1}
+              </div>
+              <h4 className="font-medium text-blue-900 dark:text-blue-100">{step.title}</h4>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                {step.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>('dashboard');
   const [sidebarWidth, setSidebarWidth] = useState(256);
 
@@ -158,7 +139,7 @@ function App() {
     setActiveTabId(item.id);
   }, [tabs, theme.mode]);
 
-  // テーマの初期化
+  // 테마 및 언어 초기화
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
@@ -167,7 +148,42 @@ function App() {
       setTheme({ mode: 'dark' });
       localStorage.setItem('theme', 'dark');
     }
+
+    const savedLanguage = localStorage.getItem('language') as Language | null;
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    } else {
+      setLanguage('ko');
+      localStorage.setItem('language', 'ko');
+    }
   }, []);
+
+  // 언어 변경 시 탭 업데이트
+  useEffect(() => {
+    const i18nValue = createI18nContextValue(language, handleLanguageChange);
+    
+    // 초기 대시보드 탭 생성 또는 업데이트
+    setTabs(prevTabs => {
+      const existingDashboard = prevTabs.find(tab => tab.id === 'dashboard');
+      const newDashboard = {
+        id: 'dashboard',
+        title: i18nValue.t('common.dashboard'),
+        content: getDashboardContent(i18nValue.t, i18nValue.tn),
+        type: 'document' as const,
+        timestamp: new Date(),
+      };
+
+      if (existingDashboard) {
+        // 기존 대시보드 탭 업데이트
+        return prevTabs.map(tab => 
+          tab.id === 'dashboard' ? newDashboard : tab
+        );
+      } else {
+        // 새 대시보드 탭 추가
+        return [newDashboard, ...prevTabs];
+      }
+    });
+  }, [language]);
 
   // テーマ変更時の処理
   useEffect(() => {
@@ -194,13 +210,13 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const menuItems: MenuItem[] = [
-    { id: 'dashboard', label: 'ダッシュボード', icon: <HomeIcon /> },
-    { id: 'cobol-refactor', label: 'COBOL Refactoring', icon: <CodeBracketIcon /> },
-    { id: 'cl-refactor', label: 'CL Refactoring', icon: <CommandLineIcon /> },
-    { id: 'docs', label: 'ドキュメント', icon: <BookOpenIcon /> },
-    { id: 'settings', label: '設定', icon: <CogIcon /> },
-    { id: 'chat', label: 'チャット', icon: <ChatBubbleLeftRightIcon /> },
+  const getMenuItems = (t: (key: string) => string): MenuItem[] => [
+    { id: 'dashboard', label: t('common.dashboard'), icon: <HomeIcon /> },
+    { id: 'cobol-refactor', label: t('navigation.cobolRefactor'), icon: <CodeBracketIcon /> },
+    { id: 'cl-refactor', label: t('navigation.clRefactor'), icon: <CommandLineIcon /> },
+    { id: 'docs', label: t('common.documentation'), icon: <BookOpenIcon /> },
+    { id: 'settings', label: t('common.settings'), icon: <CogIcon /> },
+    { id: 'chat', label: t('common.chat'), icon: <ChatBubbleLeftRightIcon /> },
   ];
 
   const handleTabSelect = (tabId: string) => {
@@ -225,24 +241,33 @@ function App() {
     setTheme({ mode: theme.mode === 'light' ? 'dark' : 'light' });
   };
 
+  const handleLanguageChange = (newLanguage: Language) => {
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+  };
+
+  const i18nValue = createI18nContextValue(language, handleLanguageChange);
+
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-950">
-      <Sidebar
-        menuItems={menuItems}
-        activeMenuId={activeMenuId}
-        onMenuSelect={handleMenuSelect}
-        theme={theme}
-        onThemeToggle={handleThemeToggle}
-        user={{ name: 'Admin', role: 'リファクタリング管理者' }}
-      />
-      <TabSystem
-        tabs={tabs}
-        activeTabId={activeTabId}
-        onTabSelect={handleTabSelect}
-        onTabClose={handleTabClose}
-        sidebarWidth={sidebarWidth}
-      />
-    </div>
+    <I18nContext.Provider value={i18nValue}>
+      <div className="h-screen bg-gray-50 dark:bg-gray-950">
+        <Sidebar
+          menuItems={getMenuItems(i18nValue.t)}
+          activeMenuId={activeMenuId}
+          onMenuSelect={handleMenuSelect}
+          theme={theme}
+          onThemeToggle={handleThemeToggle}
+          user={{ name: 'Admin', role: i18nValue.t('user.role') }}
+        />
+        <TabSystem
+          tabs={tabs}
+          activeTabId={activeTabId}
+          onTabSelect={handleTabSelect}
+          onTabClose={handleTabClose}
+          sidebarWidth={sidebarWidth}
+        />
+      </div>
+    </I18nContext.Provider>
   );
 }
 

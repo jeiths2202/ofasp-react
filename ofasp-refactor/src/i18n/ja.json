@@ -1,0 +1,117 @@
+{
+  "common": {
+    "dashboard": "ダッシュボード",
+    "settings": "設定",
+    "documentation": "ドキュメント",
+    "chat": "チャット",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "download": "ダウンロード",
+    "upload": "アップロード",
+    "execute": "実行",
+    "refresh": "更新",
+    "close": "閉じる"
+  },
+  "navigation": {
+    "cobolRefactor": "COBOLリファクタリング",
+    "clRefactor": "CLリファクタリング"
+  },
+  "dashboard": {
+    "title": "OpenASP Refactor Tool",
+    "subtitle": "Fujitsu ASPアプリケーションをOpen環境に移行するリファクタリングツールです。",
+    "cobolTitle": "COBOLリファクタリング",
+    "cobolDescription": "COBOLプログラムをJava、C、Shell Script、Pythonに変換します。",
+    "cobolFeatures": [
+      "データ構造変換",
+      "ビジネスロジック移行",
+      "ファイル処理ロジック変換"
+    ],
+    "clTitle": "CLリファクタリング", 
+    "clDescription": "CL(Control Language)スクリプトをShell、JavaScript、Pythonに変換します。",
+    "clFeatures": [
+      "ファイル操作コマンド変換",
+      "プログラム呼び出しロジック変換",
+      "バッチ作業スクリプト変換"
+    ],
+    "processTitle": "移行プロセス",
+    "processSteps": [
+      {
+        "title": "ソース分析",
+        "description": "既存ASPソースコード構造分析"
+      },
+      {
+        "title": "変換実行",
+        "description": "対象言語への自動変換"
+      },
+      {
+        "title": "検証デプロイ",
+        "description": "変換コードの検証とデプロイ"
+      }
+    ]
+  },
+  "cobolRefactor": {
+    "title": "COBOLリファクタリング",
+    "subtitle": "Fujitsu ASP COBOLプログラムをOpen環境の様々な言語にリファクタリングします。",
+    "settingsTitle": "リファクタリング設定",
+    "targetLanguage": "対象言語選択",
+    "quickActions": "クイックアクション",
+    "loadSample": "サンプルCOBOLロード",
+    "sourceCode": "COBOLソースコード",
+    "sourcePlaceholder": "COBOLソースコードを入力してください...",
+    "refactoring": "リファクタリング中...",
+    "executeRefactor": "リファクタリング実行",
+    "refactoredCode": "コード",
+    "refactoredPlaceholder": "リファクタリングされた{language}コードがここに表示されます...",
+    "converting": "COBOLコードを{language}に変換中..."
+  },
+  "clRefactor": {
+    "title": "CLリファクタリング",
+    "subtitle": "Fujitsu ASP CL(Control Language)スクリプトをOpen環境のインタープリター言語にリファクタリングします。",
+    "settingsTitle": "リファクタリング設定",
+    "targetLanguage": "対象言語選択",
+    "quickActions": "クイックアクション",
+    "loadSample": "サンプルCLロード",
+    "sourceCode": "CLソースコード",
+    "sourcePlaceholder": "CLソースコードを入力してください...",
+    "refactoring": "リファクタリング中...",
+    "executeRefactor": "リファクタリング実行",
+    "refactoredCode": "コード",
+    "refactoredPlaceholder": "リファクタリングされた{language}コードがここに表示されます...",
+    "converting": "CLコードを{language}に変換中...",
+    "commandReference": "主要CLコマンド変換リファレンス",
+    "fileOperations": "ファイル操作",
+    "programExecution": "プログラム実行",
+    "variableHandling": "変数処理",
+    "commands": {
+      "fileOps": [
+        "CPYF → cp/copy",
+        "DLTF → rm/unlink",
+        "CRTPF → touch/create"
+      ],
+      "programExec": [
+        "CALL → function call",
+        "SBMJOB → background exec",
+        "EVOKE → subprocess"
+      ],
+      "variables": [
+        "DCL VAR → variable declaration",
+        "CHGVAR → assignment",
+        "RCVF → input/read"
+      ]
+    }
+  },
+  "languages": {
+    "java": "Java",
+    "c": "C",
+    "shell": "Shell Script", 
+    "python": "Python",
+    "javascript": "JavaScript"
+  },
+  "user": {
+    "role": "リファクタリング管理者"
+  }
+}

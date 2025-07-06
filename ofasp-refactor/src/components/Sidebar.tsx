@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import classNames from 'classnames';
 import { MenuItem, Theme } from '../types';
+import LanguageSelector from './LanguageSelector';
 
 interface SidebarProps {
   menuItems: MenuItem[];
@@ -165,6 +166,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               </span>
             )}
           </button>
+
+          {/* 언어 선택기 */}
+          {effectiveExpanded && (
+            <div className="animate-fade-in">
+              <LanguageSelector />
+            </div>
+          )}
 
           {/* 設定 */}
           <button className="w-full flex items-center px-2 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">

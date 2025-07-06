@@ -7,22 +7,24 @@ import {
   CloudArrowUpIcon,
   CloudArrowDownIcon
 } from '@heroicons/react/24/outline';
+import { useI18n } from '../hooks/useI18n';
 
 interface CobolRefactorPageProps {
   isDarkMode: boolean;
 }
 
 const CobolRefactorPage: React.FC<CobolRefactorPageProps> = ({ isDarkMode }) => {
+  const { t } = useI18n();
   const [sourceCode, setSourceCode] = useState('');
   const [targetLanguage, setTargetLanguage] = useState<'java' | 'c' | 'shell' | 'python'>('java');
   const [refactoredCode, setRefactoredCode] = useState('');
   const [isRefactoring, setIsRefactoring] = useState(false);
 
   const targetLanguages = [
-    { value: 'java', label: 'Java', icon: '☕' },
-    { value: 'c', label: 'C', icon: '🔧' },
-    { value: 'shell', label: 'Shell Script', icon: '📜' },
-    { value: 'python', label: 'Python', icon: '🐍' },
+    { value: 'java', label: t('languages.java'), icon: '☕' },
+    { value: 'c', label: t('languages.c'), icon: '🔧' },
+    { value: 'shell', label: t('languages.shell'), icon: '📜' },
+    { value: 'python', label: t('languages.python'), icon: '🐍' },
   ];
 
   const handleRefactor = async () => {
@@ -82,23 +84,23 @@ echo "Refactored from COBOL"`}
     <div className="h-full p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          COBOL Refactoring
+          {t('cobolRefactor.title')}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Fujitsu ASP COBOL 프로그램을 Open 환경의 다양한 언어로 리팩토링합니다.
+          {t('cobolRefactor.subtitle')}
         </p>
       </div>
 
       {/* 설정 패널 */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          리팩토링 설정
+          {t('cobolRefactor.settingsTitle')}
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              대상 언어 선택
+              {t('cobolRefactor.targetLanguage')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {targetLanguages.map((lang) => (
@@ -128,7 +130,7 @@ echo "Refactored from COBOL"`}
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              빠른 작업
+              {t('cobolRefactor.quickActions')}
             </label>
             <div className="space-y-2">
               <button
@@ -136,13 +138,13 @@ echo "Refactored from COBOL"`}
                 className="w-full flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <DocumentTextIcon className="w-4 h-4 mr-2" />
-                샘플 COBOL 로드
+                {t('cobolRefactor.loadSample')}
               </button>
               <button
                 className="w-full flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <CloudArrowUpIcon className="w-4 h-4 mr-2" />
-                파일 업로드
+                {t('common.upload')}
               </button>
             </div>
           </div>
