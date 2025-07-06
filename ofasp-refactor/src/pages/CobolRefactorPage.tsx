@@ -245,10 +245,19 @@ ${acceptStatements.map(line => {
       };
       reader.readAsText(file);
     }
+    
+    // 파일 선택 후 input을 초기화하여 동일 파일 재선택 가능하도록 함
+    if (event.target) {
+      event.target.value = '';
+    }
   };
 
   const handleFileSelect = () => {
-    fileInputRef.current?.click();
+    // 파일 input을 강제로 초기화한 후 클릭
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
   };
 
   const sampleCobolCode = `       IDENTIFICATION DIVISION.

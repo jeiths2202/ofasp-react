@@ -511,10 +511,20 @@ public class ${className} {
     
     // ACCEPT statement handling
     if (stmt.startsWith('ACCEPT')) {
-      const match = stmt.match(/ACCEPT\s+([\w-]+)/);
+      const match = stmt.match(/ACCEPT\s+([\w-]+)(?:\s+FROM\s+CONSOLE)?/i);
       if (match) {
         const variable = this.toCamelCase(match[1]);
-        return `${indent}${variable} = Integer.parseInt(scanner.nextLine());`;
+        // Check if it's a numeric variable (contains -AMOUNT, -COUNT, -NUMBER, etc.)
+        const isNumeric = /-(AMOUNT|COUNT|NUMBER|RATE|TAX|INCOME|SIZE|LENGTH|QTY)/i.test(match[1]) ||
+                         this.variables.find(v => v.name === match[1] && (v.javaType === 'int' || v.javaType === 'double'));
+        
+        if (isNumeric) {
+          return `${indent}System.out.print("${this.getPromptText(match[1])}: ");
+${indent}${variable} = ${this.getInputMethod(match[1])};`;
+        } else {
+          return `${indent}System.out.print("${this.getPromptText(match[1])}: ");
+${indent}${variable} = scanner.nextLine();`;
+        }
       }
     }
     
@@ -776,6 +786,44 @@ ${indent}}`;
     return parts.join(' + ');
   }
   
+  private getPromptText(variableName: string): string {
+    // Convert COBOL variable names to user-friendly Japanese prompts
+    const prompts: Record<string, string> = {
+      'WS-INCOME': '年収を入力（円）',
+      'WS-NAME': 'お名前を入力',
+      'WS-CUSTOMER-NAME': '顧客名を入力',
+      'WS-AMOUNT': '金額を入力（円）',
+      'WS-QUANTITY': '数量を入力',
+      'WS-RATE': '税率を入力（%）',
+      'WS-TAX-RATE': '税率を入力（%）',
+      'WS-EMPLOYEE-ID': '社員番号を入力',
+      'WS-ACCOUNT-NUMBER': '口座番号を入力',
+      'WS-PHONE': '電話番号を入力',
+      'WS-ADDRESS': '住所を入力'
+    };
+    
+    return prompts[variableName] || `${variableName}を入力`;
+  }
+  
+  private getInputMethod(variableName: string): string {
+    // Determine appropriate input method based on variable type
+    const variable = this.variables.find(v => v.name === variableName);
+    
+    if (variable) {
+      if (variable.javaType === 'int') {
+        return 'Integer.parseInt(scanner.nextLine())';
+      } else if (variable.javaType === 'double') {
+        return 'Double.parseDouble(scanner.nextLine())';
+      }
+    }
+    
+    // Default fallback based on variable name pattern
+    if (/-(AMOUNT|INCOME|TAX|RATE|COUNT|NUMBER|QTY)/i.test(variableName)) {
+      return 'Integer.parseInt(scanner.nextLine())';
+    }
+    
+    return 'scanner.nextLine()';
+  }
   
   private convertValue(value: string): string {
     value = value.trim();
