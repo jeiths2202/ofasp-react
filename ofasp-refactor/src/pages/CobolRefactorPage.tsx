@@ -157,7 +157,7 @@ echo "Refactored from COBOL"`}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              COBOL 소스 코드
+              {t('cobolRefactor.sourceCode')}
             </h3>
             <div className="flex space-x-2">
               <button
@@ -170,7 +170,7 @@ echo "Refactored from COBOL"`}
                 ) : (
                   <PlayIcon className="w-4 h-4 mr-2" />
                 )}
-                {isRefactoring ? '리팩토링 중...' : '리팩토링 실행'}
+                {isRefactoring ? t('cobolRefactor.refactoring') : t('cobolRefactor.executeRefactor')}
               </button>
             </div>
           </div>
@@ -178,7 +178,7 @@ echo "Refactored from COBOL"`}
             <textarea
               value={sourceCode}
               onChange={(e) => setSourceCode(e.target.value)}
-              placeholder="COBOL 소스 코드를 입력하세요..."
+              placeholder={t('cobolRefactor.sourcePlaceholder')}
               className="w-full h-96 font-mono text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -188,12 +188,12 @@ echo "Refactored from COBOL"`}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {targetLanguage.toUpperCase()} 코드
+              {t('cobolRefactor.refactoredCode', { language: targetLanguage.toUpperCase() })}
             </h3>
             {refactoredCode && (
               <button className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
                 <CloudArrowDownIcon className="w-4 h-4 mr-2" />
-                다운로드
+                {t('common.download')}
               </button>
             )}
           </div>
@@ -203,7 +203,7 @@ echo "Refactored from COBOL"`}
                 <div className="text-center">
                   <ArrowPathIcon className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
                   <p className="text-gray-600 dark:text-gray-400">
-                    COBOL 코드를 {targetLanguage.toUpperCase()}로 변환 중...
+                    {t('cobolRefactor.converting', { language: targetLanguage.toUpperCase() })}
                   </p>
                 </div>
               </div>
@@ -211,7 +211,7 @@ echo "Refactored from COBOL"`}
               <textarea
                 value={refactoredCode}
                 readOnly
-                placeholder={`리팩토링된 ${targetLanguage.toUpperCase()} 코드가 여기에 표시됩니다...`}
+                placeholder={t('cobolRefactor.refactoredPlaceholder', { language: targetLanguage.toUpperCase() })}
                 className="w-full h-96 font-mono text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg p-4 text-gray-900 dark:text-white resize-none"
               />
             )}

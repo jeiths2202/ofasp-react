@@ -7,21 +7,23 @@ import {
   CloudArrowUpIcon,
   CloudArrowDownIcon
 } from '@heroicons/react/24/outline';
+import { useI18n } from '../hooks/useI18n';
 
 interface ClRefactorPageProps {
   isDarkMode: boolean;
 }
 
 const ClRefactorPage: React.FC<ClRefactorPageProps> = ({ isDarkMode }) => {
+  const { t, tn } = useI18n();
   const [sourceCode, setSourceCode] = useState('');
   const [targetLanguage, setTargetLanguage] = useState<'shell' | 'javascript' | 'python'>('shell');
   const [refactoredCode, setRefactoredCode] = useState('');
   const [isRefactoring, setIsRefactoring] = useState(false);
 
   const targetLanguages = [
-    { value: 'shell', label: 'Shell Script', icon: '📜' },
-    { value: 'javascript', label: 'JavaScript', icon: '🟨' },
-    { value: 'python', label: 'Python', icon: '🐍' },
+    { value: 'shell', label: t('languages.shell'), icon: '📜' },
+    { value: 'javascript', label: t('languages.javascript'), icon: '🟨' },
+    { value: 'python', label: t('languages.python'), icon: '🐍' },
   ];
 
   const handleRefactor = async () => {
@@ -92,10 +94,10 @@ ENDPGM`;
     <div className="h-full p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          CL Refactoring
+          {t('clRefactor.title')}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Fujitsu ASP CL(Control Language) 스크립트를 Open 환경의 인터프리터 언어로 리팩토링합니다.
+          {t('clRefactor.subtitle')}
         </p>
       </div>
 
