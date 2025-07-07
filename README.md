@@ -1,6 +1,6 @@
-# 🌟 OpenASP Ecosystem
+# 🌟 OpenASP
 
-Complete modernization platform for migrating legacy AS/400 systems to cloud-native open-source technologies.
+Complete modernization platform for migrating legacy ASP systems to cloud-native open-source technologies.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -11,7 +11,7 @@ Complete modernization platform for migrating legacy AS/400 systems to cloud-nat
 ## 🏗️ System Architecture
 
 ```
-OpenASP Ecosystem
+OpenASP
 ├── 🖥️  OpenASP SMED Interface (Port 3000)
 │   ├── Terminal-style authentication
 │   ├── SMED map-based workflows
@@ -102,7 +102,7 @@ python api_server.py
 
 ### 🔄 **Legacy Modernization**
 - **Code Conversion**: Automated COBOL to Java transformation
-- **Command Migration**: 710 AS/400 commands → Open source alternatives
+- **Command Migration**: 710 ASP commands → Open source alternatives
 - **Architecture Mapping**: Mainframe concepts → Cloud-native patterns
 - **Compatibility Layer**: Smooth transition with minimal disruption
 
@@ -126,7 +126,7 @@ python api_server.py
 
 ## 📊 Migration Benefits
 
-| Aspect | Before (AS/400) | After (OpenASP) |
+| Aspect | Before (ASP) | After (OpenASP) |
 |--------|----------------|-----------------|
 | **Infrastructure** | Mainframe hardware | Cloud-native containers |
 | **Development** | Green screen terminals | Modern web interfaces |
@@ -150,7 +150,7 @@ python api_server.py
 
 - **[Migration Guide](./docs/migration-guide.md)**: Step-by-step modernization process
 - **[API Reference](./docs/api-reference.md)**: Complete API documentation
-- **[Command Mapping](./docs/command-mapping.md)**: AS/400 to OpenASP command reference
+- **[Command Mapping](./docs/command-mapping.md)**: ASP to OpenASP command reference
 - **[Deployment Guide](./docs/deployment.md)**: Production deployment instructions
 
 ## 🤝 Contributing
@@ -167,7 +167,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **AS/400 Community** for invaluable legacy system insights
+- **ASP Community** for invaluable legacy system insights
 - **Open Source Ecosystem** for providing modern alternatives
 - **TensorFlow.js Team** for enabling client-side AI capabilities
 - **React Community** for building amazing developer tools
@@ -176,7 +176,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**OpenASP Ecosystem** - Bridging Legacy and Future
+**OpenASP** - Bridging Legacy and Future
 
 *From Mainframe to Modern: Empowering Digital Transformation*
 

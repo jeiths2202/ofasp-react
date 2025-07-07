@@ -1,6 +1,6 @@
 # 🚀 OpenASP Refactor
 
-Modern web-based refactoring platform for migrating legacy AS/400 systems to open-source technologies.
+Modern web-based refactoring platform for migrating legacy ASP systems to open-source technologies.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)

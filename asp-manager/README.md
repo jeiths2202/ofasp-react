@@ -150,7 +150,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **TensorFlow.js Team** for client-side ML capabilities
 - **Universal Sentence Encoder** for semantic embeddings
-- **AS/400 Documentation** for comprehensive manual coverage
+- **ASP Documentation** for comprehensive manual coverage
 - **Open Source Community** for foundational technologies
 
 ---
