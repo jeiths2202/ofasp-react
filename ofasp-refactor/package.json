@@ -19,6 +19,7 @@
     "classnames": "^2.5.1",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
+    "express": "^5.1.0",
     "localtunnel": "^2.0.2",
     "prism-react-renderer": "^2.4.1",
     "react": "^19.1.0",

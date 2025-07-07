@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import PdfConverter from '../components/PdfConverter';
 import { useI18n } from '../hooks/useI18n';
 import {
   DocumentTextIcon,
@@ -9,7 +10,8 @@ import {
   ChevronRightIcon,
   ChevronDownIcon,
   FolderOpenIcon,
-  CommandLineIcon
+  CommandLineIcon,
+  DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
 
 interface DocumentationPageProps {
@@ -143,6 +145,12 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
           title: 'ASPシステムコマンド一覧',
           icon: <DocumentTextIcon className="w-5 h-5" />,
           file: 'asp_system_cmd.md'
+        },
+        {
+          id: 'pdf-converter',
+          title: 'PDF変換',
+          icon: <DocumentArrowDownIcon className="w-5 h-5" />,
+          file: '__pdf_converter__'
         }
       ]
     }
@@ -155,10 +163,13 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
       try {
         const selectedDocInfo = findDocumentById(documentList, selectedDoc);
         if (selectedDocInfo) {
-          if (selectedDocInfo.file) {
+          if (selectedDocInfo.file && selectedDocInfo.file !== '__pdf_converter__') {
             // 実際のファイルから読み込む
             const content = await fetchDocumentContent(selectedDocInfo.file);
             setDocContent(content);
+          } else if (selectedDocInfo.file === '__pdf_converter__') {
+            // PDF変換コンポーネントの場合は何もしない
+            setDocContent('');
           } else {
             // 파일이 없는 경우 기본 메시지 표시
             setDocContent(`# ${selectedDocInfo.title}\n\n이 섹션의 문서는 준비 중입니다.`);
@@ -282,6 +293,9 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
                 className="w-full h-full" 
                 dangerouslySetInnerHTML={{ __html: docContent }}
               />
+            ) : selectedDoc === 'pdf-converter' ? (
+              // PDF変換コンポーネントの場合
+              <PdfConverter isDarkMode={isDarkMode} />
             ) : (
               // マークダウンファイルの場合は従来通り
               <div className="max-w-4xl mx-auto p-8">
