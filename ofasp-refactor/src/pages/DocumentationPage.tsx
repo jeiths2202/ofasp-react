@@ -29,7 +29,7 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
   const [selectedDoc, setSelectedDoc] = useState<string>('cobol-to-java');
   const [docContent, setDocContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(['command-reference', 'cobol-refactoring']));
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(['command-reference', 'cobol-refactoring', 'manual']));
 
   // ドキュメント選択時の処理
   const handleDocumentSelect = (id: string, hasChildren: boolean) => {
@@ -131,7 +131,20 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
       id: 'manual',
       title: 'マニュアル',
       icon: <DocumentTextIcon className="w-5 h-5" />,
-      file: 'MANUAL.md'
+      children: [
+        {
+          id: 'command-mapping',
+          title: 'OpenASPコマンドマッピング',
+          icon: <CommandLineIcon className="w-5 h-5" />,
+          file: 'openASP-command-mapping.html'
+        },
+        {
+          id: 'asp-system-commands',
+          title: 'ASPシステムコマンド一覧',
+          icon: <DocumentTextIcon className="w-5 h-5" />,
+          file: 'asp_system_cmd.md'
+        }
+      ]
     }
   ];
 
@@ -166,7 +179,21 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
   const fetchDocumentContent = async (filename: string): Promise<string> => {
     // 実際のファイルから読み込み
     try {
-      const response = await fetch(`/docs/${filename}`);
+      // HTMLファイルの場合は特別処理
+      if (filename.endsWith('.html')) {
+        return `<iframe src="/${filename}" width="100%" height="800px" frameborder="0" style="border: none;"></iframe>`;
+      }
+      
+      // マークダウンファイルの場合
+      let response;
+      if (filename === 'asp_system_cmd.md') {
+        // publicディレクトリから読み込み
+        response = await fetch(`/${filename}`);
+      } else {
+        // /docsディレクトリから読み込み
+        response = await fetch(`/docs/${filename}`);
+      }
+      
       if (response.ok) {
         const content = await response.text();
         return content;
@@ -248,8 +275,19 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ isDarkMode }) => 
             </div>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto p-8">
-            <MarkdownRenderer content={docContent} isDarkMode={isDarkMode} />
+          <div className="w-full h-full">
+            {docContent.startsWith('<iframe') ? (
+              // HTMLファイルの場合は直接HTMLとして表示
+              <div 
+                className="w-full h-full" 
+                dangerouslySetInnerHTML={{ __html: docContent }}
+              />
+            ) : (
+              // マークダウンファイルの場合は従来通り
+              <div className="max-w-4xl mx-auto p-8">
+                <MarkdownRenderer content={docContent} isDarkMode={isDarkMode} />
+              </div>
+            )}
           </div>
         )}
       </div>
