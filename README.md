@@ -1,81 +1,185 @@
-# OpenASP System
+# 🌟 OpenASP Ecosystem
 
-OpenASP(Open Advanced System Products) 시스템입니다.
+Complete modernization platform for migrating legacy AS/400 systems to cloud-native open-source technologies.
 
-## 주요 기능
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-FF6F00?style=flat&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/js)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 
-- **SMED 맵 기반 인증 플로우**: 터미널 스타일 UI를 통한 사용자 인증
-- **OpenASP Manager**: 웹 기반 관리자 인터페이스
-- **멀티 타입 프로그램 지원**: JAVA, COBOL, SHELL 프로그램 실행
-- **실시간 시스템 모니터링**: CPU, 메모리, 디스크 사용량 모니터링
+## 🏗️ System Architecture
 
-## 시스템 구성
+```
+OpenASP Ecosystem
+├── 🖥️  OpenASP SMED Interface (Port 3000)
+│   ├── Terminal-style authentication
+│   ├── SMED map-based workflows
+│   └── Legacy program execution
+├── 🤖 ASP Manager (Port 3007)
+│   ├── AI-powered chat assistant
+│   ├── RAG-based documentation
+│   └── Intelligent system management
+├── 🔧 OpenASP Refactor (Port 3005)
+│   ├── COBOL to Java conversion
+│   ├── CL to Shell/JavaScript migration
+│   └── 710 command mapping system
+└── ⚡ API Server (Port 8000)
+    ├── Multi-language program execution
+    ├── Real-time system monitoring
+    └── Legacy integration layer
+```
 
-### 1. OpenASP SMED 웹 인터페이스 (포트 3000)
-- React + TypeScript 기반
-- SMED 맵 기반 터미널 스타일 UI
-- 사용자 인증 및 프로그램 실행
+## 🚀 Quick Start
 
-### 2. OpenASP Manager (포트 3007)
-- 웹 기반 관리자 인터페이스
-- 대시보드 및 시스템 모니터링
-- SMED 맵 관리 및 설정
+### Prerequisites
+- Node.js 18+ and npm
+- Python 3.8+ with pip
+- Git
 
-### 3. OpenASP API Server (포트 8000)
-- Flask 기반 API 서버
-- 멀티 타입 프로그램 실행 지원
-- 실시간 시스템 정보 제공
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/jeiths2202/ofasp-react.git
+cd ofasp-react
 
-## 기술 스택
+# Install frontend dependencies
+cd ofasp-refactor && npm install && cd ..
+cd asp-manager && npm install && cd ..
 
-- **Frontend**: React 19, TypeScript, Tailwind CSS
-- **Backend**: Flask (Python), psutil
-- **Database**: JSON 기반 설정 파일
-- **Program Support**: Java, COBOL, Shell Script
+# Install Python dependencies
+pip install flask psutil
+
+# Start all services
+./start-services.sh  # or start individually
+```
+
+### Individual Service Startup
+```bash
+# OpenASP Refactor (Port 3005)
+cd ofasp-refactor && npm start
+
+# ASP Manager (Port 3007) 
+cd asp-manager && npm start
+
+# API Server (Port 8000)
+python api_server.py
+```
+
+## 🎯 Core Applications
+
+### 🔧 [OpenASP Refactor](./ofasp-refactor) - Legacy Code Migration
+- **COBOL → Java**: Advanced syntax conversion with modern patterns
+- **CL → Shell/JavaScript**: Command language modernization
+- **710 ASP Commands**: Complete mapping to open-source alternatives
+- **Interactive Documentation**: Searchable implementation guides
+
+### 🤖 [ASP Manager](./asp-manager) - AI-Powered Management
+- **RAG Chat System**: TensorFlow.js-powered Q&A with ASP manuals
+- **Multilingual Support**: Japanese/Korean auto-detection and responses
+- **Real-time Monitoring**: System performance and resource tracking
+- **Smart Documentation**: AI-assisted technical documentation
+
+### 🖥️ OpenASP SMED - Legacy Interface
+- **Terminal-Style UI**: Familiar AS/400-like user experience
+- **SMED Map Integration**: Map-based authentication and navigation
+- **Program Execution**: Support for Java, COBOL, and Shell programs
+- **User Management**: Role-based access control system
+
+## 🌐 Technology Stack
+
+| Component | Technologies |
+|-----------|-------------|
+| **Frontend** | React 19, TypeScript, Tailwind CSS |
+| **AI/ML** | TensorFlow.js, Universal Sentence Encoder, RAG |
+| **Backend** | Node.js, Express.js, Flask (Python) |
+| **Database** | PostgreSQL, Vector embeddings, JSON configs |
+| **Languages** | COBOL, Java, JavaScript, Python, Shell |
+| **Deployment** | Docker, nginx, PM2, ngrok |
+| **Monitoring** | psutil, real-time metrics, performance tracking |
+
+## ✨ Key Features
+
+### 🔄 **Legacy Modernization**
+- **Code Conversion**: Automated COBOL to Java transformation
+- **Command Migration**: 710 AS/400 commands → Open source alternatives
+- **Architecture Mapping**: Mainframe concepts → Cloud-native patterns
+- **Compatibility Layer**: Smooth transition with minimal disruption
+
+### 🧠 **AI-Powered Assistance**
+- **Document Intelligence**: RAG system with Japanese ASP manuals
+- **Contextual Help**: Chain-of-thought reasoning for technical queries
+- **Multilingual Support**: Auto-detecting Japanese/Korean responses
+- **Performance Optimization**: Smart caching and vector embeddings
+
+### 🎨 **Modern User Experience**
+- **Responsive Design**: Mobile-first approach with desktop optimization
+- **Dark/Light Themes**: System preference matching and manual toggle
+- **Accessibility**: WCAG 2.1 compliant interfaces
+- **Progressive Enhancement**: Works offline with service workers
+
+### 🔒 **Enterprise Security**
+- **Session Management**: Secure authentication with role-based access
+- **External Access**: ngrok integration with security controls
+- **Data Privacy**: Client-side processing for sensitive documents
+- **Audit Logging**: Comprehensive activity tracking
+
+## 📊 Migration Benefits
+
+| Aspect | Before (AS/400) | After (OpenASP) |
+|--------|----------------|-----------------|
+| **Infrastructure** | Mainframe hardware | Cloud-native containers |
+| **Development** | Green screen terminals | Modern web interfaces |
+| **Languages** | COBOL, RPG, CL | Java, JavaScript, Python |
+| **Database** | DB2/400 | PostgreSQL with modern ORM |
+| **Scalability** | Vertical scaling | Horizontal auto-scaling |
+| **Cost** | High hardware costs | Pay-as-you-use cloud |
+| **Integration** | Limited APIs | RESTful APIs, microservices |
+| **Maintenance** | Specialized skills | Modern development practices |
+
+## 🔗 Service Endpoints
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **OpenASP Refactor** | `http://localhost:3005` | Code migration platform |
+| **ASP Manager** | `http://localhost:3007` | AI management interface |
+| **SMED Interface** | `http://localhost:3000` | Legacy terminal UI |
+| **API Server** | `http://localhost:8000` | Backend services |
+
+## 📚 Documentation
+
+- **[Migration Guide](./docs/migration-guide.md)**: Step-by-step modernization process
+- **[API Reference](./docs/api-reference.md)**: Complete API documentation
+- **[Command Mapping](./docs/command-mapping.md)**: AS/400 to OpenASP command reference
+- **[Deployment Guide](./docs/deployment.md)**: Production deployment instructions
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **AS/400 Community** for invaluable legacy system insights
+- **Open Source Ecosystem** for providing modern alternatives
+- **TensorFlow.js Team** for enabling client-side AI capabilities
+- **React Community** for building amazing developer tools
 
 ---
 
-*이 프로젝트는 기존 Create React App을 기반으로 구축되었습니다.*
+<div align="center">
 
-## Available Scripts
+**OpenASP Ecosystem** - Bridging Legacy and Future
 
-In the project directory, you can run:
+*From Mainframe to Modern: Empowering Digital Transformation*
 
-### `npm start`
+Built with ❤️ by the OpenASP Team
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+</div>

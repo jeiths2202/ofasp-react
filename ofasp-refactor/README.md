@@ -1,46 +1,153 @@
-# Getting Started with Create React App
+# 🚀 OpenASP Refactor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Modern web-based refactoring platform for migrating legacy AS/400 systems to open-source technologies.
 
-## Available Scripts
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 
-In the project directory, you can run:
+## ✨ Features
 
-### `npm start`
+### 🔄 **Code Refactoring**
+- **COBOL to Java**: Advanced syntax conversion with modern Java patterns
+- **CL to Shell/JavaScript**: Command language migration with full compatibility
+- **Real-time preview** with syntax highlighting and error detection
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 📚 **Documentation System**
+- **710 ASP Commands** mapped to open-source alternatives
+- **Interactive search** with filtering by category and priority
+- **Technical implementation guides** with detailed technology stacks
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🎨 **Modern Interface**
+- **Dark/Light themes** with smooth transitions
+- **Bilingual support** (Japanese/Korean) with context-aware switching
+- **Responsive design** optimized for all screen sizes
 
-### `npm test`
+### 🔒 **Security & Authentication**
+- **Session-based authentication** with secure login system
+- **Role-based access control** for different user levels
+- **External access support** via ngrok with proper security measures
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Quick Start
 
-### `npm run build`
+```bash
+# Clone the repository
+git clone https://github.com/jeiths2202/ofasp-react.git
+cd ofasp-react/ofasp-refactor
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Install dependencies
+npm install
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Start development server
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Visit `http://localhost:3005` to access the application.
 
-### `npm run eject`
+## 📖 Available Scripts
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start development server on port 3005 |
+| `npm run start:ja` | Start with Japanese as default language |
+| `npm run start:ko` | Start with Korean as default language |
+| `npm run build` | Build for production |
+| `npm test` | Run test suite |
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🏗️ Architecture
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
+OpenASP Refactor
+├── 🎨 Frontend (React + TypeScript)
+│   ├── Code refactoring interface
+│   ├── Documentation system
+│   └── Interactive command mapping
+├── 🔧 Backend Services
+│   ├── File server (Express.js)
+│   ├── RAG system (TensorFlow.js)
+│   └── Authentication layer
+└── 📚 Documentation
+    ├── ASP command mapping (710 commands)
+    ├── Technical implementation guides
+    └── Migration best practices
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## 🎯 Core Modules
 
-## Learn More
+### Code Refactoring Engine
+- **COBOL Parser**: Advanced syntax analysis and conversion
+- **CL Translator**: Command language to modern script migration
+- **Validation System**: Real-time error detection and suggestions
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Documentation Platform
+- **Command Mapping**: 710 ASP commands → Open source alternatives
+- **Technology Guides**: Node.js, PostgreSQL, React, Docker implementations
+- **Interactive Search**: Filter by complexity, priority, and category
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### RAG-Powered Chat
+- **TensorFlow.js Integration**: Real vector embeddings for document search
+- **Multilingual Support**: Japanese/Korean context-aware responses
+- **PDF Processing**: Automatic content extraction and indexing
+
+## 🌐 Technology Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 19, TypeScript, Tailwind CSS |
+| **Backend** | Node.js, Express.js, TensorFlow.js |
+| **Database** | PostgreSQL, Vector embeddings |
+| **Authentication** | JWT, bcrypt, Session management |
+| **Deployment** | Docker, nginx, PM2 |
+| **External** | ngrok, bore.pub (tunneling) |
+
+## 📱 Screenshots
+
+| Feature | Preview |
+|---------|---------|
+| **COBOL Refactoring** | Modern IDE-like interface with real-time conversion |
+| **Command Mapping** | Interactive table with 710 ASP commands |
+| **Documentation** | Comprehensive guides with search functionality |
+| **Chat System** | RAG-powered Q&A with Japanese/Korean support |
+
+## 🔧 Configuration
+
+### Environment Variables
+```bash
+REACT_APP_DEFAULT_LANG=ja    # Default language (ja/ko)
+PORT=3005                    # Application port
+HOST=0.0.0.0                # Host binding
+```
+
+### Language Support
+- **Japanese (ja)**: Default interface language
+- **Korean (ko)**: Alternative interface language
+- **Auto-detection**: Based on user query content in chat
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **AS/400 Community** for legacy system insights
+- **Open Source Technologies** for modern alternatives
+- **TensorFlow.js** for ML-powered document processing
+
+---
+
+<div align="center">
+
+**OpenASP Refactor** - Bridging Legacy and Modern
+
+Built with ❤️ by the OpenASP Team
+
+</div>
