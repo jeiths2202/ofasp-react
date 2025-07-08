@@ -1,7 +1,7 @@
 {
   "common": {
     "dashboard": "ダッシュボード",
-    "settings": "設定",
+    "settings": "AI Transform",
     "documentation": "ドキュメント",
     "chat": "チャット",
     "loading": "読み込み中...",
@@ -18,20 +18,20 @@
     "close": "閉じる"
   },
   "navigation": {
-    "cobolRefactor": "COBOLリファクタリング",
-    "clRefactor": "CLリファクタリング"
+    "cobolAX": "COBOL AX",
+    "clAX": "CL AX"
   },
   "dashboard": {
-    "title": "OpenASP Refactor Tool",
-    "subtitle": "ASPアプリケーションをOpen環境に移行するリファクタリングツールです。",
-    "cobolTitle": "COBOLリファクタリング",
+    "title": "OpenASP AX Tool",
+    "subtitle": "ASPアプリケーションをOpen環境に移行するAIトランスフォーメーションツールです。",
+    "cobolTitle": "COBOL AX",
     "cobolDescription": "COBOLプログラムをJava、C、Shell Script、Pythonに変換します。",
     "cobolFeatures": [
       "データ構造変換",
       "ビジネスロジック移行",
       "ファイル処理ロジック変換"
     ],
-    "clTitle": "CLリファクタリング", 
+    "clTitle": "CL AX", 
     "clDescription": "CL(Control Language)スクリプトをShell、JavaScript、Pythonに変換します。",
     "clFeatures": [
       "ファイル操作コマンド変換",
@@ -54,34 +54,34 @@
       }
     ]
   },
-  "cobolRefactor": {
-    "title": "COBOLリファクタリング",
-    "subtitle": "ASP COBOLプログラムをOpen環境の様々な言語にリファクタリングします。",
-    "settingsTitle": "リファクタリング設定",
+  "cobolAX": {
+    "title": "COBOL AX",
+    "subtitle": "ASP COBOLプログラムをOpen環境の様々な言語にAX変換します。",
+    "settingsTitle": "AX設定",
     "targetLanguage": "対象言語選択",
     "quickActions": "クイックアクション",
     "loadSample": "サンプルCOBOLロード",
     "sourceCode": "COBOLソースコード",
     "sourcePlaceholder": "COBOLソースコードを入力してください...",
-    "refactoring": "リファクタリング中...",
-    "executeRefactor": "リファクタリング実行",
-    "refactoredCode": "コード",
-    "refactoredPlaceholder": "リファクタリングされた{language}コードがここに表示されます...",
+    "transforming": "AX変換中...",
+    "executeTransform": "AX変換実行",
+    "transformedCode": "コード",
+    "transformedPlaceholder": "AX変換された{language}コードがここに表示されます...",
     "converting": "COBOLコードを{language}に変換中..."
   },
-  "clRefactor": {
-    "title": "CLリファクタリング",
-    "subtitle": "ASP CL(Control Language)スクリプトをOpen環境のインタープリター言語にリファクタリングします。",
-    "settingsTitle": "リファクタリング設定",
+  "clAX": {
+    "title": "CL AX",
+    "subtitle": "ASP CL(Control Language)スクリプトをOpen環境のインタープリター言語にAX変換します。",
+    "settingsTitle": "AX設定",
     "targetLanguage": "対象言語選択",
     "quickActions": "クイックアクション",
     "loadSample": "サンプルCLロード",
     "sourceCode": "CLソースコード",
     "sourcePlaceholder": "CLソースコードを入力してください...",
-    "refactoring": "リファクタリング中...",
-    "executeRefactor": "リファクタリング実行",
-    "refactoredCode": "コード",
-    "refactoredPlaceholder": "リファクタリングされた{language}コードがここに表示されます...",
+    "transforming": "AX変換中...",
+    "executeTransform": "AX変換実行",
+    "transformedCode": "コード",
+    "transformedPlaceholder": "AX変換された{language}コードがここに表示されます...",
     "converting": "CLコードを{language}に変換中...",
     "commandReference": "主要CLコマンド変換リファレンス",
     "fileOperations": "ファイル操作",
@@ -113,6 +113,6 @@
     "javascript": "JavaScript"
   },
   "user": {
-    "role": "リファクタリング管理者"
+    "role": "AX管理者"
   }
 }

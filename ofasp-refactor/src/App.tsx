@@ -10,8 +10,9 @@ import {
 } from '@heroicons/react/24/outline';
 import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
-import CobolRefactorPage from './pages/CobolRefactorPage';
-import ClRefactorPage from './pages/ClRefactorPage';
+import CobolAXPage from './pages/CobolAXPage';
+import ClAXPage from './pages/ClAXPage';
+import AITransformPage from './pages/AITransformPage';
 import DocumentationPage from './pages/DocumentationPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
@@ -30,7 +31,7 @@ function App() {
     if (userInfo) {
       try {
         const parsedUser = JSON.parse(userInfo);
-        if (parsedUser.app === 'ofasp-refactor') {
+        if (parsedUser.app === 'ofasp-ax') {
           setIsLoggedIn(true);
         }
       } catch (error) {
@@ -124,11 +125,14 @@ function App() {
     switch (item.id) {
       case 'dashboard':
         return;
-      case 'cobol-refactor':
-        content = <CobolRefactorPage isDarkMode={theme.mode === 'dark'} />;
+      case 'cobol-ax':
+        content = <CobolAXPage isDarkMode={theme.mode === 'dark'} />;
         break;
-      case 'cl-refactor':
-        content = <ClRefactorPage isDarkMode={theme.mode === 'dark'} />;
+      case 'cl-ax':
+        content = <ClAXPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'ai-transform':
+        content = <AITransformPage isDarkMode={theme.mode === 'dark'} />;
         break;
       case 'docs':
         content = <DocumentationPage isDarkMode={theme.mode === 'dark'} />;
@@ -236,10 +240,10 @@ function App() {
 
   const getMenuItems = (t: (key: string) => string): MenuItem[] => [
     { id: 'dashboard', label: t('common.dashboard'), icon: <HomeIcon /> },
-    { id: 'cobol-refactor', label: t('navigation.cobolRefactor'), icon: <CodeBracketIcon /> },
-    { id: 'cl-refactor', label: t('navigation.clRefactor'), icon: <CommandLineIcon /> },
+    { id: 'cobol-ax', label: t('navigation.cobolAX'), icon: <CodeBracketIcon /> },
+    { id: 'cl-ax', label: t('navigation.clAX'), icon: <CommandLineIcon /> },
+    { id: 'ai-transform', label: 'AI Transform', icon: <CogIcon /> },
     { id: 'docs', label: t('common.documentation'), icon: <BookOpenIcon /> },
-    { id: 'settings', label: t('common.settings'), icon: <CogIcon /> },
     { id: 'chat', label: t('common.chat'), icon: <ChatBubbleLeftRightIcon /> },
   ];
 
@@ -279,7 +283,7 @@ function App() {
         <iframe 
           src="/login.html" 
           className="w-full h-full border-none"
-          title="OpenASP Refactor Login"
+          title="OpenASP AX Login"
         />
       </div>
     );

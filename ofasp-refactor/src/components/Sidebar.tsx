@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
           {effectiveExpanded && (
             <span className="ml-3 text-lg font-semibold text-gray-900 dark:text-white animate-fade-in">
-              OpenASP Refactor
+              OpenASP AX
             </span>
           )}
         </div>
@@ -214,7 +214,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {currentUser.userId}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-              OpenASP Refactor
+              OpenASP AX
             </div>
             <button
               onClick={handleLogout}

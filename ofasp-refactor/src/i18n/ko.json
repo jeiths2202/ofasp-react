@@ -1,7 +1,7 @@
 {
   "common": {
     "dashboard": "대시보드",
-    "settings": "설정",
+    "settings": "AI Transform",
     "documentation": "문서",
     "chat": "채팅",
     "loading": "로딩 중...",
@@ -18,20 +18,20 @@
     "close": "닫기"
   },
   "navigation": {
-    "cobolRefactor": "COBOL 리팩토링",
-    "clRefactor": "CL 리팩토링"
+    "cobolAX": "COBOL AX",
+    "clAX": "CL AX"
   },
   "dashboard": {
-    "title": "OpenASP Refactor Tool",
-    "subtitle": "ASP 애플리케이션을 Open 환경으로 마이그레이션하는 리팩토링 도구입니다.",
-    "cobolTitle": "COBOL Refactoring",
+    "title": "OpenASP AX Tool",
+    "subtitle": "ASP 애플리케이션을 Open 환경으로 마이그레이션하는 AI 트랜스포메이션 도구입니다.",
+    "cobolTitle": "COBOL AX",
     "cobolDescription": "COBOL 프로그램을 Java, C, Shell Script, Python으로 변환합니다.",
     "cobolFeatures": [
       "데이터 구조 변환",
       "비즈니스 로직 마이그레이션", 
       "파일 처리 로직 변환"
     ],
-    "clTitle": "CL Refactoring",
+    "clTitle": "CL AX",
     "clDescription": "CL(Control Language) 스크립트를 Shell, JavaScript, Python으로 변환합니다.",
     "clFeatures": [
       "파일 작업 명령어 변환",
@@ -54,34 +54,34 @@
       }
     ]
   },
-  "cobolRefactor": {
-    "title": "COBOL 리팩토링",
-    "subtitle": "ASP COBOL 프로그램을 Open 환경의 다양한 언어로 리팩토링합니다.",
-    "settingsTitle": "리팩토링 설정",
+  "cobolAX": {
+    "title": "COBOL AX",
+    "subtitle": "ASP COBOL 프로그램을 Open 환경의 다양한 언어로 AX 변환합니다.",
+    "settingsTitle": "AX 설정",
     "targetLanguage": "대상 언어 선택",
     "quickActions": "빠른 작업",
     "loadSample": "샘플 COBOL 로드",
     "sourceCode": "COBOL 소스 코드",
     "sourcePlaceholder": "COBOL 소스 코드를 입력하세요...",
-    "refactoring": "리팩토링 중...",
-    "executeRefactor": "리팩토링 실행",
-    "refactoredCode": "코드",
-    "refactoredPlaceholder": "리팩토링된 {language} 코드가 여기에 표시됩니다...",
+    "transforming": "AX 변환 중...",
+    "executeTransform": "AX 변환 실행",
+    "transformedCode": "코드",
+    "transformedPlaceholder": "AX 변환된 {language} 코드가 여기에 표시됩니다...",
     "converting": "COBOL 코드를 {language}로 변환 중..."
   },
-  "clRefactor": {
-    "title": "CL 리팩토링",
-    "subtitle": "Fujitsu ASP CL(Control Language) 스크립트를 Open 환경의 인터프리터 언어로 리팩토링합니다.",
-    "settingsTitle": "리팩토링 설정",
+  "clAX": {
+    "title": "CL AX",
+    "subtitle": "Fujitsu ASP CL(Control Language) 스크립트를 Open 환경의 인터프리터 언어로 AX 변환합니다.",
+    "settingsTitle": "AX 설정",
     "targetLanguage": "대상 언어 선택",
     "quickActions": "빠른 작업",
     "loadSample": "샘플 CL 로드",
     "sourceCode": "CL 소스 코드",
     "sourcePlaceholder": "CL 소스 코드를 입력하세요...",
-    "refactoring": "리팩토링 중...",
-    "executeRefactor": "리팩토링 실행",
-    "refactoredCode": "코드",
-    "refactoredPlaceholder": "리팩토링된 {language} 코드가 여기에 표시됩니다...",
+    "transforming": "AX 변환 중...",
+    "executeTransform": "AX 변환 실행",
+    "transformedCode": "코드",
+    "transformedPlaceholder": "AX 변환된 {language} 코드가 여기에 표시됩니다...",
     "converting": "CL 코드를 {language}로 변환 중...",
     "commandReference": "주요 CL 명령어 변환 참조",
     "fileOperations": "파일 작업",
@@ -113,6 +113,6 @@
     "javascript": "JavaScript"
   },
   "user": {
-    "role": "리팩토링 관리자"
+    "role": "AX 관리자"
   }
 }
