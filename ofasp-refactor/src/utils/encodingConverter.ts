@@ -4,6 +4,9 @@
  * Supports multiple encoding types and conversion modes
  */
 
+import { BYTE_RANGES, JAPANESE_CODES, SOSI_CODES, REPLACEMENT_CHARS } from '../constants/encoding';
+import { PATHS } from '../constants/paths';
+
 export interface ConversionMap {
   singleByte: Uint8Array;  // Single-byte conversion array
   doubleByte: Uint16Array; // 16-bit values for double-byte conversion
@@ -74,7 +77,6 @@ class EncodingConverter {
   }
 
   private async createEBCDICToASCIIMap(encoding: EncodingType): Promise<ConversionMap> {
-    const { BYTE_RANGES } = require('../constants/encoding');
     const byteType = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
     
     // Load code page table from file
@@ -96,7 +98,6 @@ class EncodingConverter {
   }
 
   private async createASCIIToEBCDICMap(encoding: EncodingType): Promise<ConversionMap> {
-    const { BYTE_RANGES } = require('../constants/encoding');
     const byteType = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
     
     // Load code page table from file
@@ -119,7 +120,6 @@ class EncodingConverter {
 
   private async loadCodePageTable(filePath: string): Promise<{ singleByte: Uint8Array; doubleByte: Uint16Array }> {
     // Load code page table from file
-    const { BYTE_RANGES } = require('../constants/encoding');
     const singleByte = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
     const doubleByte = new Uint16Array(BYTE_RANGES.DOUBLE_BYTE_ARRAY_SIZE); // Changed to Uint16Array to handle values > 255
     
@@ -199,8 +199,7 @@ class EncodingConverter {
   }
 
   private getCodePageFilePath(encoding: EncodingType, mode: ConversionMode): string {
-    // Import paths configuration
-    const { PATHS } = require('../constants/paths');
+    // Use paths configuration
     
     const pathMap = mode === ConversionMode.EBCDIC_TO_ASCII 
       ? PATHS.CODE_PAGES.EBCDIC_TO_ASCII 
@@ -298,7 +297,6 @@ class EncodingConverter {
     debugCallback?.(`바이트별 변환 시작...`);
     
     // SOSI processing variables
-    const { SOSI_CODES } = require('../constants/encoding');
     let sosiCodes: { SO: number; SI: number };
     
     if (options.sosiType === 'custom') {
@@ -417,7 +415,6 @@ class EncodingConverter {
               // Process double-byte conversion based on actual code page table
               if (converted === 0) {
                 // Unmapped double-byte character
-                const { REPLACEMENT_CHARS } = require('../constants/encoding');
                 result += REPLACEMENT_CHARS.UNMAPPED_DOUBLE;
                 debugCallback?.(`  ⚠️ 매핑되지 않은 더블바이트: 0x${doubleByteIndex.toString(16).toUpperCase()} → '${REPLACEMENT_CHARS.UNMAPPED_DOUBLE}'`);
               } else {
@@ -428,7 +425,6 @@ class EncodingConverter {
                 
                 if (highByte === 0) {
                   // Single byte result - safe to use String.fromCharCode
-                  const { BYTE_RANGES, REPLACEMENT_CHARS } = require('../constants/encoding');
                   if (lowByte >= BYTE_RANGES.ASCII_PRINTABLE_START && lowByte <= BYTE_RANGES.ASCII_PRINTABLE_END) {
                     // ASCII printable range
                     result += String.fromCharCode(lowByte);
@@ -441,7 +437,6 @@ class EncodingConverter {
                 } else {
                   // Two byte result - this is where the 0xC2 issue occurs
                   // For Japanese encodings, convert to appropriate Unicode or use safe fallback
-                  const { REPLACEMENT_CHARS, JAPANESE_CODES } = require('../constants/encoding');
                   
                   if (converted === JAPANESE_CODES.FULL_WIDTH_SPACE) {
                     // 0x8140 is typically Japanese full-width space
