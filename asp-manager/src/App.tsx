@@ -13,6 +13,7 @@ import TabSystem from './components/TabSystem';
 import DashboardPage from './pages/DashboardPage';
 import SmedMapPage from './pages/SmedMapPage';
 import ChatPage from './pages/ChatPage';
+import ASPWebUITerminal from './components/ASPWebUITerminal';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 
@@ -89,6 +90,7 @@ function App() {
     { id: 'dashboard', label: 'ダッシュボード', icon: <HomeIcon /> },
     { id: 'asp-online', label: 'ASPオンライン', icon: <PlayIcon /> },
     { id: 'asp-batch', label: 'ASPバッチ', icon: <CommandLineIcon /> },
+    { id: 'asp-webui', label: 'ASP WebUI', icon: <CommandLineIcon /> },
     { id: 'accounts', label: 'アカウント管理', icon: <UserGroupIcon /> },
     { id: 'smed-maps', label: 'SMEDマップ管理', icon: <DocumentTextIcon />, badge: 3 },
     { id: 'programs', label: 'プログラム管理', icon: <CpuChipIcon /> },
@@ -170,6 +172,13 @@ function App() {
         break;
       case 'smed-maps':
         content = <SmedMapPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'asp-webui':
+        content = (
+          <div className="h-full flex items-center justify-center bg-black">
+            <ASPWebUITerminal isDarkMode={theme.mode === 'dark'} />
+          </div>
+        );
         break;
       default:
         content = (
