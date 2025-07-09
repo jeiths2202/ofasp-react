@@ -7,12 +7,14 @@ import {
   CogIcon,
   BookOpenIcon,
   ChatBubbleLeftRightIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline';
 import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
 import CobolAXPage from './pages/CobolAXPage';
 import ClAXPage from './pages/ClAXPage';
 import AITransformPage from './pages/AITransformPage';
+import ToolsPage from './pages/ToolsPage';
 import DocumentationPage from './pages/DocumentationPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
@@ -134,6 +136,9 @@ function App() {
       case 'ai-transform':
         content = <AITransformPage isDarkMode={theme.mode === 'dark'} />;
         break;
+      case 'tools':
+        content = <ToolsPage isDarkMode={theme.mode === 'dark'} />;
+        break;
       case 'docs':
         content = <DocumentationPage isDarkMode={theme.mode === 'dark'} />;
         break;
@@ -243,6 +248,7 @@ function App() {
     { id: 'cobol-ax', label: t('navigation.cobolAX'), icon: <CodeBracketIcon /> },
     { id: 'cl-ax', label: t('navigation.clAX'), icon: <CommandLineIcon /> },
     { id: 'ai-transform', label: 'AI Transform', icon: <CogIcon /> },
+    { id: 'tools', label: 'Tools', icon: <WrenchScrewdriverIcon /> },
     { id: 'docs', label: t('common.documentation'), icon: <BookOpenIcon /> },
     { id: 'chat', label: t('common.chat'), icon: <ChatBubbleLeftRightIcon /> },
   ];
