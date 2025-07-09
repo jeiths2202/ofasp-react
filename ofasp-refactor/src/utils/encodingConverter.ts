@@ -5,9 +5,9 @@
  */
 
 export interface ConversionMap {
-  singleByte: Uint8Array;  // 256 bytes for single-byte conversion
-  doubleByte: Uint16Array; // 65536 16-bit values for double-byte conversion
-  byteType: Uint8Array;    // 256 bytes indicating single(0) or double(1) byte
+  singleByte: Uint8Array;  // Single-byte conversion array
+  doubleByte: Uint16Array; // 16-bit values for double-byte conversion
+  byteType: Uint8Array;    // Byte type indicator array
   convertType: number;     // Conversion direction
 }
 
@@ -74,7 +74,8 @@ class EncodingConverter {
   }
 
   private async createEBCDICToASCIIMap(encoding: EncodingType): Promise<ConversionMap> {
-    const byteType = new Uint8Array(256);
+    const { BYTE_RANGES } = require('../constants/encoding');
+    const byteType = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
     
     // Load code page table from file
     const filePath = this.getCodePageFilePath(encoding, ConversionMode.EBCDIC_TO_ASCII);
@@ -82,7 +83,7 @@ class EncodingConverter {
     
     // All bytes are treated as single-byte by default
     // Double-byte processing only happens within SOSI blocks
-    for (let i = 0; i < 256; i++) {
+    for (let i = 0; i < BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE; i++) {
       byteType[i] = 0; // Single byte by default
     }
 
@@ -95,7 +96,8 @@ class EncodingConverter {
   }
 
   private async createASCIIToEBCDICMap(encoding: EncodingType): Promise<ConversionMap> {
-    const byteType = new Uint8Array(256);
+    const { BYTE_RANGES } = require('../constants/encoding');
+    const byteType = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
     
     // Load code page table from file
     const filePath = this.getCodePageFilePath(encoding, ConversionMode.ASCII_TO_EBCDIC);
@@ -103,7 +105,7 @@ class EncodingConverter {
     
     // All bytes are treated as single-byte by default
     // Double-byte processing only happens within SOSI blocks
-    for (let i = 0; i < 256; i++) {
+    for (let i = 0; i < BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE; i++) {
       byteType[i] = 0; // Single byte by default
     }
 
@@ -117,8 +119,9 @@ class EncodingConverter {
 
   private async loadCodePageTable(filePath: string): Promise<{ singleByte: Uint8Array; doubleByte: Uint16Array }> {
     // Load code page table from file
-    const singleByte = new Uint8Array(256);
-    const doubleByte = new Uint16Array(65536); // Changed to Uint16Array to handle values > 255
+    const { BYTE_RANGES } = require('../constants/encoding');
+    const singleByte = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
+    const doubleByte = new Uint16Array(BYTE_RANGES.DOUBLE_BYTE_ARRAY_SIZE); // Changed to Uint16Array to handle values > 255
     
     try {
       console.log(`Loading code page table from: ${filePath}`);
@@ -157,7 +160,7 @@ class EncodingConverter {
           const to = parseInt(match[2], 16);
           
           if (isDoubleByte) {
-            if (from < 65536 && to !== 0) {
+            if (from < BYTE_RANGES.DOUBLE_BYTE_ARRAY_SIZE && to !== 0) {
               doubleByte[from] = to;
               doubleByteCount++;
               // Debug specific mapping
@@ -168,7 +171,7 @@ class EncodingConverter {
               }
             }
           } else {
-            if (from < 256) {
+            if (from < BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE) {
               singleByte[from] = to;
               singleByteCount++;
               // Debug single byte mapping that might conflict
@@ -196,40 +199,32 @@ class EncodingConverter {
   }
 
   private getCodePageFilePath(encoding: EncodingType, mode: ConversionMode): string {
-    // Return the appropriate code page file path based on encoding and conversion mode
-    const basePath = '/codepages/';
+    // Import paths configuration
+    const { PATHS } = require('../constants/paths');
+    
+    const pathMap = mode === ConversionMode.EBCDIC_TO_ASCII 
+      ? PATHS.CODE_PAGES.EBCDIC_TO_ASCII 
+      : PATHS.CODE_PAGES.ASCII_TO_EBCDIC;
     
     switch (encoding) {
       case EncodingType.US:
-        return mode === ConversionMode.EBCDIC_TO_ASCII 
-          ? `${basePath}EBCASCUS.txt` 
-          : `${basePath}ASCEBCUS.txt`;
+        return pathMap.US;
       
       case EncodingType.JP:
-        return mode === ConversionMode.EBCDIC_TO_ASCII 
-          ? `${basePath}EBCASCJP.txt` 
-          : `${basePath}ASCEBCJP.txt`;
+        return pathMap.JP;
       
       case EncodingType.JAK:
-        return mode === ConversionMode.EBCDIC_TO_ASCII 
-          ? `${basePath}JEFASCK.txt` 
-          : `${basePath}ASCJEFK.txt`;
+        return pathMap.JAK;
       
       case EncodingType.KEIS:
-        return mode === ConversionMode.EBCDIC_TO_ASCII 
-          ? `${basePath}KEISASCK.txt` 
-          : `${basePath}ASCJEISK.txt`;
+        return pathMap.KEIS;
       
       case EncodingType.KR:
         // Use US tables as fallback for KR (no specific KR tables provided)
-        return mode === ConversionMode.EBCDIC_TO_ASCII 
-          ? `${basePath}EBCASCUS.txt` 
-          : `${basePath}ASCEBCUS.txt`;
+        return pathMap.US;
       
       default:
-        return mode === ConversionMode.EBCDIC_TO_ASCII 
-          ? `${basePath}EBCASCUS.txt` 
-          : `${basePath}ASCEBCUS.txt`;
+        return pathMap.US;
     }
   }
 
@@ -303,17 +298,18 @@ class EncodingConverter {
     debugCallback?.(`바이트별 변환 시작...`);
     
     // SOSI processing variables
+    const { SOSI_CODES } = require('../constants/encoding');
     let sosiCodes: { SO: number; SI: number };
     
     if (options.sosiType === 'custom') {
-      const customSO = parseInt(options.customSO || '0E', 16);
-      const customSI = parseInt(options.customSI || '0F', 16);
+      const customSO = parseInt(options.customSO || SOSI_CODES.DEFAULT_SO.toString(16), 16);
+      const customSI = parseInt(options.customSI || SOSI_CODES.DEFAULT_SI.toString(16), 16);
       sosiCodes = { SO: customSO, SI: customSI };
       debugCallback?.(`커스텀 SOSI 코드 파싱: SO=${options.customSO}(${customSO}), SI=${options.customSI}(${customSI})`);
     } else if (options.sosiType === '1E1F') {
-      sosiCodes = { SO: 0x1E, SI: 0x1F };
+      sosiCodes = { SO: SOSI_CODES.ALTERNATE_SO, SI: SOSI_CODES.ALTERNATE_SI };
     } else {
-      sosiCodes = { SO: 0x0E, SI: 0x0F };
+      sosiCodes = { SO: SOSI_CODES.DEFAULT_SO, SI: SOSI_CODES.DEFAULT_SI };
     }
     
     let isInDoubleByte = false;
@@ -324,10 +320,12 @@ class EncodingConverter {
     } else {
       // Check if input contains potential SOSI codes and warn user
       const hasPotentialSOSI = bytes.some(byte => 
-        byte === 0x0E || byte === 0x0F || byte === 0x1E || byte === 0x1F
+        byte === SOSI_CODES.DEFAULT_SO || byte === SOSI_CODES.DEFAULT_SI || 
+        byte === SOSI_CODES.ALTERNATE_SO || byte === SOSI_CODES.ALTERNATE_SI
       );
       if (hasPotentialSOSI) {
-        debugCallback?.(`⚠️ 경고: 입력에 잠재적 SOSI 코드가 포함됨 (0x0E, 0x0F, 0x1E, 0x1F). SOSI 모드를 활성화하면 올바른 변환이 가능할 수 있습니다.`);
+        const sosiCodesStr = `0x${SOSI_CODES.DEFAULT_SO.toString(16).toUpperCase()}, 0x${SOSI_CODES.DEFAULT_SI.toString(16).toUpperCase()}, 0x${SOSI_CODES.ALTERNATE_SO.toString(16).toUpperCase()}, 0x${SOSI_CODES.ALTERNATE_SI.toString(16).toUpperCase()}`;
+        debugCallback?.(`⚠️ 경고: 입력에 잠재적 SOSI 코드가 포함됨 (${sosiCodesStr}). SOSI 모드를 활성화하면 올바른 변환이 가능할 수 있습니다.`);
       }
     }
     
@@ -419,21 +417,45 @@ class EncodingConverter {
               // Process double-byte conversion based on actual code page table
               if (converted === 0) {
                 // Unmapped double-byte character
-                result += '??';
-                debugCallback?.(`  ⚠️ 매핑되지 않은 더블바이트: 0x${doubleByteIndex.toString(16).toUpperCase()} → '??'`);
+                const { REPLACEMENT_CHARS } = require('../constants/encoding');
+                result += REPLACEMENT_CHARS.UNMAPPED_DOUBLE;
+                debugCallback?.(`  ⚠️ 매핑되지 않은 더블바이트: 0x${doubleByteIndex.toString(16).toUpperCase()} → '${REPLACEMENT_CHARS.UNMAPPED_DOUBLE}'`);
               } else {
-                // Convert the mapped value to two ASCII bytes
+                // For Japanese double-byte mappings like 0x8140, we need to handle them as single Unicode characters
+                // rather than splitting into two bytes which causes UTF-8 encoding issues
                 const highByte = (converted >> 8) & 0xFF;
                 const lowByte = converted & 0xFF;
                 
                 if (highByte === 0) {
-                  // Single byte result
-                  result += String.fromCharCode(lowByte);
-                  debugCallback?.(`  → ASCII: 0x${lowByte.toString(16).toUpperCase()} ('${String.fromCharCode(lowByte)}')`);
+                  // Single byte result - safe to use String.fromCharCode
+                  const { BYTE_RANGES, REPLACEMENT_CHARS } = require('../constants/encoding');
+                  if (lowByte >= BYTE_RANGES.ASCII_PRINTABLE_START && lowByte <= BYTE_RANGES.ASCII_PRINTABLE_END) {
+                    // ASCII printable range
+                    result += String.fromCharCode(lowByte);
+                    debugCallback?.(`  → ASCII: 0x${lowByte.toString(16).toUpperCase()} ('${String.fromCharCode(lowByte)}')`);
+                  } else {
+                    // Non-printable or extended ASCII - use space as safe fallback
+                    result += REPLACEMENT_CHARS.SPACE;
+                    debugCallback?.(`  → ASCII: 0x${lowByte.toString(16).toUpperCase()} (non-printable, using space)`);
+                  }
                 } else {
-                  // Two byte result
-                  result += String.fromCharCode(highByte) + String.fromCharCode(lowByte);
-                  debugCallback?.(`  → ASCII: 0x${highByte.toString(16).toUpperCase()}${lowByte.toString(16).toUpperCase()} ('${String.fromCharCode(highByte)}${String.fromCharCode(lowByte)}')`);
+                  // Two byte result - this is where the 0xC2 issue occurs
+                  // For Japanese encodings, convert to appropriate Unicode or use safe fallback
+                  const { REPLACEMENT_CHARS, JAPANESE_CODES } = require('../constants/encoding');
+                  
+                  if (converted === JAPANESE_CODES.FULL_WIDTH_SPACE) {
+                    // 0x8140 is typically Japanese full-width space
+                    result += '　'; // Full-width space (U+3000)
+                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (Japanese full-width space)`);
+                  } else if (highByte >= JAPANESE_CODES.SHIFT_JIS_FIRST_BYTE_START && highByte <= JAPANESE_CODES.SHIFT_JIS_FIRST_BYTE_END) {
+                    // Shift-JIS first byte range - use safe fallback
+                    result += REPLACEMENT_CHARS.SPACE;
+                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (Shift-JIS range, using space)`);
+                  } else {
+                    // Other double-byte combinations - use safe fallback
+                    result += REPLACEMENT_CHARS.SPACE;
+                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (double-byte, using space)`);
+                  }
                 }
               }
             } else {

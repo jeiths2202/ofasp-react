@@ -33,10 +33,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "BROWSER=none PORT=3005 HOST=0.0.0.0 REACT_APP_DEFAULT_LANG=ja react-scripts start",
-    "start:ja": "BROWSER=none PORT=3005 HOST=0.0.0.0 REACT_APP_DEFAULT_LANG=ja react-scripts start",
-    "start:ko": "BROWSER=none PORT=3005 HOST=0.0.0.0 REACT_APP_DEFAULT_LANG=ko react-scripts start",
-    "build": "REACT_APP_DEFAULT_LANG=ja react-scripts build",
+    "start": "BROWSER=none react-scripts start",
+    "start:ja": "BROWSER=none REACT_APP_DEFAULT_LANG=ja react-scripts start",
+    "start:ko": "BROWSER=none REACT_APP_DEFAULT_LANG=ko react-scripts start",
+    "build": "react-scripts build",
     "build:ja": "REACT_APP_DEFAULT_LANG=ja react-scripts build",
     "build:ko": "REACT_APP_DEFAULT_LANG=ko react-scripts build",
     "test": "react-scripts test",

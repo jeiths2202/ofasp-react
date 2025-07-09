@@ -3,20 +3,21 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const { SERVER_CONFIG, PATHS, CORS_CONFIG } = require('./config');
 
 const app = express();
-const PORT = 3001;
+const PORT = SERVER_CONFIG.PDF_CONVERTER.PORT;
 
 app.use(cors({
-  origin: ['http://localhost:3005', 'http://localhost:3000'],
-  credentials: true
+  origin: CORS_CONFIG.ALLOWED_ORIGINS,
+  credentials: CORS_CONFIG.CREDENTIALS
 }));
 app.use(express.json());
 
 // PDF 파일 목록 가져오기
 app.get('/api/pdf-files', (req, res) => {
   try {
-    const aspManualsPath = '/data/asp-manuals';
+    const aspManualsPath = PATHS.ASP_MANUALS;
     
     function findPdfFiles(dir, basePath = '') {
       const files = [];
@@ -66,7 +67,7 @@ app.post('/api/convert-pdf', async (req, res) => {
       return res.status(400).json({ error: 'File path and output format are required' });
     }
     
-    const fullPath = path.resolve('/data/asp-manuals', filePath);
+    const fullPath = path.resolve(PATHS.ASP_MANUALS, filePath);
     
     console.log(`Requested file path: ${filePath}`);
     console.log(`Full path: ${fullPath}`);
@@ -153,7 +154,7 @@ Marker PDFライブラリに技術的な問題が発生しており、現在デ�
 </html>`;
 
     // 임시 출력 디렉토리 생성
-    const tempDir = '/tmp/pdf_conversion';
+    const tempDir = PATHS.TEMP_CONVERSION;
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
@@ -184,7 +185,7 @@ Marker PDFライブラリに技術的な問題が発生しており、現在デ�
 app.get('/api/images/:dir/:filename', (req, res) => {
   try {
     const { dir, filename } = req.params;
-    const imagePath = path.join('/tmp/pdf_conversion', dir, filename);
+    const imagePath = path.join(PATHS.TEMP_CONVERSION, dir, filename);
     
     if (fs.existsSync(imagePath)) {
       res.sendFile(imagePath);
@@ -207,7 +208,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`PDF Converter server running on http://localhost:${PORT}`);
+  console.log(`PDF Converter server running on http://${SERVER_CONFIG.PDF_CONVERTER.HOST}:${PORT}`);
 });
 
 module.exports = app;

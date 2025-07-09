@@ -2,12 +2,16 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const { SERVER_CONFIG, CORS_CONFIG } = require('./config');
 
 const app = express();
-const PORT = 3006;
+const PORT = SERVER_CONFIG.FILE_SERVER.PORT;
 
 // CORS 설정
-app.use(cors());
+app.use(cors({
+  origin: CORS_CONFIG.ALLOWED_ORIGINS,
+  credentials: CORS_CONFIG.CREDENTIALS
+}));
 app.use(express.json());
 
 // 파일 읽기 API
@@ -46,7 +50,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`File server running on http://localhost:${PORT}`);
+  console.log(`File server running on http://${SERVER_CONFIG.FILE_SERVER.HOST}:${PORT}`);
 });
 
 module.exports = app;
