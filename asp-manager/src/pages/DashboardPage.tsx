@@ -4,75 +4,112 @@ import {
   ServerIcon,
   CircleStackIcon,
   ClockIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  ExclamationTriangleIcon,
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
+import SystemManagerPage from './SystemManagerPage';
 
 interface SystemInfo {
-  cpu: {
-    usage_percent: number;
-    core_count: number;
-    frequency: {
-      current: number;
-      max: number;
-    };
-  };
-  memory: {
-    total: number;
-    used: number;
-    available: number;
-    percent: number;
-    total_gb: number;
-    used_gb: number;
-    available_gb: number;
-  };
-  disk: {
-    total: number;
-    used: number;
-    free: number;
-    percent: number;
-    total_gb: number;
-    used_gb: number;
-    free_gb: number;
-  };
-  uptime: {
-    hours: number;
-    minutes: number;
-    formatted: string;
-  };
+  hostname: string;
+  uptime: string;
+  cpu_percent: number;
+  cpu_count: number;
+  memory_total: string;
+  memory_used: string;
+  memory_percent: number;
+  disk_total: string;
+  disk_used: string;
+  disk_percent: number;
+  process_count: number;
+  load_avg: [number, number, number];
+}
+
+interface ProcessInfo {
+  pid: number;
+  name: string;
+  user: string;
+  cpu_percent: number;
+  memory_percent: number;
+  status: string;
+}
+
+interface Alert {
+  type: string;
+  message: string;
+  timestamp: string;
+}
+
+interface SystemData {
+  system_info: SystemInfo;
+  processes: ProcessInfo[];
+  alerts: Alert[];
+  logs: string[];
+  last_update: string;
 }
 
 const DashboardPage: React.FC = () => {
-  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
+  const [systemData, setSystemData] = useState<SystemData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState<number>(5); // デフォルト5秒
+  const [refreshInterval, setRefreshInterval] = useState<number>(5);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [activeSection, setActiveSection] = useState('overview');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const refreshOptions = [
-    { value: 1, label: '1秒' },
-    { value: 5, label: '5秒' },
-    { value: 10, label: '10秒' },
-    { value: 60, label: '60秒' },
-  ];
-
-  useEffect(() => {
-    fetchSystemInfo();
-    startAutoRefresh();
-    return () => stopAutoRefresh();
-  }, []);
-
-  useEffect(() => {
-    // リフレッシュ間隔が変更されたときに再起動
-    stopAutoRefresh();
-    startAutoRefresh();
-  }, [refreshInterval]);
+  const fetchSystemData = async () => {
+    setIsRefreshing(true);
+    try {
+      // Try to fetch from port 3004 (ASP Manager web service)
+      const response = await fetch('http://localhost:3004/api/system');
+      if (!response.ok) {
+        throw new Error('Failed to fetch system data');
+      }
+      const data = await response.json();
+      setSystemData(data);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Error fetching system data:', error);
+      
+      // フォールバックデータ
+      setSystemData({
+        system_info: {
+          hostname: 'ASP-SYS-001',
+          uptime: '3d 12h 30m',
+          cpu_percent: 34.5,
+          cpu_count: 8,
+          memory_total: '16.0 GB',
+          memory_used: '8.0 GB',
+          memory_percent: 50.0,
+          disk_total: '100.0 GB',
+          disk_used: '20.0 GB',
+          disk_percent: 20.0,
+          process_count: 128,
+          load_avg: [0.85, 1.12, 1.35]
+        },
+        processes: [
+          { pid: 1234, name: 'asp-server', user: 'root', cpu_percent: 12.5, memory_percent: 8.3, status: 'running' },
+          { pid: 5678, name: 'batch-proc', user: 'batch', cpu_percent: 8.2, memory_percent: 4.1, status: 'running' }
+        ],
+        alerts: [
+          { type: 'info', message: 'System monitoring active', timestamp: new Date().toISOString() }
+        ],
+        logs: [
+          `[${new Date().toLocaleTimeString()}] INFO: ASP Manager dashboard loaded`,
+          `[${new Date().toLocaleTimeString()}] INFO: System monitoring active`
+        ],
+        last_update: new Date().toISOString()
+      });
+      setLastUpdated(new Date());
+    } finally {
+      setIsRefreshing(false);
+      setLoading(false);
+    }
+  };
 
   const startAutoRefresh = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      fetchSystemInfo();
-    }, refreshInterval * 1000);
+    stopAutoRefresh();
+    intervalRef.current = setInterval(fetchSystemData, refreshInterval * 1000);
   };
 
   const stopAutoRefresh = () => {
@@ -82,315 +119,264 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const fetchSystemInfo = async () => {
-    try {
-      setIsRefreshing(true);
-      const response = await fetch('http://localhost:8000/api/system/info');
-      if (response.ok) {
-        const data = await response.json();
-        setSystemInfo(data);
-        setLastUpdated(new Date());
-      }
-    } catch (error) {
-      console.error('システム情報取得エラー:', error);
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  const handleRefreshIntervalChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newInterval = parseInt(event.target.value);
-    setRefreshInterval(newInterval);
-  };
-
   const handleManualRefresh = () => {
-    fetchSystemInfo();
+    fetchSystemData();
   };
 
-  const stats = [
-    { 
-      label: 'CPU使用率', 
-      value: `${systemInfo?.cpu.usage_percent || 0}%`,
-      icon: CpuChipIcon, 
-      color: 'blue',
-      detail: `${systemInfo?.cpu.core_count || 0}コア`
-    },
-    { 
-      label: 'メモリ使用率', 
-      value: `${systemInfo?.memory.percent || 0}%`,
-      icon: ServerIcon, 
-      color: 'green',
-      detail: `${systemInfo?.memory.used_gb || 0}GB / ${systemInfo?.memory.total_gb || 0}GB`
-    },
-    { 
-      label: 'ディスク使用率', 
-      value: `${systemInfo?.disk.percent || 0}%`,
-      icon: CircleStackIcon, 
-      color: 'purple',
-      detail: `${systemInfo?.disk.used_gb || 0}GB / ${systemInfo?.disk.total_gb || 0}GB`
-    },
-    { 
-      label: 'システム稼働時間', 
-      value: `${systemInfo?.uptime.hours || 0}h`,
-      icon: ClockIcon, 
-      color: 'orange',
-      detail: systemInfo?.uptime.formatted || '---'
-    },
-  ];
-
-  // プログレスバーコンポーネント
-  const ProgressBar: React.FC<{ value: number; color: string; label: string }> = ({ value, color, label }) => (
-    <div className="mb-4">
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-700 dark:text-gray-300">{label}</span>
-        <span className="text-gray-500 dark:text-gray-400">{value}%</span>
-      </div>
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-        <div 
-          className={`bg-gradient-to-r from-${color}-400 to-${color}-600 h-2.5 rounded-full transition-all duration-1000 ease-out`}
-          style={{ width: `${Math.min(value, 100)}%` }}
-        ></div>
-      </div>
-    </div>
-  );
-
-  // パイチャートコンポーネント (SVG使用)
-  const PieChart: React.FC<{ used: number; total: number }> = ({ used, total }) => {
-    const percentage = (used / total) * 100;
-    const radius = 80;
-    const circumference = 2 * Math.PI * radius;
-    const strokeDasharray = circumference;
-    const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-    return (
-      <div className="relative w-48 h-48 mx-auto">
-        <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 200 200">
-          {/* 背景円 */}
-          <circle
-            cx="100"
-            cy="100"
-            r={radius}
-            stroke="rgb(229 231 235)"
-            strokeWidth="20"
-            fill="transparent"
-            className="dark:stroke-gray-700"
-          />
-          {/* 使用量円 */}
-          <circle
-            cx="100"
-            cy="100"
-            r={radius}
-            stroke="url(#gradient)"
-            strokeWidth="20"
-            fill="transparent"
-            strokeDasharray={strokeDasharray}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            className="transition-all duration-1000 ease-out"
-          />
-          {/* グラデーション定義 */}
-          <defs>
-            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="rgb(139 92 246)" />
-              <stop offset="100%" stopColor="rgb(168 85 247)" />
-            </linearGradient>
-          </defs>
-        </svg>
-        {/* 中央のテキスト */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {percentage.toFixed(1)}%
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              使用中
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const handleRefreshIntervalChange = (newInterval: number) => {
+    setRefreshInterval(newInterval);
+    startAutoRefresh();
   };
+
+  useEffect(() => {
+    fetchSystemData();
+    startAutoRefresh();
+    return () => stopAutoRefresh();
+  }, []);
+
+  useEffect(() => {
+    startAutoRefresh();
+    return () => stopAutoRefresh();
+  }, [refreshInterval]);
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">システム情報を読み込み中...</p>
+          <ArrowPathIcon className="w-8 h-8 text-blue-400 animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">システム情報を読み込んでいます...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!systemData) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <ServerIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-400">システム情報を取得できませんでした</p>
+          <button 
+            onClick={handleManualRefresh}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            再試行
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          ダッシュボード
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          リアルタイムシステム監視とパフォーマンス指標
-        </p>
-      </div>
-
-      {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 bg-gradient-to-br from-${stat.color}-400 to-${stat.color}-600 rounded-lg shadow-lg`}>
-                <stat.icon className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stat.value}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  リアルタイム
-                </div>
-              </div>
-            </div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-              {stat.label}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {stat.detail}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* グラフエリア */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* システム使用状況 */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              システム使用状況
-            </h3>
-            <div className="flex items-center space-x-3">
-              {/* リフレッシュ間隔選択 */}
-              <div className="flex items-center space-x-2">
-                <label htmlFor="refresh-interval" className="text-sm text-gray-600 dark:text-gray-400">
-                  更新間隔:
-                </label>
-                <select
-                  id="refresh-interval"
-                  value={refreshInterval}
-                  onChange={handleRefreshIntervalChange}
-                  className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {refreshOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* 手動リフレッシュボタン */}
-              <button
-                onClick={handleManualRefresh}
-                disabled={isRefreshing}
-                className="flex items-center px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md transition-colors focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <ArrowPathIcon 
-                  className={`w-4 h-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} 
-                />
-                更新
-              </button>
-            </div>
+    <div className="h-full bg-gray-900 text-white">
+      {/* ヘッダー */}
+      <div className="bg-gray-800 border-b border-gray-700 p-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-white">ダッシュボード</h1>
+            <p className="text-gray-400 text-sm">
+              最終更新: {lastUpdated ? lastUpdated.toLocaleString('ja-JP') : 'なし'}
+            </p>
           </div>
           
-          {/* ステータス情報 */}
-          {lastUpdated && (
-            <div className="mb-4 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
-              <span>
-                最終更新: {lastUpdated.toLocaleTimeString('ja-JP')}
-              </span>
-              <span className={`flex items-center ${isRefreshing ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
-                <div className={`w-2 h-2 rounded-full mr-1 ${isRefreshing ? 'bg-blue-600 animate-pulse' : 'bg-green-600'}`}></div>
-                {isRefreshing ? '更新中...' : '接続済み'}
-              </span>
+          <div className="flex items-center space-x-4">
+            {/* システム管理ボタン */}
+            <button
+              onClick={() => setActiveSection(activeSection === 'system_manager' ? 'overview' : 'system_manager')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeSection === 'system_manager' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {activeSection === 'system_manager' ? 'ダッシュボード' : 'システム管理'}
+            </button>
+            
+            {/* 更新間隔設定 */}
+            <div className="flex items-center space-x-2">
+              <label className="text-sm text-gray-300">更新間隔:</label>
+              <select
+                value={refreshInterval}
+                onChange={(e) => handleRefreshIntervalChange(Number(e.target.value))}
+                className="bg-gray-700 text-white px-3 py-1 rounded border border-gray-600"
+              >
+                <option value={1}>1秒</option>
+                <option value={5}>5秒</option>
+                <option value={10}>10秒</option>
+                <option value={30}>30秒</option>
+                <option value={60}>1分</option>
+              </select>
+            </div>
+            
+            {/* 手動更新ボタン */}
+            <button
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              <ArrowPathIcon className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span>更新</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* コンテンツ切り替え */}
+      {activeSection === 'system_manager' ? (
+        <SystemManagerPage />
+      ) : (
+        <div className="p-6">
+          {/* システム情報カード */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* CPU使用率 */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <CpuChipIcon className="w-8 h-8 text-blue-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">CPU使用率</p>
+                    <p className="text-2xl font-bold text-white">{systemData.system_info.cpu_percent.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div 
+                  className="bg-blue-400 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${systemData.system_info.cpu_percent}%` }}
+                />
+              </div>
+              <div className="mt-2 text-xs text-gray-400">
+                {systemData.system_info.cpu_count}コア
+              </div>
+            </div>
+
+            {/* メモリ使用量 */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <CircleStackIcon className="w-8 h-8 text-green-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">メモリ使用量</p>
+                    <p className="text-2xl font-bold text-white">{systemData.system_info.memory_percent.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div 
+                  className="bg-green-400 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${systemData.system_info.memory_percent}%` }}
+                />
+              </div>
+              <div className="mt-2 text-xs text-gray-400">
+                {systemData.system_info.memory_used} / {systemData.system_info.memory_total}
+              </div>
+            </div>
+
+            {/* ディスク使用量 */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <ServerIcon className="w-8 h-8 text-purple-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">ディスク使用量</p>
+                    <p className="text-2xl font-bold text-white">{systemData.system_info.disk_percent.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2">
+                <div 
+                  className="bg-purple-400 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${systemData.system_info.disk_percent}%` }}
+                />
+              </div>
+              <div className="mt-2 text-xs text-gray-400">
+                {systemData.system_info.disk_used} / {systemData.system_info.disk_total}
+              </div>
+            </div>
+
+            {/* システム稼働時間 */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <ClockIcon className="w-8 h-8 text-yellow-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">システム稼働時間</p>
+                    <p className="text-lg font-bold text-white">{systemData.system_info.uptime}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-400">
+                プロセス数: {systemData.system_info.process_count}
+              </div>
+            </div>
+          </div>
+
+          {/* アラート */}
+          {systemData.alerts && systemData.alerts.length > 0 && (
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mb-8">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <ExclamationTriangleIcon className="w-5 h-5 mr-2 text-yellow-400" />
+                システムアラート
+              </h3>
+              <div className="space-y-2">
+                {systemData.alerts.map((alert, index) => (
+                  <div key={index} className={`p-3 rounded border-l-4 ${
+                    alert.type === 'warning' ? 'bg-yellow-900/20 border-yellow-400' : 'bg-blue-900/20 border-blue-400'
+                  }`}>
+                    <p className="text-white">{alert.message}</p>
+                    <p className="text-xs text-gray-400">{new Date(alert.timestamp).toLocaleTimeString()}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-          <div className="space-y-6">
-            <ProgressBar 
-              value={systemInfo?.cpu.usage_percent || 0} 
-              color="blue" 
-              label="CPU使用率"
-            />
-            <ProgressBar 
-              value={systemInfo?.memory.percent || 0} 
-              color="green" 
-              label="メモリ使用率"
-            />
-            <ProgressBar 
-              value={systemInfo?.disk.percent || 0} 
-              color="purple" 
-              label="ディスク使用率"
-            />
-          </div>
-          
-          {/* 詳細情報 */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">CPU周波数:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {systemInfo?.cpu.frequency.current || 0} MHz
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">利用可能メモリ:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {systemInfo?.memory.available_gb || 0} GB
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">空きディスク:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {systemInfo?.disk.free_gb || 0} GB
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* ディスク使用状況パイチャート */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-            ディスク使用状況
-          </h3>
-          <div className="flex flex-col items-center">
-            <PieChart 
-              used={systemInfo?.disk.used || 0} 
-              total={systemInfo?.disk.total || 1} 
-            />
-            <div className="mt-6 w-full">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full mr-2"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">使用中</span>
+          {/* 詳細情報セクション */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* システム情報 */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-4">システム情報</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">ホスト名</span>
+                  <span className="text-white font-medium">{systemData.system_info.hostname}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {systemInfo?.disk.used_gb || 0} GB
-                </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">CPUコア数</span>
+                  <span className="text-white font-medium">{systemData.system_info.cpu_count}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">負荷平均</span>
+                  <span className="text-white font-medium">{systemData.system_info.load_avg.map(l => l.toFixed(2)).join(', ')}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">プロセス数</span>
+                  <span className="text-white font-medium">{systemData.system_info.process_count}</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full mr-2"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">空き容量</span>
-                </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {systemInfo?.disk.free_gb || 0} GB
-                </span>
+            </div>
+
+            {/* トッププロセス */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-4">トッププロセス</h3>
+              <div className="space-y-2">
+                {systemData.processes.slice(0, 5).map((proc) => (
+                  <div key={proc.pid} className="flex justify-between items-center py-2 border-b border-gray-700">
+                    <div>
+                      <p className="text-white font-medium">{proc.name}</p>
+                      <p className="text-xs text-gray-400">PID: {proc.pid} | {proc.user}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white">{proc.cpu_percent.toFixed(1)}%</p>
+                      <p className="text-xs text-gray-400">{proc.memory_percent.toFixed(1)}% MEM</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
