@@ -745,8 +745,8 @@ const MapLayout: React.FC = () => {
     const displayOverlays = displayFields.map((field, index) => {
       console.log(`[DEBUG] Creating display overlay for field at (${field.row}, ${field.col}): "${field.value}"`);
       
-      const topPixels = (field.row - 1) * 14;
-      const leftPixels = (field.col - 1) * 10;
+      const topPixels = (field.row - 1) * 21;
+      const leftPixels = (field.col - 1) * 15;
       
       return (
         <div
@@ -759,8 +759,8 @@ const MapLayout: React.FC = () => {
             color: field.color || '#00FF00',
             whiteSpace: 'pre',
             fontFamily: '"Courier New", monospace',
-            fontSize: '12px',
-            lineHeight: '14px',
+            fontSize: '18px',
+            lineHeight: '21px',
             pointerEvents: 'none'
           }}
         >
@@ -773,10 +773,10 @@ const MapLayout: React.FC = () => {
     const inputOverlays = inputFields.map((field, index) => {
       console.log(`[DEBUG] Creating input overlay for field at (${field.row}, ${field.col}), maxLength: ${field.maxLength}`);
       
-      const topPixels = (field.row - 1) * 14;
-      const leftPixels = (field.col - 1) * 10;
+      const topPixels = (field.row - 1) * 21;
+      const leftPixels = (field.col - 1) * 15;
       const fieldKey = `${field.row}-${field.col}`;
-      const widthPixels = (field.maxLength || 10) * 10; // 10px per character
+      const widthPixels = (field.maxLength || 10) * 15; // 15px per character
       
       const isFirstInput = firstInputField && 
         field.row === firstInputField.row && 
@@ -796,14 +796,14 @@ const MapLayout: React.FC = () => {
             top: `${topPixels}px`,
             left: `${leftPixels}px`,
             width: `${widthPixels}px`,
-            height: '14px',
+            height: '21px',
             color: field.color || '#00FF00',
             backgroundColor: 'transparent',
             border: 'none',
             outline: 'none',
             fontFamily: '"Courier New", monospace',
-            fontSize: '12px',
-            lineHeight: '14px',
+            fontSize: '18px',
+            lineHeight: '21px',
             padding: 0,
             margin: 0
           }}

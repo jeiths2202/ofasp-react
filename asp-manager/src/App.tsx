@@ -7,14 +7,17 @@ import {
   ChatBubbleLeftRightIcon,
   PlayIcon,
   CommandLineIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
 import DashboardPage from './pages/DashboardPage';
 import SmedMapPage from './pages/SmedMapPage';
 import ChatPage from './pages/ChatPage';
+import LogManagementPage from './pages/LogManagementPage';
 import ASPWebUITerminal from './components/ASPWebUITerminal';
 import ASPMapEditor from './components/ASPMapEditor';
+import MapLink from './components/MapLink';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 
@@ -96,12 +99,14 @@ function App() {
       label: 'ASP WebUI', 
       icon: <CommandLineIcon />,
       subItems: [
-        { id: 'asp-map-editor', label: 'ASP MapEditor', icon: <DocumentTextIcon /> }
+        { id: 'asp-map-editor', label: 'ASP MapEditor', icon: <DocumentTextIcon /> },
+        { id: 'asp-map-link', label: 'MapLink', icon: <DocumentTextIcon /> }
       ]
     },
     { id: 'accounts', label: 'アカウント管理', icon: <UserGroupIcon /> },
     { id: 'smed-maps', label: 'SMEDマップ管理', icon: <DocumentTextIcon />, badge: 3 },
     { id: 'programs', label: 'プログラム管理', icon: <CpuChipIcon /> },
+    { id: 'log-management', label: 'ログ管理', icon: <ClipboardDocumentListIcon /> },
     { id: 'chat', label: 'チャット', icon: <ChatBubbleLeftRightIcon /> },
   ];
 
@@ -178,6 +183,9 @@ function App() {
       case 'chat':
         content = <ChatPage isDarkMode={theme.mode === 'dark'} />;
         break;
+      case 'log-management':
+        content = <LogManagementPage isDarkMode={theme.mode === 'dark'} />;
+        break;
       case 'smed-maps':
         content = <SmedMapPage isDarkMode={theme.mode === 'dark'} />;
         break;
@@ -192,6 +200,13 @@ function App() {
         content = (
           <div className="h-full">
             <ASPMapEditor isDarkMode={theme.mode === 'dark'} />
+          </div>
+        );
+        break;
+      case 'asp-map-link':
+        content = (
+          <div className="h-full">
+            <MapLink isDarkMode={theme.mode === 'dark'} />
           </div>
         );
         break;

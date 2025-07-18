@@ -19,6 +19,9 @@ from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import logging
+from datetime import datetime
+from collections import deque
+import uuid
 
 # ?? ??
 logging.basicConfig(
@@ -40,6 +43,9 @@ accounts = {}
 smed_pgm_config = {}
 map_pgm_config = {}
 java_manager = None
+
+# Log storage (keep last 1000 logs)
+execution_logs = deque(maxlen=1000)
 
 class MultiTypeExecutor:
     """?? ???? ?? ???"""
@@ -426,6 +432,7 @@ def execute_map_program(map_name, input_data):
     # SMED-PGM ???? ???? ?? ??
     if map_name_upper not in smed_pgm_config:
         logger.warning(f"No program configuration found for map: {map_name}")
+        add_log('WARNING', 'EXECUTE', f'No program configuration found for map: {map_name}', {'map_name': map_name})
         return None
     
     config = smed_pgm_config[map_name_upper]
@@ -434,17 +441,72 @@ def execute_map_program(map_name, input_data):
     
     if not program_type or not program_path:
         logger.error(f"Invalid program configuration for map {map_name}: {config}")
+        add_log('ERROR', 'EXECUTE', f'Invalid program configuration for map: {map_name}', {'map_name': map_name, 'config': config})
         return None
     
+    # Extract program name based on type
+    program_name = program_path
+    if program_type == 'JAVA':
+        # Extract Java class name and package
+        program_name = program_path
+        package_name = '.'.join(program_path.split('.')[:-1]) if '.' in program_path else 'default'
+        class_name = program_path.split('.')[-1] if '.' in program_path else program_path
+    elif program_type == 'SHELL':
+        # Extract shell script name
+        program_name = os.path.basename(program_path)
+    elif program_type == 'COBOL':
+        # Extract COBOL module name
+        program_name = os.path.basename(program_path).replace('.so', '')
+    
     logger.info(f"Executing {program_type} program: {program_path} for map: {map_name}")
+    
+    log_details = {
+        'map_name': map_name, 
+        'program_type': program_type, 
+        'program_path': program_path,
+        'program_name': program_name,
+        'input_data': input_data
+    }
+    
+    if program_type == 'JAVA' and '.' in program_path:
+        log_details['package_name'] = package_name
+        log_details['class_name'] = class_name
+    
+    add_log('INFO', 'EXECUTE', f'Starting {program_type} program: {program_name}', log_details)
     
     try:
         result = multi_executor.execute_program(program_type, program_path, input_data)
         logger.info(f"Program execution successful for map {map_name}")
+        
+        success_details = {
+            'map_name': map_name, 
+            'program_type': program_type,
+            'program_name': program_name,
+            'result': result
+        }
+        
+        if program_type == 'JAVA' and '.' in program_path:
+            success_details['package_name'] = package_name
+            success_details['class_name'] = class_name
+        
+        add_log('INFO', 'EXECUTE', f'{program_type} program executed successfully: {program_name}', success_details)
         return result
     
     except Exception as e:
         logger.error(f"Program execution failed for map {map_name}: {e}")
+        
+        error_details = {
+            'map_name': map_name, 
+            'program_type': program_type,
+            'program_name': program_name,
+            'error': str(e)
+        }
+        
+        if program_type == 'JAVA' and '.' in program_path:
+            error_details['package_name'] = package_name
+            error_details['class_name'] = class_name
+        
+        add_log('ERROR', 'EXECUTE', f'{program_type} program execution failed: {program_name}', error_details)
         raise
 
 # API ??????
@@ -502,6 +564,7 @@ def login():
     user_program = accounts[user_id].get('pgm', 'PGM1')
     
     logger.info(f"User {user_id} logged in successfully")
+    add_log('INFO', 'LOGIN', f'User {user_id} logged in successfully', {'user_id': user_id, 'program': user_program})
     
     return jsonify({
         'success': True,
@@ -529,8 +592,10 @@ def execute_program():
         # ? ?? ???? ??
         if map_name:
             logger.info(f"Executing program for map: {map_name} with input: {input_fields}")
+            add_log('INFO', 'EXECUTE', f'Executing program for map: {map_name}', {'user_id': user_id, 'map_name': map_name, 'input_fields': input_fields})
             result = execute_map_program(map_name, input_fields)
             if result:
+                add_log('INFO', 'EXECUTE', f'Program execution completed for map: {map_name}', {'user_id': user_id, 'map_name': map_name, 'result': result})
                 return jsonify({
                     'success': True,
                     'result': result,
@@ -713,6 +778,46 @@ def multi_executor_status():
         'cobol_libs_loaded': len(multi_executor.cobol_libs),
         'supported_types': ['JAVA', 'COBOL', 'SHELL']
     })
+
+@app.route('/api/logs', methods=['GET'])
+def get_logs():
+    """Get execution logs"""
+    try:
+        logs_list = list(execution_logs)
+        return jsonify({
+            'success': True,
+            'logs': logs_list,
+            'count': len(logs_list)
+        })
+    except Exception as e:
+        logger.error(f"Failed to get logs: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/logs', methods=['DELETE'])
+def clear_logs():
+    """Clear execution logs"""
+    try:
+        execution_logs.clear()
+        return jsonify({
+            'success': True,
+            'message': 'Logs cleared successfully'
+        })
+    except Exception as e:
+        logger.error(f"Failed to clear logs: {e}")
+        return jsonify({'error': str(e)}), 500
+
+def add_log(level, source, message, details=None):
+    """Add log entry"""
+    log_entry = {
+        'id': str(uuid.uuid4()),
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'level': level,
+        'source': source,
+        'message': message,
+        'details': details
+    }
+    execution_logs.append(log_entry)
+    logger.info(f"[{level}] {source}: {message}")
 
 if __name__ == '__main__':
     logger.info("OpenASP API Server v0.5.1 starting...")

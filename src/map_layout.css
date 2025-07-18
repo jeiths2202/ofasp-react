@@ -5,7 +5,7 @@
   transform: translateX(-50%);
   color: #00aa00;
   font-family: 'Courier New', monospace;
-  font-size: 12px;
+  font-size: 18px;
   background-color: rgba(0, 0, 0, 0.8);
   padding: 5px 15px;
   border: 1px solid #00aa00;
@@ -32,7 +32,7 @@
   right: 20px;
   color: #00ff00;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 21px;
   background-color: rgba(0, 0, 0, 0.8);
   padding: 5px 10px;
   border: 1px solid #00ff00;
@@ -46,7 +46,7 @@
   left: 20px;
   color: #00FFFF;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 21px;
   background-color: rgba(0, 0, 0, 0.8);
   padding: 5px 10px;
   border: 1px solid #00FFFF;
@@ -61,7 +61,7 @@
   transform: translate(-50%, -50%);
   color: #00ff00;
   font-family: 'Courier New', monospace;
-  font-size: 18px;
+  font-size: 27px;
   background-color: rgba(0, 0, 0, 0.9);
   padding: 20px;
   border: 2px solid #00ff00;
@@ -79,9 +79,9 @@
   background-color: #000000;
   border: 2px solid #00ff00;
   font-family: 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 21px;
   line-height: 1.0;
-  padding: 10px;
+  padding: 15px;
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
   width: fit-content;
   height: fit-content;
@@ -92,8 +92,8 @@
 
 .grid-container {
   position: relative;
-  width: 800px; /* 80 columns * 10px */
-  height: 336px; /* 24 rows * 14px */
+  width: 1200px; /* 80 columns * 15px */
+  height: 504px; /* 24 rows * 21px */
 }
 
 .base-grid {
@@ -116,21 +116,21 @@
   display: flex;
   margin: 0;
   padding: 0;
-  height: 14px;
+  height: 21px;
   align-items: center;
 }
 
 .grid-cell {
   display: inline-block;
-  width: 10px;
-  height: 14px;
+  width: 15px;
+  height: 21px;
   color: #333333; /* Very dark for base grid */
   background-color: #000000;
   text-align: center;
   margin: 0;
   padding: 0;
-  line-height: 14px;
-  font-size: 12px;
+  line-height: 21px;
+  font-size: 18px;
   white-space: pre;
   font-family: 'Courier New', monospace;
   vertical-align: top;
