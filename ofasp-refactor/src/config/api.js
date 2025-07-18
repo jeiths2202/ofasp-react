@@ -26,6 +26,15 @@ export const API_CONFIG = {
       HEALTH: '/health',
       API: '/api'
     }
+  },
+  PYTHON_CONVERTER: {
+    BASE_URL: process.env.REACT_APP_PYTHON_CONVERTER_URL || 'http://localhost:3003',
+    ENDPOINTS: {
+      HEALTH: '/health',
+      INFO: '/api/v1/info',
+      EBCDIC_TO_ASCII: '/api/v1/convert/ebcdic-to-ascii',
+      ASCII_TO_EBCDIC: '/api/v1/convert/ascii-to-ebcdic'
+    }
   }
 };
 

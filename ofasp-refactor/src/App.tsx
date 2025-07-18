@@ -8,6 +8,7 @@ import {
   BookOpenIcon,
   ChatBubbleLeftRightIcon,
   WrenchScrewdriverIcon,
+  ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
 import Sidebar from './components/Sidebar';
 import TabSystem from './components/TabSystem';
@@ -16,6 +17,11 @@ import ClAXPage from './pages/ClAXPage';
 import AITransformPage from './pages/AITransformPage';
 import ToolsPage from './pages/ToolsPage';
 import DocumentationPage from './pages/DocumentationPage';
+import SourceConversionPage from './pages/SourceConversionPage';
+import DatasetConversionPage from './pages/DatasetConversionPage';
+import ASPWebUITerminal from './components/ASPWebUITerminal';
+import ASPMapEditor from './components/ASPMapEditor';
+import MapLink from './components/MapLink';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 import { I18nContext, createI18nContextValue } from './hooks/useI18n';
@@ -134,13 +140,41 @@ function App() {
         content = <ClAXPage isDarkMode={theme.mode === 'dark'} />;
         break;
       case 'ai-transform':
+      case 'ai-transform-main':
         content = <AITransformPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'asp-webui':
+        content = (
+          <div className="h-full flex items-center justify-center bg-black">
+            <ASPWebUITerminal isDarkMode={theme.mode === 'dark'} />
+          </div>
+        );
+        break;
+      case 'asp-map-editor':
+        content = (
+          <div className="h-full">
+            <ASPMapEditor isDarkMode={theme.mode === 'dark'} />
+          </div>
+        );
+        break;
+      case 'asp-map-link':
+        content = (
+          <div className="h-full">
+            <MapLink isDarkMode={theme.mode === 'dark'} />
+          </div>
+        );
         break;
       case 'tools':
         content = <ToolsPage isDarkMode={theme.mode === 'dark'} />;
         break;
       case 'docs':
         content = <DocumentationPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'source-conversion':
+        content = <SourceConversionPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'dataset-conversion':
+        content = <DatasetConversionPage isDarkMode={theme.mode === 'dark'} />;
         break;
       default:
         content = (
@@ -247,7 +281,26 @@ function App() {
     { id: 'dashboard', label: t('common.dashboard'), icon: <HomeIcon /> },
     { id: 'cobol-ax', label: t('navigation.cobolAX'), icon: <CodeBracketIcon /> },
     { id: 'cl-ax', label: t('navigation.clAX'), icon: <CommandLineIcon /> },
-    { id: 'ai-transform', label: 'AI Transform', icon: <CogIcon /> },
+    { 
+      id: 'code-conversion', 
+      label: 'コード変換', 
+      icon: <ArrowsRightLeftIcon />,
+      subItems: [
+        { id: 'source-conversion', label: 'ソース変換', icon: <CodeBracketIcon /> },
+        { id: 'dataset-conversion', label: 'データセット変換', icon: <DocumentTextIcon /> }
+      ]
+    },
+    { 
+      id: 'ai-transform', 
+      label: 'AI Transform', 
+      icon: <CogIcon />,
+      subItems: [
+        { id: 'ai-transform-main', label: 'AI変換処理', icon: <CogIcon /> },
+        { id: 'asp-webui', label: 'ASP WebUI', icon: <CommandLineIcon /> },
+        { id: 'asp-map-editor', label: 'ASP MapEditor', icon: <DocumentTextIcon /> },
+        { id: 'asp-map-link', label: 'MapLink', icon: <DocumentTextIcon /> }
+      ]
+    },
     { id: 'tools', label: 'Tools', icon: <WrenchScrewdriverIcon /> },
     { id: 'docs', label: t('common.documentation'), icon: <BookOpenIcon /> },
     { id: 'chat', label: t('common.chat'), icon: <ChatBubbleLeftRightIcon /> },

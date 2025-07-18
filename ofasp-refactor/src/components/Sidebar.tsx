@@ -60,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div
       className={classNames(
-        'fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 z-50',
+        'fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 z-50 flex flex-col',
         {
           'w-64': effectiveExpanded,
           'w-16': !effectiveExpanded,
@@ -117,55 +117,104 @@ const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* メニューアイテム */}
-      <nav className="flex-1 overflow-y-auto scrollbar-thin py-4">
+      <nav 
+        className="flex-1 overflow-y-auto py-4 scrollbar-custom"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgb(156, 163, 175) transparent',
+          maxHeight: 'calc(100vh - 160px)' // ヘッダーとフッターの高さを考慮
+        }}
+      >
         {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onMenuSelect(item)}
-            className={classNames(
-              'w-full flex items-center px-4 py-3 mb-1 transition-all duration-200',
-              {
-                'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500':
-                  activeMenuId === item.id,
-                'hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent':
-                  activeMenuId !== item.id,
-              }
-            )}
-          >
-            <div className="flex-shrink-0 w-6 h-6">
-              <div className={classNames('w-6 h-6', {
-                'text-blue-600 dark:text-blue-400': activeMenuId === item.id,
-                'text-gray-600 dark:text-gray-400': activeMenuId !== item.id,
-              })}>
-                {item.icon}
+          <div key={item.id}>
+            <button
+              onClick={() => onMenuSelect(item)}
+              className={classNames(
+                'w-full flex items-center px-4 py-3 mb-1 transition-all duration-200',
+                {
+                  'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500':
+                    activeMenuId === item.id,
+                  'hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent':
+                    activeMenuId !== item.id,
+                }
+              )}
+            >
+              <div className="flex-shrink-0 w-6 h-6">
+                <div className={classNames('w-6 h-6', {
+                  'text-blue-600 dark:text-blue-400': activeMenuId === item.id,
+                  'text-gray-600 dark:text-gray-400': activeMenuId !== item.id,
+                })}>
+                  {item.icon}
+                </div>
               </div>
-            </div>
-            {effectiveExpanded && (
-              <>
-                <span
-                  className={classNames(
-                    'ml-3 text-sm font-medium animate-fade-in',
-                    {
-                      'text-blue-900 dark:text-blue-100': activeMenuId === item.id,
-                      'text-gray-700 dark:text-gray-300': activeMenuId !== item.id,
-                    }
-                  )}
-                >
-                  {item.label}
-                </span>
-                {item.badge && (
-                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-fade-in">
-                    {item.badge}
+              {effectiveExpanded && (
+                <>
+                  <span
+                    className={classNames(
+                      'ml-3 text-sm font-medium animate-fade-in',
+                      {
+                        'text-blue-900 dark:text-blue-100': activeMenuId === item.id,
+                        'text-gray-700 dark:text-gray-300': activeMenuId !== item.id,
+                      }
+                    )}
+                  >
+                    {item.label}
                   </span>
-                )}
-              </>
-            )}
-            {!effectiveExpanded && item.badge && (
-              <div className="absolute left-12 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                {item.badge}
+                  {item.badge && (
+                    <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-fade-in">
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
+              {!effectiveExpanded && item.badge && (
+                <div className="absolute left-12 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {item.badge}
+                </div>
+              )}
+            </button>
+            
+            {/* サブメニュー */}
+            {item.subItems && effectiveExpanded && (
+              <div className="ml-4 border-l-2 border-gray-200 dark:border-gray-700">
+                {item.subItems.map((subItem) => (
+                  <button
+                    key={subItem.id}
+                    onClick={() => onMenuSelect(subItem)}
+                    className={classNames(
+                      'w-full flex items-center px-4 py-2 mb-1 transition-all duration-200',
+                      {
+                        'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500':
+                          activeMenuId === subItem.id,
+                        'hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent':
+                          activeMenuId !== subItem.id,
+                      }
+                    )}
+                  >
+                    <div className="flex-shrink-0 w-5 h-5">
+                      <div className={classNames('w-5 h-5', {
+                        'text-blue-600 dark:text-blue-400': activeMenuId === subItem.id,
+                        'text-gray-500 dark:text-gray-500': activeMenuId !== subItem.id,
+                      })}>
+                        {subItem.icon}
+                      </div>
+                    </div>
+                    <span
+                      className={classNames(
+                        'ml-3 text-sm font-medium animate-fade-in',
+                        {
+                          'text-blue-900 dark:text-blue-100': activeMenuId === subItem.id,
+                          'text-gray-600 dark:text-gray-400': activeMenuId !== subItem.id,
+                        }
+                      )}
+                    >
+                      {subItem.label}
+                    </span>
+                  </button>
+                ))}
               </div>
             )}
-          </button>
+          </div>
         ))}
       </nav>
 

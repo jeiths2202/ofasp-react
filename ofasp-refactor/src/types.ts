@@ -3,6 +3,7 @@ export interface MenuItem {
   label: string;
   icon: React.ReactNode;
   badge?: number;
+  subItems?: MenuItem[];
 }
 
 export interface Tab {

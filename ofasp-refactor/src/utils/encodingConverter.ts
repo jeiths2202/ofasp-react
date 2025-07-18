@@ -23,6 +23,8 @@ export interface ConversionOptions {
   customSI?: string;
   sosiHandling?: 'remove' | 'keep' | 'space';  // SOSI 코드 처리 방식
   errorHandling: ErrorHandling;
+  rlen?: number;  // 입력 버퍼 길이
+  layout?: string;  // 레이아웃 정보
 }
 
 export enum ConversionMode {
@@ -160,7 +162,7 @@ class EncodingConverter {
           const to = parseInt(match[2], 16);
           
           if (isDoubleByte) {
-            if (from < BYTE_RANGES.DOUBLE_BYTE_ARRAY_SIZE && to !== 0) {
+            if (from < BYTE_RANGES.DOUBLE_BYTE_ARRAY_SIZE) {
               doubleByte[from] = to;
               doubleByteCount++;
               // Debug specific mapping
@@ -327,8 +329,18 @@ class EncodingConverter {
       }
     }
     
+    // 입력 바이트 배열에서 SOSI 코드 위치 확인
+    for (let idx = 0; idx < bytes.length; idx++) {
+      if (bytes[idx] === 0x0E) {
+        debugCallback?.(`🔍 0x0E(SO) 발견: 위치 ${idx}`);
+      } else if (bytes[idx] === 0x0F) {
+        debugCallback?.(`🔍 0x0F(SI) 발견: 위치 ${idx}`);
+      }
+    }
+    
     while (i < bytes.length) {
       const byte = bytes[i];
+      debugCallback?.(`[${i}] 바이트 처리 시작: 0x${byte.toString(16).toUpperCase()}, isInDoubleByte: ${isInDoubleByte}`);
       
       if (options.useSOSI) {
         // Check for SOSI control characters first, before processing data
@@ -378,9 +390,36 @@ class EncodingConverter {
         
         // Process data based on current SOSI state
         if (isInDoubleByte) {
+          debugCallback?.(`✅ 더블바이트 모드에서 처리 중: 0x${byte.toString(16).toUpperCase()}`);
+          
+          // Check if current byte is SI (Shift-In) before processing as double-byte
+          if (byte === sosiCodes.SI) {
+            debugCallback?.(`SOSI: Shift-In (0x${byte.toString(16).toUpperCase()}) found in double-byte mode - 싱글바이트 모드 복귀`);
+            isInDoubleByte = false;
+            
+            // Handle SOSI code based on user preference
+            const sosiHandling = options.sosiHandling || 'remove';
+            if (sosiHandling === 'keep') {
+              // Keep the SOSI code as-is
+              result += String.fromCharCode(byte);
+              debugCallback?.(`  → SOSI 코드 유지: 0x${byte.toString(16).toUpperCase()}`);
+            } else if (sosiHandling === 'space') {
+              // Convert to space
+              result += ' ';
+              debugCallback?.(`  → SOSI 코드를 공백으로 변환: 0x20`);
+            } else {
+              // Remove (default)
+              debugCallback?.(`  → SOSI 코드 제거`);
+            }
+            
+            i++;
+            continue;
+          }
+          
           // In double-byte mode: ALL data must be processed in 2-byte pairs
           if (i + 1 < bytes.length) {
             const nextByte = bytes[i + 1];
+            debugCallback?.(`  다음 바이트: 0x${nextByte.toString(16).toUpperCase()}`);
             
             // Check if next byte is SI - if so, treat current byte as single and let SI be processed normally
             if (nextByte === sosiCodes.SI) {
@@ -399,69 +438,89 @@ class EncodingConverter {
             debugCallback?.(`SOSI 더블바이트: 0x${byte.toString(16).toUpperCase()}${nextByte.toString(16).toUpperCase()}`);
             debugCallback?.(`  더블바이트 인덱스: ${doubleByteIndex} (0x${doubleByteIndex.toString(16).toUpperCase()})`);
             
+            // Check if we have a valid mapping for this double-byte index
             if (doubleByteIndex < map.doubleByte.length) {
               const converted = map.doubleByte[doubleByteIndex];
               debugCallback?.(`  매핑된 값: ${converted} (0x${converted.toString(16).toUpperCase()})`);
               
-              // Debug: Check if we're getting the expected value
-              if (doubleByteIndex === 0x4040) {
-                console.log(`Debug 0x4040: map.doubleByte[0x4040] = ${converted} (0x${converted.toString(16).toUpperCase()})`);
-                console.log(`Expected: 0x8140 (${0x8140})`);
-                console.log(`Array length: ${map.doubleByte.length}`);
-                console.log(`Array type: ${typeof map.doubleByte}`);
-                console.log(`Array constructor: ${map.doubleByte.constructor.name}`);
-              }
-              
               // Process double-byte conversion based on actual code page table
               if (converted === 0) {
-                // Unmapped double-byte character
-                result += REPLACEMENT_CHARS.UNMAPPED_DOUBLE;
-                debugCallback?.(`  ⚠️ 매핑되지 않은 더블바이트: 0x${doubleByteIndex.toString(16).toUpperCase()} → '${REPLACEMENT_CHARS.UNMAPPED_DOUBLE}'`);
+                // Unmapped double-byte character - use fallback
+                result += ' ';
+                debugCallback?.(`  ⚠️ 매핑되지 않은 더블바이트: 0x${doubleByteIndex.toString(16).toUpperCase()} → 공백`);
               } else {
-                // For Japanese double-byte mappings like 0x8140, we need to handle them as single Unicode characters
-                // rather than splitting into two bytes which causes UTF-8 encoding issues
-                const highByte = (converted >> 8) & 0xFF;
-                const lowByte = converted & 0xFF;
-                
-                if (highByte === 0) {
-                  // Single byte result - safe to use String.fromCharCode
-                  if (lowByte >= BYTE_RANGES.ASCII_PRINTABLE_START && lowByte <= BYTE_RANGES.ASCII_PRINTABLE_END) {
-                    // ASCII printable range
-                    result += String.fromCharCode(lowByte);
-                    debugCallback?.(`  → ASCII: 0x${lowByte.toString(16).toUpperCase()} ('${String.fromCharCode(lowByte)}')`);
-                  } else {
-                    // Non-printable or extended ASCII - use space as safe fallback
-                    result += REPLACEMENT_CHARS.SPACE;
-                    debugCallback?.(`  → ASCII: 0x${lowByte.toString(16).toUpperCase()} (non-printable, using space)`);
-                  }
+                // Successfully mapped double-byte character
+                if (converted === 0x8140) {
+                  // Japanese full-width space (0x8140 → ' ')
+                  result += ' ';
+                  debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (전각 공백 → 공백)`);
+                } else if (converted <= 0xFF) {
+                  // Single-byte result
+                  result += String.fromCharCode(converted);
+                  debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} ('${String.fromCharCode(converted)}')`);
                 } else {
-                  // Two byte result - this is where the 0xC2 issue occurs
-                  // For Japanese encodings, convert to appropriate Unicode or use safe fallback
-                  
-                  if (converted === JAPANESE_CODES.FULL_WIDTH_SPACE) {
-                    // 0x8140 is typically Japanese full-width space
-                    result += '　'; // Full-width space (U+3000)
-                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (Japanese full-width space)`);
-                  } else if (highByte >= JAPANESE_CODES.SHIFT_JIS_FIRST_BYTE_START && highByte <= JAPANESE_CODES.SHIFT_JIS_FIRST_BYTE_END) {
-                    // Shift-JIS first byte range - use safe fallback
-                    result += REPLACEMENT_CHARS.SPACE;
-                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (Shift-JIS range, using space)`);
+                  // Double-byte result - try Shift-JIS decoding for JP encoding
+                  if (options.encoding === EncodingType.JP && converted >= 0x8140) {
+                    try {
+                      // Convert to Shift-JIS bytes and then to string
+                      const highByte = (converted >> 8) & 0xFF;
+                      const lowByte = converted & 0xFF;
+                      
+                      // Create Shift-JIS bytes
+                      const sjisBytes = new Uint8Array([highByte, lowByte]);
+                      
+                      // Try to decode as Shift-JIS
+                      const decoder = new TextDecoder('shift_jis');
+                      const sjisChar = decoder.decode(sjisBytes);
+                      
+                      result += sjisChar;
+                      debugCallback?.(`  → Shift-JIS: 0x${converted.toString(16).toUpperCase()} → '${sjisChar}'`);
+                    } catch (e) {
+                      // Fallback to space if Shift-JIS decoding fails
+                      result += ' ';
+                      debugCallback?.(`  → Shift-JIS decoding failed: 0x${converted.toString(16).toUpperCase()} → 공백`);
+                    }
                   } else {
-                    // Other double-byte combinations - use safe fallback
-                    result += REPLACEMENT_CHARS.SPACE;
-                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (double-byte, using space)`);
+                    // For non-JP encodings or other double-byte values, use space
+                    result += ' ';
+                    debugCallback?.(`  → ASCII: 0x${converted.toString(16).toUpperCase()} (non-printable, using space)`);
                   }
                 }
               }
             } else {
               debugCallback?.(`  → 변환 실패 (범위 초과: ${doubleByteIndex} >= ${map.doubleByte.length})`);
               // Use fallback for out-of-range double-byte
-              result += '?';
+              result += ' ';
             }
             i += 2;
             continue;
           } else {
-            // Last byte in double-byte mode with no pair - this is an error condition
+            // Last byte in double-byte mode with no pair
+            // Check if last byte is SI
+            if (byte === sosiCodes.SI) {
+              debugCallback?.(`SOSI: Shift-In (0x${byte.toString(16).toUpperCase()}) found (last byte) - 싱글바이트 모드 복귀`);
+              isInDoubleByte = false;
+              
+              // Handle SOSI code based on user preference
+              const sosiHandling = options.sosiHandling || 'remove';
+              if (sosiHandling === 'keep') {
+                // Keep the SOSI code as-is
+                result += String.fromCharCode(byte);
+                debugCallback?.(`  → SOSI 코드 유지: 0x${byte.toString(16).toUpperCase()}`);
+              } else if (sosiHandling === 'space') {
+                // Convert to space
+                result += ' ';
+                debugCallback?.(`  → SOSI 코드를 공백으로 변환: 0x20`);
+              } else {
+                // Remove (default)
+                debugCallback?.(`  → SOSI 코드 제거`);
+              }
+              
+              i++;
+              continue;
+            }
+            
+            // Process as single byte
             debugCallback?.(`⚠️ 더블바이트 모드에서 홀수 바이트 0x${byte.toString(16).toUpperCase()} (마지막 바이트)`);
             const converted = map.singleByte[byte];
             const char = String.fromCharCode(converted);
@@ -470,6 +529,8 @@ class EncodingConverter {
             i++;
             continue;
           }
+        } else {
+          debugCallback?.(`🔹 싱글바이트 모드에서 처리 중: 0x${byte.toString(16).toUpperCase()}`);
         }
       }
       
@@ -544,6 +605,74 @@ class EncodingConverter {
 
   public isInitialized(): boolean {
     return this.initialized;
+  }
+
+  /**
+   * EBCDIC to ASCII 변환 (새로운 시그니처)
+   * @param input 입력 버퍼 (헥스 문자열)
+   * @param output 출력 버퍼 (참조용, 실제로는 반환값 사용)
+   * @param encoding 인코딩 타입
+   * @param sosi_flag SOSI 처리 여부
+   * @param out_sosi_flag 출력에 SOSI 코드 유지 여부
+   * @param rlen 입력 버퍼 길이 (소스의 경우 80)
+   * @param layout 레이아웃 정보 (소스의 경우 null)
+   * @returns 변환된 ASCII 문자열
+   */
+  public async EBCDIC_TO_ASCII(
+    input: string,
+    output: string | null,
+    encoding: EncodingType,
+    sosi_flag: boolean,
+    out_sosi_flag: boolean,
+    rlen: number,
+    layout: string | null
+  ): Promise<string> {
+    const options: ConversionOptions = {
+      mode: ConversionMode.EBCDIC_TO_ASCII,
+      encoding,
+      useSOSI: sosi_flag,
+      sosiHandling: out_sosi_flag ? 'keep' : 'remove',
+      errorHandling: ErrorHandling.REPLACE,
+      rlen,
+      layout: layout || undefined
+    };
+
+    const result = await this.convert(input, options);
+    return result.output as string;
+  }
+
+  /**
+   * ASCII to EBCDIC 변환 (새로운 시그니처)
+   * @param input 입력 버퍼 (ASCII 문자열)
+   * @param output 출력 버퍼 (참조용, 실제로는 반환값 사용)
+   * @param encoding 인코딩 타입
+   * @param sosi_flag SOSI 처리 여부
+   * @param out_sosi_flag 출력에 SOSI 코드 유지 여부
+   * @param rlen 입력 버퍼 길이
+   * @param layout 레이아웃 정보
+   * @returns 변환된 EBCDIC 헥스 문자열
+   */
+  public async ASCII_TO_EBCDIC(
+    input: string,
+    output: string | null,
+    encoding: EncodingType,
+    sosi_flag: boolean,
+    out_sosi_flag: boolean,
+    rlen: number,
+    layout: string | null
+  ): Promise<string> {
+    const options: ConversionOptions = {
+      mode: ConversionMode.ASCII_TO_EBCDIC,
+      encoding,
+      useSOSI: sosi_flag,
+      sosiHandling: out_sosi_flag ? 'keep' : 'remove',
+      errorHandling: ErrorHandling.REPLACE,
+      rlen,
+      layout: layout || undefined
+    };
+
+    const result = await this.convert(input, options);
+    return result.output as string;
   }
 }
 

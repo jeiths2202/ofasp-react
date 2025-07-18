@@ -7,6 +7,11 @@ import {
   ErrorHandling,
   type ConversionOptions 
 } from '../utils/encodingConverter';
+import { 
+  convertEbcdicToAscii, 
+  convertAsciiToEbcdic,
+  type EbcdicConversionOptions 
+} from '../utils/ebcdicConverter';
 
 interface ToolsPageProps {
   isDarkMode: boolean;
@@ -54,26 +59,10 @@ const ToolsPage: React.FC<ToolsPageProps> = ({ isDarkMode }) => {
   };
 
   const handleConvert = async () => {
-    if (!isInitialized) {
-      alert('변환기가 초기화되지 않았습니다. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-
     setIsConverting(true);
     setConversionErrors([]);
 
     try {
-      const options: ConversionOptions = {
-        mode: conversionDirection === 'toAscii' ? ConversionMode.EBCDIC_TO_ASCII : ConversionMode.ASCII_TO_EBCDIC,
-        encoding,
-        useSOSI,
-        sosiType: sosiType === 'custom' ? 'custom' : sosiType,
-        customSO: sosiType === 'custom' ? customSO : undefined,
-        customSI: sosiType === 'custom' ? customSI : undefined,
-        sosiHandling,
-        errorHandling
-      };
-
       const input = conversionDirection === 'toAscii' ? ebcdicText : asciiText;
       
       // Debug logging
@@ -89,18 +78,25 @@ const ToolsPage: React.FC<ToolsPageProps> = ({ isDarkMode }) => {
       addConsoleLog(`SOSI 처리: ${sosiHandling === 'remove' ? '제거' : sosiHandling === 'keep' ? '유지' : '공백 변환'}`);
       addConsoleLog(`오류 처리: ${errorHandling}`);
 
-      const result = await encodingConverter.convert(input, options, addConsoleLog);
+      const ebcdicOptions: EbcdicConversionOptions = {
+        useSOSI,
+        sosiHandling,
+        errorHandling: errorHandling === ErrorHandling.STRICT ? 'strict' : 
+                     errorHandling === ErrorHandling.REPLACE ? 'replace' : 'ignore',
+        debugCallback: addConsoleLog
+      };
 
+      let result;
       if (conversionDirection === 'toAscii') {
-        addConsoleLog(`ASCII 출력: ${(result.output as string).substring(0, 100)}${(result.output as string).length > 100 ? '...' : ''}`);
-        addConsoleLog(`출력 길이: ${(result.output as string).length}`);
-        setAsciiText(result.output as string);
+        result = convertEbcdicToAscii(input, ebcdicOptions);
+        addConsoleLog(`ASCII 출력: ${result.output.substring(0, 100)}${result.output.length > 100 ? '...' : ''}`);
+        addConsoleLog(`출력 길이: ${result.output.length}`);
+        setAsciiText(result.output);
       } else {
-        // Remove line breaks from EBCDIC output for legacy compatibility
-        const cleanedOutput = (result.output as string).replace(/\n/g, '');
-        addConsoleLog(`EBCDIC 출력: ${cleanedOutput.substring(0, 100)}${cleanedOutput.length > 100 ? '...' : ''}`);
-        addConsoleLog(`출력 길이: ${cleanedOutput.length}`);
-        setEbcdicText(cleanedOutput);
+        result = convertAsciiToEbcdic(input, ebcdicOptions);
+        addConsoleLog(`EBCDIC 출력: ${result.output.substring(0, 100)}${result.output.length > 100 ? '...' : ''}`);
+        addConsoleLog(`출력 길이: ${result.output.length}`);
+        setEbcdicText(result.output);
       }
 
       if (result.errors.length > 0) {
@@ -110,6 +106,13 @@ const ToolsPage: React.FC<ToolsPageProps> = ({ isDarkMode }) => {
         });
       } else {
         addConsoleLog(`✅ 변환 완료 (오류 없음)`);
+      }
+
+      if (result.warnings && result.warnings.length > 0) {
+        addConsoleLog(`⚠️ 경고: ${result.warnings.length}개의 경고 발생`);
+        result.warnings.forEach((warning, index) => {
+          addConsoleLog(`  ${index + 1}. ${warning}`);
+        });
       }
 
       setConversionErrors(result.errors);
