@@ -21,6 +21,14 @@ fi
 # 프로세스 종료
 echo -e "\n${YELLOW}프로세스 종료 중...${NC}"
 
+# SMED Map Viewer 종료
+echo -n "SMED Map Viewer 종료... "
+pkill -f "react-scripts.*3000" 2>/dev/null
+if [ ! -z "$SMED_VIEWER_PID" ]; then
+    kill $SMED_VIEWER_PID 2>/dev/null
+fi
+echo -e "${GREEN}✓${NC}"
+
 # Python 서비스 종료
 echo -n "Python 변환 서비스 종료... "
 pkill -f "flask.*3003" 2>/dev/null
@@ -64,7 +72,7 @@ rm -f /home/aspuser/app/.running_services
 
 # 포트 확인
 echo -e "\n${YELLOW}포트 상태 확인...${NC}"
-for port in 3003 3005 3007 3008; do
+for port in 3000 3003 3005 3007 3008; do
     if lsof -i :$port > /dev/null 2>&1; then
         echo -e "${RED}⚠️  포트 $port 아직 사용 중${NC}"
     else

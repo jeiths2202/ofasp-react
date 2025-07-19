@@ -1,6 +1,23 @@
 {
   "workspace": "/home/aspuser/app",
   "projects": {
+    "smed-viewer": {
+      "name": "SMED Map Viewer",
+      "port": 3000,
+      "description": "레거시 SMED 화면 맵 뷰어",
+      "key_features": [
+        "24x80 터미널 시뮬레이션",
+        "SMED 필드 관리",
+        "실시간 상호작용",
+        "Java 프로그램 연동"
+      ],
+      "recent_work": [
+        "화면 레이아웃 최적화",
+        "입력 필드 검증",
+        "줌 기능 구현"
+      ],
+      "start_command": "cd /home/aspuser/app && npm start"
+    },
     "ofasp-refactor": {
       "name": "OpenASP Refactor",
       "port": 3005,
@@ -77,7 +94,7 @@
   "quick_commands": {
     "start_all": "/home/aspuser/app/master-start.sh",
     "stop_all": "/home/aspuser/app/master-stop.sh",
-    "check_status": "curl -s http://localhost:3003/health && curl -s http://localhost:3005 && curl -s http://localhost:3007",
+    "check_status": "curl -s http://localhost:3000 && curl -s http://localhost:3003/health && curl -s http://localhost:3005 && curl -s http://localhost:3007",
     "view_logs": "tail -f /tmp/*.log"
   }
 }

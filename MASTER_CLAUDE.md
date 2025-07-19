@@ -18,7 +18,23 @@
 
 ## 🎯 각 프로젝트별 상세 정보
 
-### 1. OpenASP Refactor (포트 3005)
+### 1. SMED Map Viewer (포트 3000)
+**목적**: 레거시 SMED (Screen Map EDitor) 화면 맵 뷰어
+
+#### 주요 기능
+- **24x80 터미널 시뮬레이션**: 레거시 터미널 화면 재현
+- **SMED 필드 관리**: 필드 위치, 속성, 색상 표시
+- **실시간 상호작용**: 입력 필드 값 관리 및 검증
+- **화면 제어**: 줌 인/아웃 기능
+- **세션 관리**: 사용자 인증 및 프로그램 상태
+- **Java 프로그램 연동**: MENU, LOGO, PGM1, PGM2, EIGYO001 등
+
+#### 기술 스택
+- React 19 + TypeScript
+- 사용자 정의 CSS 그리드 시스템
+- JSON 기반 화면 정의
+
+### 2. OpenASP Refactor (포트 3005)
 **목적**: 레거시 ASP 시스템을 오픈소스로 마이그레이션하는 웹 기반 플랫폼
 
 #### 주요 기능
@@ -41,7 +57,7 @@
 - CodeMirror (구문 하이라이팅)
 - i18n (국제화)
 
-### 2. ASP Manager (포트 3007)
+### 3. ASP Manager (포트 3007)
 **목적**: AI 기반 OpenASP 시스템 관리 및 문서 지원
 
 #### 주요 기능
@@ -58,7 +74,7 @@
 - Vector Embeddings
 - Express.js (백엔드 프록시)
 
-### 3. Python 변환 서비스 (포트 3003)
+### 4. Python 변환 서비스 (포트 3003)
 **목적**: EBCDIC/ASCII 코드 변환 백엔드 서비스
 
 #### 주요 기능
@@ -76,7 +92,7 @@ POST /api/v1/convert/ebcdic-to-ascii
 POST /api/v1/convert/ascii-to-ebcdic
 ```
 
-### 4. Curses 시스템 관리자
+### 5. Curses 시스템 관리자
 **위치**: `/home/aspuser/app/server/aspmgr/`
 
 #### 주요 기능
@@ -89,6 +105,7 @@ POST /api/v1/convert/ascii-to-ebcdic
 ## 🔧 개발 환경 설정
 
 ### 필수 포트
+- 3000: SMED Map Viewer (화면 맵 뷰어)
 - 3003: Python EBCDIC 변환 서비스
 - 3005: OpenASP Refactor 메인
 - 3007: ASP Manager

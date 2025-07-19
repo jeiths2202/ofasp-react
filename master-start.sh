@@ -21,28 +21,35 @@ pkill -f "react-scripts.*3007" 2>/dev/null
 pkill -f "node.*3008" 2>/dev/null
 sleep 3
 
-# 1. Python EBCDIC 변환 서비스 시작 (포트 3003)
+# 1. SMED Map Viewer 시작 (포트 3000)
+echo -e "\n${GREEN}🗺️  SMED Map Viewer 시작 (포트 3000)...${NC}"
+cd $APP_ROOT
+npm start > /tmp/smed-viewer.log 2>&1 &
+SMED_PID=$!
+echo "SMED Viewer PID: $SMED_PID"
+
+# 2. Python EBCDIC 변환 서비스 시작 (포트 3003)
 echo -e "\n${GREEN}🐍 Python 변환 서비스 시작 (포트 3003)...${NC}"
 cd $APP_ROOT/ofasp-refactor/python-service
 FLASK_PORT=3003 python -c "from src.api.app import api; api.run()" > /tmp/python-service.log 2>&1 &
 PYTHON_PID=$!
 echo "Python 서비스 PID: $PYTHON_PID"
 
-# 2. OpenASP Refactor 시작 (포트 3005)
+# 3. OpenASP Refactor 시작 (포트 3005)
 echo -e "\n${GREEN}⚛️  OpenASP Refactor 시작 (포트 3005)...${NC}"
 cd $APP_ROOT/ofasp-refactor
 PORT=3005 npm start > /tmp/ofasp-refactor.log 2>&1 &
 REFACTOR_PID=$!
 echo "Refactor 앱 PID: $REFACTOR_PID"
 
-# 3. ASP Manager 백엔드 프록시 시작 (포트 3008)
+# 4. ASP Manager 백엔드 프록시 시작 (포트 3008)
 echo -e "\n${GREEN}🔧 ASP Manager 백엔드 시작 (포트 3008)...${NC}"
 cd $APP_ROOT/asp-manager
 node server.js > /tmp/asp-manager-backend.log 2>&1 &
 BACKEND_PID=$!
 echo "백엔드 프록시 PID: $BACKEND_PID"
 
-# 4. ASP Manager 프론트엔드 시작 (포트 3007)
+# 5. ASP Manager 프론트엔드 시작 (포트 3007)
 echo -e "\n${GREEN}🎯 ASP Manager 시작 (포트 3007)...${NC}"
 cd $APP_ROOT/asp-manager
 PORT=3007 npm start > /tmp/asp-manager.log 2>&1 &
@@ -60,6 +67,14 @@ echo ""
 # 서비스 상태 확인
 echo -e "\n${YELLOW}🔍 서비스 상태 확인...${NC}"
 echo "========================================="
+
+# SMED Map Viewer 확인
+if curl -s http://localhost:3000 > /dev/null; then
+    echo -e "${GREEN}✅ SMED Map Viewer${NC} - http://localhost:3000"
+else
+    echo -e "${RED}❌ SMED Map Viewer 시작 실패${NC}"
+    echo "   로그 확인: tail -f /tmp/smed-viewer.log"
+fi
 
 # Python 서비스 확인
 if curl -s http://localhost:3003/health > /dev/null; then
@@ -96,6 +111,7 @@ fi
 # 프로세스 정보 저장
 echo -e "\n${YELLOW}💾 프로세스 정보 저장...${NC}"
 cat > $APP_ROOT/.running_services << EOF
+SMED_VIEWER_PID=$SMED_PID
 PYTHON_SERVICE_PID=$PYTHON_PID
 REFACTOR_APP_PID=$REFACTOR_PID
 BACKEND_PROXY_PID=$BACKEND_PID
@@ -107,11 +123,13 @@ echo "========================================="
 echo -e "${GREEN}🎉 OpenASP AX 개발 환경 시작 완료!${NC}"
 echo ""
 echo "📱 주요 서비스 접속 URL:"
+echo "   - SMED Map Viewer: http://localhost:3000"
 echo "   - OpenASP Refactor: http://localhost:3005"
 echo "   - ASP Manager: http://localhost:3007"
 echo "   - Python API: http://localhost:3003"
 echo ""
 echo "📋 로그 파일:"
+echo "   - SMED Viewer: /tmp/smed-viewer.log"
 echo "   - Python: /tmp/python-service.log"
 echo "   - Refactor: /tmp/ofasp-refactor.log"
 echo "   - Manager: /tmp/asp-manager.log"

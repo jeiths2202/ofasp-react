@@ -5,17 +5,22 @@ OpenASP AX는 레거시 ASP(Advanced System Products) 시스템을 현대적인 
 
 ## 🏗️ 프로젝트 구성
 
-### 1. [OpenASP Refactor](./ofasp-refactor/) (포트 3005)
+### 1. [SMED Map Viewer](./) (포트 3000)
+- **목적**: 레거시 SMED 화면 맵 뷰어
+- **주요 기능**: 24x80 터미널 시뮬레이션, 필드 관리, Java 프로그램 연동
+- **기술**: React, TypeScript, CSS Grid
+
+### 2. [OpenASP Refactor](./ofasp-refactor/) (포트 3005)
 - **목적**: 코드 변환 및 리팩토링 도구
 - **주요 기능**: COBOL/CL 변환, EBCDIC 변환, AI 지원
 - **기술**: React, TypeScript, CodeMirror
 
-### 2. [ASP Manager](./asp-manager/) (포트 3007)
+### 3. [ASP Manager](./asp-manager/) (포트 3007)
 - **목적**: AI 기반 시스템 관리 인터페이스
 - **주요 기능**: RAG 문서 검색, 시스템 모니터링, 가상 터미널
 - **기술**: React, TensorFlow.js, Express.js
 
-### 3. [Python 변환 서비스](./ofasp-refactor/python-service/) (포트 3003)
+### 4. [Python 변환 서비스](./ofasp-refactor/python-service/) (포트 3003)
 - **목적**: EBCDIC/ASCII 변환 백엔드
 - **주요 기능**: RESTful API, SOSI 처리, 배치 최적화
 - **기술**: Python, Flask, Flask-CORS
@@ -34,6 +39,9 @@ OpenASP AX는 레거시 ASP(Advanced System Products) 시스템을 현대적인 
 
 ### 개별 서비스 시작
 ```bash
+# SMED Map Viewer
+npm start
+
 # Python 변환 서비스
 cd ofasp-refactor/python-service
 FLASK_PORT=3003 python -c "from src.api.app import api; api.run()"
@@ -63,6 +71,7 @@ python convert_file.py /tmp/sample.ebc -e JP -s --sosi-handling space -o /tmp/ou
 
 ### API 상태 확인
 ```bash
+curl http://localhost:3000         # SMED Viewer
 curl http://localhost:3003/health  # Python 서비스
 curl http://localhost:3005         # Refactor 앱
 curl http://localhost:3007         # Manager 앱
