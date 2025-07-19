@@ -83,6 +83,27 @@
     "fileDownloaded": "SMED file has been downloaded."
   },
   "mapLink": {
-    "statusMessage": "Add nodes and connect them to define relationships between maps and programs."
+    "statusMessage": "Add nodes and connect them to define relationships between maps and programs.",
+    "title": "MapLink - Object Connection Management",
+    "description": "Define connection relationships between SMED maps and programs, and set key bindings",
+    "addMap": "Add MAP",
+    "addProgram": "Add PROGRAM",
+    "connectInstruction": "Shift+Click to connect nodes",
+    "save": "Save",
+    "deleteSelected": "Delete Selected",
+    "clearAll": "Clear All",
+    "zoomIn": "Zoom In (Mouse Over)",
+    "zoomOut": "Zoom Out (Mouse Over)",
+    "connectionCancelled": "Connection creation cancelled.",
+    "mapProperties": "MAP Properties",
+    "programProperties": "PROGRAM Properties",
+    "name": "Name",
+    "smedFile": "SMED File",
+    "selectOption": "Please select",
+    "programPath": "Program Path",
+    "selectJavaClass": "Select Java Class",
+    "programPlaceholder": "com.example.Program or select from above",
+    "connectionProperties": "Connection Properties",
+    "triggerKey": "Trigger Key"
   }
 }

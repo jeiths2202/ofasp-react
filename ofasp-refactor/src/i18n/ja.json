@@ -141,6 +141,27 @@
     "fileDownloaded": "SMEDファイルがダウンロードされました。"
   },
   "mapLink": {
-    "statusMessage": "ノードを追加して接続し、マップとプログラムの関係を定義してください。"
+    "statusMessage": "ノードを追加して接続し、マップとプログラムの関係を定義してください。",
+    "title": "MapLink - オブジェクト接続管理",
+    "description": "SMEDマップとプログラム間の接続関係を定義し、キーバインディングを設定してください",
+    "addMap": "MAP 追加",
+    "addProgram": "PROGRAM 追加",
+    "connectInstruction": "Shift+クリックでノード接続",
+    "save": "保存",
+    "deleteSelected": "選択削除",
+    "clearAll": "全体削除",
+    "zoomIn": "拡大 (マウスオーバー)",
+    "zoomOut": "縮小 (マウスオーバー)",
+    "connectionCancelled": "接続作成がキャンセルされました。",
+    "mapProperties": "MAP プロパティ",
+    "programProperties": "PROGRAM プロパティ",
+    "name": "名前",
+    "smedFile": "SMEDファイル",
+    "selectOption": "選択してください",
+    "programPath": "プログラムパス",
+    "selectJavaClass": "Javaクラス選択",
+    "programPlaceholder": "com.example.Program または上から選択",
+    "connectionProperties": "接続プロパティ",
+    "triggerKey": "トリガーキー"
   }
 }

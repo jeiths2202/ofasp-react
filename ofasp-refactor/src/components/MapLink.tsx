@@ -698,8 +698,8 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
       <div className="h-full flex flex-col">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">MapLink - 객체 연결 관리</h1>
-          <p className="text-gray-400">SMED 맵과 프로그램 간의 연결 관계를 정의하고 키 바인딩을 설정하세요</p>
+          <h1 className="text-2xl font-bold mb-2">{t('mapLink.title')}</h1>
+          <p className="text-gray-400">{t('mapLink.description')}</p>
         </div>
 
         {/* Toolbar */}
@@ -714,7 +714,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-2 transition-colors"
             >
               <DocumentTextIcon className="w-4 h-4" />
-              MAP 추가
+              {t('mapLink.addMap')}
             </button>
             
             <button
@@ -725,13 +725,13 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded flex items-center gap-2 transition-colors"
             >
               <CpuChipIcon className="w-4 h-4" />
-              PROGRAM 추가
+              {t('mapLink.addProgram')}
             </button>
 
             <div className="h-6 w-px bg-gray-600" />
 
             <span className="text-sm text-gray-400">
-              Shift+클릭으로 노드 연결
+              {t('mapLink.connectInstruction')}
             </span>
 
             {/* Action buttons */}
@@ -741,7 +741,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded flex items-center gap-2 transition-colors"
               >
                 <CloudArrowDownIcon className="w-4 h-4" />
-                저장
+                {t('mapLink.save')}
               </button>
               
               <button
@@ -750,7 +750,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded flex items-center gap-2 transition-colors"
               >
                 <TrashIcon className="w-4 h-4" />
-                선택 삭제
+                {t('mapLink.deleteSelected')}
               </button>
               
               <button
@@ -758,7 +758,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                 className="px-4 py-2 bg-red-800 hover:bg-red-900 rounded flex items-center gap-2 transition-colors"
               >
                 <TrashIcon className="w-4 h-4" />
-                전체 삭제
+                {t('mapLink.clearAll')}
               </button>
             </div>
           </div>
@@ -773,14 +773,14 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
               <button
                 onMouseEnter={() => setZoom(prev => Math.min(prev + 0.1, 2.0))}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white transition-colors"
-                title="확대 (마우스 오버)"
+                title={t('mapLink.zoomIn')}
               >
                 <MagnifyingGlassPlusIcon className="w-4 h-4" />
               </button>
               <button
                 onMouseEnter={() => setZoom(prev => Math.max(prev - 0.1, 0.5))}
                 className="p-2 bg-gray-700 hover:bg-gray-600 rounded text-white transition-colors"
-                title="축소 (마우스 오버)"
+                title={t('mapLink.zoomOut')}
               >
                 <MagnifyingGlassMinusIcon className="w-4 h-4" />
               </button>
@@ -806,7 +806,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                   setIsConnecting(false);
                   setConnectingFrom(null);
                   setTempConnectionEnd(null);
-                  setStatusMessage('연결 생성이 취소되었습니다.');
+                  setStatusMessage(t('mapLink.connectionCancelled'));
                 }
               }}
             />
@@ -820,19 +820,19 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                   {nodes.find(n => n.id === selectedNode)?.type === 'MAP' ? (
                     <>
                       <DocumentTextIcon className="w-5 h-5 text-blue-400" />
-                      MAP 속성
+                      {t('mapLink.mapProperties')}
                     </>
                   ) : (
                     <>
                       <CpuChipIcon className="w-5 h-5 text-purple-400" />
-                      PROGRAM 속성
+                      {t('mapLink.programProperties')}
                     </>
                   )}
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">이름</label>
+                    <label className="block text-sm font-medium mb-1">{t('mapLink.name')}</label>
                     <input
                       type="text"
                       value={nodeProperties.name}
@@ -843,13 +843,13 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                   
                   {nodes.find(n => n.id === selectedNode)?.type === 'MAP' ? (
                     <div>
-                      <label className="block text-sm font-medium mb-1">SMED 파일</label>
+                      <label className="block text-sm font-medium mb-1">{t('mapLink.smedFile')}</label>
                       <select
                         value={nodeProperties.file}
                         onChange={(e) => handleNodePropertyChange('file', e.target.value)}
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
                       >
-                        <option value="">선택하세요</option>
+                        <option value="">{t('mapLink.selectOption')}</option>
                         {smedFiles.map(file => (
                           <option key={file} value={file}>{file}</option>
                         ))}
@@ -857,13 +857,13 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-sm font-medium mb-1">프로그램 경로</label>
+                      <label className="block text-sm font-medium mb-1">{t('mapLink.programPath')}</label>
                       <select
                         value={nodeProperties.path}
                         onChange={(e) => handleNodePropertyChange('path', e.target.value)}
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white mb-2"
                       >
-                        <option value="">Java 클래스 선택</option>
+                        <option value="">{t('mapLink.selectJavaClass')}</option>
                         {javaClasses.map(className => (
                           <option key={className} value={className}>{className}</option>
                         ))}
@@ -873,7 +873,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
                         value={nodeProperties.path}
                         onChange={(e) => handleNodePropertyChange('path', e.target.value)}
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
-                        placeholder="com.example.Program 또는 위에서 선택"
+                        placeholder={t('mapLink.programPlaceholder')}
                       />
                     </div>
                   )}
@@ -885,12 +885,12 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <LinkIcon className="w-5 h-5 text-green-400" />
-                  연결 속성
+                  {t('mapLink.connectionProperties')}
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">트리거 키</label>
+                    <label className="block text-sm font-medium mb-1">{t('mapLink.triggerKey')}</label>
                     <select
                       value={connectionProperties.key}
                       onChange={(e) => handleConnectionPropertyChange('key', e.target.value)}
