@@ -1,185 +1,115 @@
-# 🌟 OpenASP
+# 🚀 OpenASP AX - 레거시 마이그레이션 플랫폼
 
-Complete modernization platform for migrating legacy ASP systems to cloud-native open-source technologies.
+## 개요
+OpenASP AX는 레거시 ASP(Advanced System Products) 시스템을 현대적인 오픈소스 기술로 마이그레이션하는 통합 플랫폼입니다.
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
-[![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-FF6F00?style=flat&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/js)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+## 🏗️ 프로젝트 구성
 
-## 🏗️ System Architecture
+### 1. [OpenASP Refactor](./ofasp-refactor/) (포트 3005)
+- **목적**: 코드 변환 및 리팩토링 도구
+- **주요 기능**: COBOL/CL 변환, EBCDIC 변환, AI 지원
+- **기술**: React, TypeScript, CodeMirror
 
-```
-OpenASP
-├── 🖥️  OpenASP SMED Interface (Port 3000)
-│   ├── Terminal-style authentication
-│   ├── SMED map-based workflows
-│   └── Legacy program execution
-├── 🤖 ASP Manager (Port 3007)
-│   ├── AI-powered chat assistant
-│   ├── RAG-based documentation
-│   └── Intelligent system management
-├── 🔧 OpenASP Refactor (Port 3005)
-│   ├── COBOL to Java conversion
-│   ├── CL to Shell/JavaScript migration
-│   └── 710 command mapping system
-└── ⚡ API Server (Port 8000)
-    ├── Multi-language program execution
-    ├── Real-time system monitoring
-    └── Legacy integration layer
-```
+### 2. [ASP Manager](./asp-manager/) (포트 3007)
+- **목적**: AI 기반 시스템 관리 인터페이스
+- **주요 기능**: RAG 문서 검색, 시스템 모니터링, 가상 터미널
+- **기술**: React, TensorFlow.js, Express.js
 
-## 🚀 Quick Start
+### 3. [Python 변환 서비스](./ofasp-refactor/python-service/) (포트 3003)
+- **목적**: EBCDIC/ASCII 변환 백엔드
+- **주요 기능**: RESTful API, SOSI 처리, 배치 최적화
+- **기술**: Python, Flask, Flask-CORS
 
-### Prerequisites
-- Node.js 18+ and npm
-- Python 3.8+ with pip
-- Git
+## 🚀 빠른 시작
 
-### Installation
+### 전체 환경 시작
 ```bash
-# Clone the repository
-git clone https://github.com/jeiths2202/ofasp-react.git
-cd ofasp-react
-
-# Install frontend dependencies
-cd ofasp-refactor && npm install && cd ..
-cd asp-manager && npm install && cd ..
-
-# Install Python dependencies
-pip install flask psutil
-
-# Start all services
-./start-services.sh  # or start individually
+./master-start.sh
 ```
 
-### Individual Service Startup
+### 전체 환경 종료
 ```bash
-# OpenASP Refactor (Port 3005)
-cd ofasp-refactor && npm start
-
-# ASP Manager (Port 3007) 
-cd asp-manager && npm start
-
-# API Server (Port 8000)
-python api_server.py
+./master-stop.sh
 ```
 
-## 🎯 Core Applications
+### 개별 서비스 시작
+```bash
+# Python 변환 서비스
+cd ofasp-refactor/python-service
+FLASK_PORT=3003 python -c "from src.api.app import api; api.run()"
 
-### 🔧 [OpenASP Refactor](./ofasp-refactor) - Legacy Code Migration
-- **COBOL → Java**: Advanced syntax conversion with modern patterns
-- **CL → Shell/JavaScript**: Command language modernization
-- **710 ASP Commands**: Complete mapping to open-source alternatives
-- **Interactive Documentation**: Searchable implementation guides
+# OpenASP Refactor
+cd ofasp-refactor
+PORT=3005 npm start
 
-### 🤖 [ASP Manager](./asp-manager) - AI-Powered Management
-- **RAG Chat System**: TensorFlow.js-powered Q&A with ASP manuals
-- **Multilingual Support**: Japanese/Korean auto-detection and responses
-- **Real-time Monitoring**: System performance and resource tracking
-- **Smart Documentation**: AI-assisted technical documentation
+# ASP Manager
+cd asp-manager
+PORT=3007 npm start
+```
 
-### 🖥️ OpenASP SMED - Legacy Interface
-- **Terminal-Style UI**: Familiar AS/400-like user experience
-- **SMED Map Integration**: Map-based authentication and navigation
-- **Program Execution**: Support for Java, COBOL, and Shell programs
-- **User Management**: Role-based access control system
+## 📋 주요 문서
 
-## 🌐 Technology Stack
+- [MASTER_CLAUDE.md](./MASTER_CLAUDE.md) - 전체 프로젝트 작업 히스토리
+- [PROJECT_CONTEXT.json](./PROJECT_CONTEXT.json) - 구조화된 프로젝트 정보
+- [CODING_RULES.md](./ofasp-refactor/CODING_RULES.md) - 개발 규칙 및 표준
 
-| Component | Technologies |
-|-----------|-------------|
-| **Frontend** | React 19, TypeScript, Tailwind CSS |
-| **AI/ML** | TensorFlow.js, Universal Sentence Encoder, RAG |
-| **Backend** | Node.js, Express.js, Flask (Python) |
-| **Database** | PostgreSQL, Vector embeddings, JSON configs |
-| **Languages** | COBOL, Java, JavaScript, Python, Shell |
-| **Deployment** | Docker, nginx, PM2, ngrok |
-| **Monitoring** | psutil, real-time metrics, performance tracking |
+## 🧪 테스트
 
-## ✨ Key Features
+### EBCDIC 변환 테스트
+```bash
+cd ofasp-refactor/python-service
+python convert_file.py /tmp/sample.ebc -e JP -s --sosi-handling space -o /tmp/output.txt
+```
 
-### 🔄 **Legacy Modernization**
-- **Code Conversion**: Automated COBOL to Java transformation
-- **Command Migration**: 710 ASP commands → Open source alternatives
-- **Architecture Mapping**: Mainframe concepts → Cloud-native patterns
-- **Compatibility Layer**: Smooth transition with minimal disruption
+### API 상태 확인
+```bash
+curl http://localhost:3003/health  # Python 서비스
+curl http://localhost:3005         # Refactor 앱
+curl http://localhost:3007         # Manager 앱
+```
 
-### 🧠 **AI-Powered Assistance**
-- **Document Intelligence**: RAG system with Japanese ASP manuals
-- **Contextual Help**: Chain-of-thought reasoning for technical queries
-- **Multilingual Support**: Auto-detecting Japanese/Korean responses
-- **Performance Optimization**: Smart caching and vector embeddings
+## 🔧 개발 환경
 
-### 🎨 **Modern User Experience**
-- **Responsive Design**: Mobile-first approach with desktop optimization
-- **Dark/Light Themes**: System preference matching and manual toggle
-- **Accessibility**: WCAG 2.1 compliant interfaces
-- **Progressive Enhancement**: Works offline with service workers
+### 필수 요구사항
+- Node.js 18+
+- Python 3.10+
+- npm 또는 yarn
 
-### 🔒 **Enterprise Security**
-- **Session Management**: Secure authentication with role-based access
-- **External Access**: ngrok integration with security controls
-- **Data Privacy**: Client-side processing for sensitive documents
-- **Audit Logging**: Comprehensive activity tracking
+### 환경 변수
+```bash
+FLASK_PORT=3003
+REACT_APP_PYTHON_CONVERTER_URL=http://localhost:3003
+CODEPAGE_BASE_PATH=/home/aspuser/app/ofasp-refactor/public/codepages
+```
 
-## 📊 Migration Benefits
+## 📁 디렉토리 구조
+```
+/home/aspuser/app/
+├── ofasp-refactor/          # 메인 리팩토링 플랫폼
+│   ├── src/                 # React 소스 코드
+│   ├── python-service/      # Python 백엔드
+│   └── public/             # 정적 리소스
+├── asp-manager/            # AI 관리 인터페이스
+│   ├── src/                # React 소스 코드
+│   └── server.js          # Express 프록시
+├── server/                 # 백엔드 서비스
+│   └── aspmgr/            # Curses 시스템 관리자
+├── master-start.sh        # 전체 시작 스크립트
+└── master-stop.sh         # 전체 종료 스크립트
+```
 
-| Aspect | Before (ASP) | After (OpenASP) |
-|--------|----------------|-----------------|
-| **Infrastructure** | Mainframe hardware | Cloud-native containers |
-| **Development** | Green screen terminals | Modern web interfaces |
-| **Languages** | COBOL, RPG, CL | Java, JavaScript, Python |
-| **Database** | DB2/400 | PostgreSQL with modern ORM |
-| **Scalability** | Vertical scaling | Horizontal auto-scaling |
-| **Cost** | High hardware costs | Pay-as-you-use cloud |
-| **Integration** | Limited APIs | RESTful APIs, microservices |
-| **Maintenance** | Specialized skills | Modern development practices |
+## 🤝 기여 방법
 
-## 🔗 Service Endpoints
+1. 이슈 생성
+2. 기능 브랜치 생성
+3. 변경사항 커밋
+4. 풀 리퀘스트 생성
+5. 코드 리뷰 및 머지
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| **OpenASP Refactor** | `http://localhost:3005` | Code migration platform |
-| **ASP Manager** | `http://localhost:3007` | AI management interface |
-| **SMED Interface** | `http://localhost:3000` | Legacy terminal UI |
-| **API Server** | `http://localhost:8000` | Backend services |
+## 📝 라이선스
 
-## 📚 Documentation
-
-- **[Migration Guide](./docs/migration-guide.md)**: Step-by-step modernization process
-- **[API Reference](./docs/api-reference.md)**: Complete API documentation
-- **[Command Mapping](./docs/command-mapping.md)**: ASP to OpenASP command reference
-- **[Deployment Guide](./docs/deployment.md)**: Production deployment instructions
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **ASP Community** for invaluable legacy system insights
-- **Open Source Ecosystem** for providing modern alternatives
-- **TensorFlow.js Team** for enabling client-side AI capabilities
-- **React Community** for building amazing developer tools
+이 프로젝트는 내부 사용을 위해 개발되었습니다.
 
 ---
-
-<div align="center">
-
-**OpenASP** - Bridging Legacy and Future
-
-*From Mainframe to Modern: Empowering Digital Transformation*
-
-Built with ❤️ by the OpenASP Team
-
-</div>
+**개발**: Claude Code Assistant와 함께
+**최종 업데이트**: 2025-07-19

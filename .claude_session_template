@@ -1,0 +1,17 @@
+# Claude 세션 시작 템플릿
+
+도커가 재시작되었습니다. 다음 파일들을 읽고 작업을 재개해주세요:
+
+1. /home/aspuser/app/MASTER_CLAUDE.md - 전체 프로젝트 개요
+2. /home/aspuser/app/PROJECT_CONTEXT.json - 구조화된 프로젝트 정보
+3. /home/aspuser/app/ofasp-refactor/CLAUDE.md - OpenASP Refactor 상세
+4. /home/aspuser/app/asp-manager/CLAUDE.md - ASP Manager 상세
+
+주요 서비스:
+- OpenASP Refactor (포트 3005)
+- ASP Manager (포트 3007) 
+- Python 변환 서비스 (포트 3003)
+
+전체 환경 시작: /home/aspuser/app/master-start.sh
+
+한국어로 대화하며, 간결하고 직접적인 답변을 선호합니다.

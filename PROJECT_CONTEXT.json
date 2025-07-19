@@ -1,0 +1,83 @@
+{
+  "workspace": "/home/aspuser/app",
+  "projects": {
+    "ofasp-refactor": {
+      "name": "OpenASP Refactor",
+      "port": 3005,
+      "description": "레거시 ASP를 오픈소스로 변환하는 웹 플랫폼",
+      "key_features": [
+        "COBOL/CL 코드 변환",
+        "EBCDIC/ASCII 변환",
+        "AI Transform 도구",
+        "다국어 지원"
+      ],
+      "recent_work": [
+        "Python Flask 변환 서비스 통합",
+        "배치 변환 성능 최적화",
+        "SOSI 코드 처리 개선"
+      ],
+      "start_command": "cd /home/aspuser/app/ofasp-refactor && PORT=3005 npm start"
+    },
+    "asp-manager": {
+      "name": "ASP Manager",
+      "port": 3007,
+      "backend_port": 3008,
+      "description": "AI 기반 OpenASP 시스템 관리 인터페이스",
+      "key_features": [
+        "RAG 기반 문서 검색",
+        "시스템 모니터링",
+        "가상 터미널",
+        "SMED 맵 편집기"
+      ],
+      "recent_work": [
+        "ASP WebUI Terminal 구현",
+        "ASP MapEditor 완성",
+        "로그 관리 시스템"
+      ],
+      "start_command": "cd /home/aspuser/app/asp-manager && PORT=3007 npm start"
+    },
+    "python-service": {
+      "name": "Python 변환 서비스",
+      "port": 3003,
+      "description": "EBCDIC/ASCII 변환 백엔드 API",
+      "key_features": [
+        "RESTful API",
+        "SOSI 처리",
+        "다중 인코딩",
+        "배치 처리"
+      ],
+      "recent_work": [
+        "SOSI 위치 보존 처리",
+        "Shift-JIS 디코딩",
+        "API 성능 최적화"
+      ],
+      "start_command": "cd /home/aspuser/app/ofasp-refactor/python-service && FLASK_PORT=3003 python -c \"from src.api.app import api; api.run()\""
+    }
+  },
+  "shared_resources": {
+    "codepages": "/home/aspuser/app/ofasp-refactor/public/codepages",
+    "test_files": "/tmp/sample.ebc",
+    "logs": "/tmp/*.log"
+  },
+  "development_rules": {
+    "coding_standards": "CODING_RULES.md",
+    "no_hardcoding": true,
+    "test_separation": true,
+    "environment_based_config": true
+  },
+  "claude_preferences": {
+    "language": "Korean",
+    "response_style": "direct_and_concise",
+    "focus_areas": [
+      "code_conversion",
+      "performance_optimization",
+      "error_handling"
+    ]
+  },
+  "quick_commands": {
+    "start_all": "/home/aspuser/app/master-start.sh",
+    "stop_all": "/home/aspuser/app/master-stop.sh",
+    "check_status": "curl -s http://localhost:3003/health && curl -s http://localhost:3005 && curl -s http://localhost:3007",
+    "view_logs": "tail -f /tmp/*.log"
+  }
+}
