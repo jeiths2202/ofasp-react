@@ -92,7 +92,25 @@ POST /api/v1/convert/ebcdic-to-ascii
 POST /api/v1/convert/ascii-to-ebcdic
 ```
 
-### 5. Curses 시스템 관리자
+### 5. ASP CLI 시스템 명령어
+**위치**: `/home/aspuser/app/server/system-cmds/`
+
+#### 주요 기능
+- ASP 시스템 명령어 재구현 (CLI 버전)
+- 볼륨/라이브러리/파일 관리
+- 지원 명령어: CRTLIB, DLTLIB, WRKLIB, CRTFILE, DLTFILE, DSPFD, WRKOBJ, WRKVOL 등
+- UTF-8 인코딩 지원으로 한국어 메시지 처리
+- 테스트 스크립트 제공 (`test1.py`)
+
+#### 사용 예시
+```bash
+cd /home/aspuser/app/server/system-cmds
+python aspcli.py CRTLIB LIB-TESTLIB,VOL-DISK99
+python aspcli.py WRKVOL
+python test1.py  # 전체 테스트
+```
+
+### 6. Curses 시스템 관리자
 **위치**: `/home/aspuser/app/server/aspmgr/`
 
 #### 주요 기능
