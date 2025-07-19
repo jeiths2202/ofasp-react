@@ -203,7 +203,7 @@ function App() {
     setActiveTabId(item.id);
   }, [tabs, theme.mode]);
 
-  // 테마 및 언어 초기화
+  // テーマおよび言語の初期化
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
@@ -219,17 +219,17 @@ function App() {
     if (savedLanguage) {
       setLanguage(savedLanguage);
     } else {
-      // 환경변수 또는 기본값으로 일본어 설정
+      // 環境変数またはデフォルト値で日本語設定
       setLanguage(envDefaultLang);
       localStorage.setItem('language', envDefaultLang);
     }
   }, []);
 
-  // 언어 변경 시 탭 업데이트
+  // 言語変更時のタブ更新
   useEffect(() => {
     const i18nValue = createI18nContextValue(language, handleLanguageChange);
     
-    // 초기 대시보드 탭 생성 또는 업데이트
+    // 初期ダッシュボードタブ生成または更新
     setTabs(prevTabs => {
       const existingDashboard = prevTabs.find(tab => tab.id === 'dashboard');
       const newDashboard = {
@@ -241,12 +241,12 @@ function App() {
       };
 
       if (existingDashboard) {
-        // 기존 대시보드 탭 업데이트
+        // 既存のダッシュボードタブ更新
         return prevTabs.map(tab => 
           tab.id === 'dashboard' ? newDashboard : tab
         );
       } else {
-        // 새 대시보드 탭 추가
+        // 新しいダッシュボードタブ追加
         return [newDashboard, ...prevTabs];
       }
     });

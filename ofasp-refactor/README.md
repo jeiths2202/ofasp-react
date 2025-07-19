@@ -147,8 +147,9 @@ CODEPAGE_BASE_PATH=/home/aspuser/app/ofasp-refactor/public/codepages
 
 ### Language Support
 - **Japanese (ja)**: Default interface language
-- **Korean (ko)**: Alternative interface language
-- **Auto-detection**: Based on user query content in chat
+- **English (en)**: Alternative interface language  
+- **Development Language**: Japanese for comments and variable names
+- **Claude Communication**: Korean (for this project context)
 
 ## 🤝 Contributing
 

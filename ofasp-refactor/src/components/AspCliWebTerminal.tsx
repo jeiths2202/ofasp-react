@@ -137,65 +137,82 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
 
     switch (mainCommand) {
       case 'WRKVOL':
-        return `[INFO] 볼륨 현황:
-  📦 볼륨명        : DISK99
-     ├ 라이브러리 수 : 3
-     ├ 총 파일 수     : 12
-     └ 디스크 사용량 : 1,024 Byte
-  📦 볼륨명        : MSGQ
-     ├ 라이브러리 수 : 1
-     ├ 총 파일 수     : 0
-     └ 디스크 사용량 : 0 Byte`;
+        return `[INFO] ボリューム状況:
+  📦 ボリューム名      : DISK99
+     ├ ライブラリ数   : 3
+     ├ 総ファイル数   : 12
+     └ ディスク使用量 : 1,024 Byte
+  📦 ボリューム名      : MSGQ
+     ├ ライブラリ数   : 1
+     ├ 総ファイル数   : 0
+     └ ディスク使用量 : 0 Byte`;
 
       case 'CRTLIB':
         const libMatch = command.match(/LIB-(\w+)/i);
         const volMatch = command.match(/VOL-(\w+)/i);
         const libName = libMatch ? libMatch[1] : 'NEWLIB';
         const volName = volMatch ? volMatch[1] : 'DISK99';
-        return `[INFO] 라이브러리 '${libName}'가 볼륨 '${volName}'에 생성되었습니다.`;
+        return `[INFO] ライブラリ '${libName}' がボリューム '${volName}' に作成されました。`;
 
       case 'CRTFILE':
         const fileMatch = command.match(/FILE\((\w+)\/(\w+)\)/i);
         if (fileMatch) {
           const [, lib, file] = fileMatch;
-          return `[INFO] 파일 '${file}'가 라이브러리 '${lib}'에 생성되었습니다.`;
+          return `[INFO] ファイル '${file}' がライブラリ '${lib}' に作成されました。`;
         }
-        return `[INFO] 파일이 생성되었습니다.`;
+        return `[INFO] ファイルが作成されました。`;
 
       case 'DSPFD':
         const dspfdMatch = command.match(/FILE\((\w+)\/(\w+)\)/i);
         if (dspfdMatch) {
           const [, lib, file] = dspfdMatch;
-          return `[INFO] 파일 정의 정보:
-  📁 파일 경로       : /volume/DISK99/${lib}/${file}
-  📄 파일 이름       : ${file}
-  📦 파일 크기       : 0 Byte
-  🕒 생성일시         : ${new Date().toLocaleString()}
-  📉 파일이 비어 있음  : 예`;
+          return `[INFO] ファイル定義情報:
+  📁 ファイルパス     : /volume/DISK99/${lib}/${file}
+  📄 ファイル名       : ${file}
+  📦 ファイルサイズ   : 0 Byte
+  🕒 作成日時         : ${new Date().toLocaleString()}
+  📉 ファイルが空です : はい`;
         }
-        return `[INFO] 파일 정의 정보를 표시합니다.`;
+        return `[INFO] ファイル定義情報を表示します。`;
 
       case 'HELP':
-        return `사용 가능한 ASP 명령어:
+        const parts = command.split(' ');
+        if (parts.length > 1) {
+          const helpCommand = parts[1].toUpperCase();
+          return getCommandHelp(helpCommand);
+        }
+        return `使用可能なASPコマンド:
 
-라이브러리 관리:
-  CRTLIB LIB-<name>,VOL-<volume>  - 라이브러리 생성
-  DLTLIB LIB-<name>,VOL-<volume>  - 라이브러리 삭제
-  WRKLIB LIB-<name>,VOL-<volume>  - 라이브러리 작업
+ライブラリ管理:
+  CRTLIB LIB-<name>,VOL-<volume>  - ライブラリ作成
+  DLTLIB LIB-<name>,VOL-<volume>  - ライブラリ削除
+  WRKLIB                          - ライブラリ一覧
 
-파일 관리:
-  CRTFILE FILE(<lib>/<file>),VOL-<volume>  - 파일 생성
-  DLTFILE FILE(<lib>/<file>),VOL-<volume>  - 파일 삭제
-  DSPFD FILE(<lib>/<file>),VOL-<volume>    - 파일 정의 표시
+ファイル管理:
+  CRTFILE FILE(<lib>/<file>),VOL-<volume>  - ファイル作成
+  DLTFILE FILE(<lib>/<file>),VOL-<volume>  - ファイル削除
+  DSPFD FILE(<lib>/<file>),VOL-<volume>    - ファイル定義表示
 
-시스템 조회:
-  WRKVOL     - 볼륨 현황
-  WRKOBJ     - 객체 작업
-  DSPJOB     - 작업 표시
-  
-예시:
-  CRTLIB LIB-TESTLIB,VOL-DISK99
-  CRTFILE FILE(TESTLIB/TESTFILE),VOL-DISK99`;
+システム管理:
+  WRKVOL     - ボリューム状況
+  WRKOBJ LIB-<name>,VOL-<volume>  - オブジェクト作業
+  WRKSPLF    - スプールファイル作業
+  DSPJOB     - ジョブ表示
+
+メッセージ管理:
+  SNDMSG TO-<user>,MSG-<message>  - メッセージ送信
+  RCVMSG USER-<user>              - メッセージ受信
+  WRKMSG                          - メッセージキュー表示
+
+プログラム実行:
+  CALL PGM-<lib>/<prog>,VOL-<volume>  - プログラム実行
+
+バックアップ:
+  SAVLIB LIB-<name>,VOL-<volume>  - ライブラリ保存
+  RSTLIB FILE-<backup_file>       - ライブラリ復元
+
+詳細なヘルプ: HELP <コマンド名>
+例: HELP CRTLIB, HELP WRKVOL`;
 
       case 'CLS':
       case 'CLEAR':
@@ -204,10 +221,10 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
 
       default:
         if (upperCommand.includes('LIB-') || upperCommand.includes('FILE(') || upperCommand.includes('VOL-')) {
-          return `[INFO] 명령 '${mainCommand}'가 실행되었습니다.`;
+          return `[INFO] コマンド '${mainCommand}' が実行されました。`;
         }
-        return `[ERROR] 알 수 없는 명령입니다: ${mainCommand}
-HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
+        return `[ERROR] 不明なコマンドです: ${mainCommand}
+HELP を入力して使用可能なコマンドを確認してください。`;
     }
   };
 
@@ -215,6 +232,315 @@ HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
     e.preventDefault();
     if (currentCommand.trim() && !isExecuting) {
       executeCommand(currentCommand);
+    }
+  };
+
+  // 各コマンドの詳細ヘルプ
+  const getCommandHelp = (command: string): string => {
+    switch (command) {
+      case 'CRTLIB':
+        return `CRTLIB - ライブラリ作成
+
+概要:
+  新しいライブラリを指定されたボリュームに作成します。
+
+構文:
+  CRTLIB LIB-<library_name>,VOL-<volume_name>
+
+パラメータ:
+  LIB-<library_name>  : 作成するライブラリ名
+  VOL-<volume_name>    : 作成先ボリューム名
+
+例:
+  CRTLIB LIB-TESTLIB,VOL-DISK99
+  CRTLIB LIB-SALES,VOL-DISK01
+
+注意:
+  - ライブラリ名は英数字のみ使用可能
+  - 同名のライブラリが存在する場合は上書きされます`;
+
+      case 'DLTLIB':
+        return `DLTLIB - ライブラリ削除
+
+概要:
+  指定されたライブラリとその中身を完全に削除します。
+
+構文:
+  DLTLIB LIB-<library_name>,VOL-<volume_name>
+
+パラメータ:
+  LIB-<library_name>  : 削除するライブラリ名
+  VOL-<volume_name>    : 対象ボリューム名
+
+例:
+  DLTLIB LIB-TESTLIB,VOL-DISK99
+  DLTLIB LIB-OLDLIB,VOL-DISK01
+
+警告:
+  - この操作は元に戻せません
+  - ライブラリ内の全ファイルも削除されます`;
+
+      case 'WRKVOL':
+        return `WRKVOL - ボリューム状況表示
+
+概要:
+  システム内の全ボリュームの使用状況を表示します。
+
+構文:
+  WRKVOL
+
+表示情報:
+  - ボリューム名
+  - ライブラリ数
+  - 総ファイル数
+  - ディスク使用量
+
+例:
+  WRKVOL
+
+出力例:
+  📦 ボリューム名      : DISK99
+     ├ ライブラリ数   : 3
+     ├ 総ファイル数   : 12
+     └ ディスク使用量 : 1,024 Byte`;
+
+      case 'CRTFILE':
+        return `CRTFILE - ファイル作成
+
+概要:
+  指定されたライブラリ内にファイルを作成します。
+
+構文:
+  CRTFILE FILE(<library>/<filename>),VOL-<volume>
+
+パラメータ:
+  FILE(<library>/<filename>) : ライブラリ/ファイル名
+  VOL-<volume>               : 対象ボリューム名
+
+例:
+  CRTFILE FILE(TESTLIB/CUSTMAST),VOL-DISK99
+  CRTFILE FILE(SALES/REPORT),VOL-DISK01
+
+注意:
+  - 指定されたライブラリが存在する必要があります
+  - ファイルは空の状態で作成されます`;
+
+      case 'DSPFD':
+        return `DSPFD - ファイル定義表示
+
+概要:
+  指定されたファイルの詳細情報を表示します。
+
+構文:
+  DSPFD FILE(<library>/<filename>),VOL-<volume>
+
+パラメータ:
+  FILE(<library>/<filename>) : ライブラリ/ファイル名
+  VOL-<volume>               : 対象ボリューム名
+
+表示情報:
+  - ファイルパス
+  - ファイルサイズ
+  - 作成日時
+  - 最終更新日時
+  - 空ファイル判定
+
+例:
+  DSPFD FILE(TESTLIB/CUSTMAST),VOL-DISK99`;
+
+      case 'WRKOBJ':
+        return `WRKOBJ - オブジェクト作業
+
+概要:
+  指定されたライブラリ内のオブジェクト一覧を表示します。
+
+構文:
+  WRKOBJ LIB-<library_name>,VOL-<volume_name>
+
+パラメータ:
+  LIB-<library_name>  : 対象ライブラリ名
+  VOL-<volume_name>    : 対象ボリューム名
+
+表示情報:
+  - オブジェクト名
+  - ファイルサイズ
+  - 最終更新日時
+
+例:
+  WRKOBJ LIB-TESTLIB,VOL-DISK99`;
+
+      case 'SNDMSG':
+        return `SNDMSG - メッセージ送信
+
+概要:
+  指定されたユーザーにメッセージを送信します。
+
+構文:
+  SNDMSG TO-<username>,MSG-<message>
+
+パラメータ:
+  TO-<username>  : 送信先ユーザー名
+  MSG-<message>  : 送信メッセージ内容
+
+例:
+  SNDMSG TO-ADMIN,MSG-システム開始しました
+  SNDMSG TO-USER01,MSG-処理完了
+
+注意:
+  - メッセージは日時付きで保存されます`;
+
+      case 'RCVMSG':
+        return `RCVMSG - メッセージ受信
+
+概要:
+  指定されたユーザーの受信メッセージを表示します。
+
+構文:
+  RCVMSG USER-<username>
+
+パラメータ:
+  USER-<username>  : 対象ユーザー名
+
+例:
+  RCVMSG USER-ADMIN
+  RCVMSG USER-USER01
+
+注意:
+  - 受信したメッセージがない場合は通知されます`;
+
+      case 'DSPJOB':
+        return `DSPJOB - ジョブ表示
+
+概要:
+  システム内のジョブ実行履歴を表示します。
+
+構文:
+  DSPJOB
+
+表示情報:
+  - ジョブID
+  - プログラム名
+  - 開始時刻
+  - 終了時刻
+  - 実行ステータス
+
+例:
+  DSPJOB
+
+注意:
+  - 最新10件のジョブ履歴が表示されます`;
+
+      case 'CALL':
+        return `CALL - プログラム実行
+
+概要:
+  指定されたプログラムを実行します。
+
+構文:
+  CALL PGM-<library>/<program>,VOL-<volume>
+
+パラメータ:
+  PGM-<library>/<program>  : ライブラリ/プログラム名
+  VOL-<volume>             : 対象ボリューム名
+
+対応形式:
+  - Python (.py)
+  - Shell Script (.sh)
+
+例:
+  CALL PGM-TESTLIB/HELLO,VOL-DISK99
+  CALL PGM-BATCH/PROCESS,VOL-DISK01`;
+
+      case 'SAVLIB':
+        return `SAVLIB - ライブラリ保存
+
+概要:
+  指定されたライブラリをバックアップファイルに保存します。
+
+構文:
+  SAVLIB LIB-<library_name>,VOL-<volume_name>
+
+パラメータ:
+  LIB-<library_name>  : 保存するライブラリ名
+  VOL-<volume_name>    : 対象ボリューム名
+
+例:
+  SAVLIB LIB-TESTLIB,VOL-DISK99
+
+注意:
+  - バックアップファイルは自動的に日時付きで命名されます
+  - tar.gz形式で圧縮保存されます`;
+
+      case 'RSTLIB':
+        return `RSTLIB - ライブラリ復元
+
+概要:
+  バックアップファイルからライブラリを復元します。
+
+構文:
+  RSTLIB FILE-<backup_filename>
+
+パラメータ:
+  FILE-<backup_filename>  : 復元するバックアップファイル名
+
+例:
+  RSTLIB FILE-TESTLIB_DISK99_20250719120000.tar.gz
+
+注意:
+  - バックアップファイルが存在する必要があります
+  - 既存の同名ライブラリは上書きされます`;
+
+      case 'WRKLIB':
+        return `WRKLIB - ライブラリ一覧
+
+概要:
+  システム内の全ライブラリを一覧表示します。
+
+構文:
+  WRKLIB
+
+表示情報:
+  - ボリューム名
+  - ライブラリ名
+
+例:
+  WRKLIB`;
+
+      case 'WRKSPLF':
+        return `WRKSPLF - スプールファイル作業
+
+概要:
+  システム内のスプールファイルを一覧表示します。
+
+構文:
+  WRKSPLF
+
+表示情報:
+  - スプールファイル名
+  - ファイルサイズ
+  - 最終更新日時
+
+例:
+  WRKSPLF`;
+
+      case 'WRKMSG':
+        return `WRKMSG - メッセージキュー表示
+
+概要:
+  システムメッセージキューの内容を表示します。
+
+構文:
+  WRKMSG
+
+例:
+  WRKMSG
+
+注意:
+  - システム全体のメッセージログが表示されます`;
+
+      default:
+        return `[ERROR] 不明なコマンドです: ${command}
+使用可能なコマンド一覧を見るには HELP と入力してください。`;
     }
   };
 
@@ -290,16 +616,16 @@ HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
           <span className="title-text">ASP System Command Terminal</span>
         </div>
         <div className="header-info">
-          <span className="info-item">사용자: {systemInfo.currentUser}</span>
+          <span className="info-item">ユーザー: {systemInfo.currentUser}</span>
           <span className="info-separator">|</span>
-          <span className="info-item">볼륨: {systemInfo.currentVolume}</span>
+          <span className="info-item">ボリューム: {systemInfo.currentVolume}</span>
           <span className="info-separator">|</span>
           <span className="info-item">{systemInfo.systemTime}</span>
         </div>
         <button 
           className="clear-button"
           onClick={clearHistory}
-          title="화면 지우기"
+          title="画面クリア"
         >
           🗑️
         </button>
@@ -317,8 +643,8 @@ HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
               ╚══════════════════════════════════════════╝
             </div>
             <div className="welcome-text">
-              ASP 시스템 명령어 터미널에 오신 것을 환영합니다.<br/>
-              도움말을 보려면 <strong>HELP</strong>를 입력하세요.
+              ASP システムコマンドターミナルへようこそ。<br/>
+              ヘルプを表示するには <strong>HELP</strong> を入力してください。
             </div>
           </div>
         )}
@@ -344,7 +670,7 @@ HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
           <div className="executing-indicator">
             <span className="prompt">ASP&gt;</span>
             <span className="command-text">{currentCommand}</span>
-            <span className="loading-dots">실행 중...</span>
+            <span className="loading-dots">実行中...</span>
           </div>
         )}
       </div>
@@ -358,7 +684,7 @@ HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
           value={currentCommand}
           onChange={(e) => setCurrentCommand(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="ASP 명령어를 입력하세요... (예: WRKVOL, HELP)"
+          placeholder="ASP コマンドを入力してください... (例: WRKVOL, HELP)"
           disabled={isExecuting}
           className="command-input"
           autoFocus
@@ -368,13 +694,13 @@ HELP를 입력하여 사용 가능한 명령어를 확인하세요.`;
           disabled={isExecuting || !currentCommand.trim()}
           className="execute-button"
         >
-          {isExecuting ? '실행중...' : '실행'}
+          {isExecuting ? '実行中...' : '実行'}
         </button>
       </form>
 
       {/* 도움말 패널 */}
       <div className="help-panel">
-        <strong>단축키:</strong> Tab(자동완성), ↑↓(명령어 히스토리), Ctrl+L(화면 지우기) | <strong>히스토리:</strong> 최대 10개 명령어 저장
+        <strong>ショートカット:</strong> Tab(自動完成), ↑↓(コマンド履歴), Ctrl+L(画面クリア) | <strong>履歴:</strong> 最大 10 コマンド保存
       </div>
     </div>
   );

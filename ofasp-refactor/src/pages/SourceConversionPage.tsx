@@ -314,9 +314,9 @@ const SourceConversionPage: React.FC<SourceConversionPageProps> = ({ isDarkMode 
           
           if (ebcdicByte !== undefined && asciiByte !== undefined) {
             let specialNote = '';
-            if (ebcdicByte === 0x0E) specialNote = ' (SOSI: SO - 더블바이트 시작)';
-            else if (ebcdicByte === 0x0F) specialNote = ' (SOSI: SI - 더블바이트 종료)';
-            else if (ebcdicByte === 0x40) specialNote = ' (EBCDIC 공백)';
+            if (ebcdicByte === 0x0E) specialNote = ' (SOSI: SO - ダブルバイト開始)';
+            else if (ebcdicByte === 0x0F) specialNote = ' (SOSI: SI - ダブルバイト終了)';
+            else if (ebcdicByte === 0x40) specialNote = ' (EBCDIC 空白)';
             
             addConsoleLog(`  [${i.toString().padStart(2, '0')}] 0x${ebcdicByte.toString(16).padStart(2, '0').toUpperCase()}('${ebcdicChar}') → 0x${asciiByte.toString(16).padStart(2, '0').toUpperCase()}('${asciiChar}')${specialNote}`);
           } else if (ebcdicByte !== undefined) {

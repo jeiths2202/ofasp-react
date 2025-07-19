@@ -166,8 +166,15 @@ REACT_APP_ASP_MANAGER_URL=http://localhost:3007
    - SMED 맵 출력 시 입력필드 자동 포커스
    - 실시간 시스템 정보 표시 (사용자, 볼륨, 시간)
    - Python aspcli.py 백엔드 연동 대비
+   - 각 명령어별 상세 help 기능 (HELP <command>)
 
-5. **AI 기능 강화**
+5. **다국어 지원 정책 변경**
+   - 소스코드 내 한국어를 일본어로 변경 (주석, 변수명, 상수값)
+   - 기본 언어를 일본어로 설정 (ja)
+   - 지원 언어: 일본어/영어 (한국어 제거)
+   - 4개 프로젝트 모두 일관된 언어 정책 적용
+
+6. **AI 기능 강화**
    - RAG 기반 문서 검색
    - 실시간 벡터 임베딩
    - 컨텍스트 인식 Q&A
@@ -231,7 +238,8 @@ curl http://localhost:3007
 ```
 "도커가 재시작되었습니다. /home/aspuser/app/MASTER_CLAUDE.md를 읽고
 전체 OpenASP AX 프로젝트 상태를 파악해주세요. 
-주요 서비스: ofasp-refactor(3005), asp-manager(3007), python-service(3003)"
+주요 서비스: ofasp-refactor(3005), asp-manager(3007), python-service(3003)
+언어 정책: 일본어/영어 지원, 기본언어=일본어, 나와의 대화는 한국어"
 ```
 
 ## 🎯 다음 작업 우선순위

@@ -1,0 +1,60 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "settings": "AI Transform",
+    "documentation": "Documentation",
+    "chat": "Chat",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "download": "Download",
+    "upload": "Upload",
+    "selectFile": "Select File",
+    "execute": "Execute",
+    "refresh": "Refresh",
+    "close": "Close"
+  },
+  "navigation": {
+    "cobolAX": "COBOL AX",
+    "clAX": "CL AX"
+  },
+  "dashboard": {
+    "title": "OpenASP AX Tool",
+    "subtitle": "AI transformation tool for migrating ASP applications to open environments.",
+    "cobolTitle": "COBOL AX",
+    "cobolDescription": "Convert COBOL programs to Java, C, Shell Script, and Python.",
+    "cobolFeatures": [
+      "Data structure conversion",
+      "Business logic migration",
+      "File processing logic conversion"
+    ],
+    "clTitle": "CL AX", 
+    "clDescription": "Convert CL (Control Language) scripts to Shell, JavaScript, and Python.",
+    "clFeatures": [
+      "File operation command conversion",
+      "Program call logic conversion",
+      "Batch work script conversion"
+    ],
+    "processTitle": "Migration Process",
+    "processSteps": [
+      {
+        "title": "Source Analysis",
+        "description": "Analyze existing ASP source code structure"
+      },
+      {
+        "title": "Execute Conversion",
+        "description": "Automatic conversion to target language"
+      },
+      {
+        "title": "Result Verification",
+        "description": "Verify conversion results and quality"
+      }
+    ]
+  },
+  "user": {
+    "role": "Administrator"
+  }
+}

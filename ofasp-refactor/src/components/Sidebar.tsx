@@ -238,7 +238,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             )}
           </button>
 
-          {/* 언어 선택기 */}
+          {/* 言語選択器 */}
           {effectiveExpanded && (
             <div className="animate-fade-in">
               <LanguageSelector />

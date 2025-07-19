@@ -1,15 +1,15 @@
-import koTranslations from './ko.json';
 import jaTranslations from './ja.json';
+import enTranslations from './en.json';
 
-export type Language = 'ko' | 'ja';
+export type Language = 'ja' | 'en';
 
 export interface Translations {
   [key: string]: any;
 }
 
 const translations: Record<Language, Translations> = {
-  ko: koTranslations,
   ja: jaTranslations,
+  en: enTranslations,
 };
 
 export const getTranslation = (language: Language, key: string, params?: Record<string, string>): string => {
@@ -57,7 +57,7 @@ export const getNestedTranslation = (language: Language, key: string): any => {
 
 export const availableLanguages: { code: Language; name: string; flag: string }[] = [
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'en', name: 'English', flag: '🇺🇸' },
 ];
 
 export default translations;
