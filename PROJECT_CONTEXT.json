@@ -25,13 +25,14 @@
       "key_features": [
         "COBOL/CL 코드 변환",
         "EBCDIC/ASCII 변환",
-        "AI Transform 도구",
+        "ASP System Command Terminal",
         "다국어 지원"
       ],
       "recent_work": [
         "Python Flask 변환 서비스 통합",
         "배치 변환 성능 최적화",
-        "SOSI 코드 처리 개선"
+        "SOSI 코드 처리 개선",
+        "ASP System Command Terminal 통합"
       ],
       "start_command": "cd /home/aspuser/app/ofasp-refactor && PORT=3005 npm start"
     },

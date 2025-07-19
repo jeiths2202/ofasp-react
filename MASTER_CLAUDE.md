@@ -46,7 +46,7 @@
   - Python Flask 백엔드 연동 (포트 3003)
   - 배치 처리 최적화
 - **AI Transform**: 
-  - ASP WebUI Terminal (가상 터미널)
+  - ASP System Command (ASP 시스템 명령어 터미널)
   - ASP MapEditor (SMED 파일 관리)
   - MapLink (맵 연결 시각화)
 - **다국어 지원**: 한국어/일본어 UI
@@ -155,12 +155,19 @@ REACT_APP_ASP_MANAGER_URL=http://localhost:3007
    - 실시간 진행률 표시
 
 3. **UI/UX 개선**
-   - ASP WebUI Terminal 구현 (24x80 가상 터미널)
+   - ASP System Command Terminal 구현 (명령어 히스토리, 자동완성)
    - ASP MapEditor (드래그앤드롭 SMED 편집)
    - 로그 관리 시스템 (실행 추적)
    - 다크모드 지원
 
-4. **AI 기능 강화**
+4. **ASP System Command 터미널**
+   - 향향키로 최대 10개 명령어 히스토리 조회
+   - Tab 키 자동완성 기능
+   - SMED 맵 출력 시 입력필드 자동 포커스
+   - 실시간 시스템 정보 표시 (사용자, 볼륨, 시간)
+   - Python aspcli.py 백엔드 연동 대비
+
+5. **AI 기능 강화**
    - RAG 기반 문서 검색
    - 실시간 벡터 임베딩
    - 컨텍스트 인식 Q&A

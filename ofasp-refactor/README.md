@@ -14,6 +14,18 @@ Modern web-based refactoring platform for migrating legacy ASP systems to open-s
 - **CL to Shell/JavaScript**: Command language migration with full compatibility
 - **Real-time preview** with syntax highlighting and error detection
 
+### 🖥️ **EBCDIC/ASCII Conversion**
+- **Source Code Conversion**: Real-time conversion with SOSI handling
+- **Dataset Conversion**: Batch processing for large files
+- **Python Flask Backend**: High-performance conversion engine (port 3003)
+- **Multiple Encodings**: US, JP, JAK, KEIS, KR support
+
+### 💻 **ASP System Command Terminal**
+- **Command History**: Navigate through last 10 commands with arrow keys
+- **Auto-completion**: Tab key completion for ASP commands
+- **Smart Focus**: Auto-focus on SMED map input fields
+- **Real-time Info**: Live system status (user, volume, time)
+
 ### 📚 **Documentation System**
 - **710 ASP Commands** mapped to open-source alternatives
 - **Interactive search** with filtering by category and priority
@@ -64,6 +76,7 @@ OpenASP Refactor
 │   ├── Documentation system
 │   └── Interactive command mapping
 ├── 🔧 Backend Services
+│   ├── Python conversion service (Flask, port 3003)
 │   ├── File server (Express.js)
 │   ├── RAG system (TensorFlow.js)
 │   └── Authentication layer
@@ -78,7 +91,14 @@ OpenASP Refactor
 ### Code Refactoring Engine
 - **COBOL Parser**: Advanced syntax analysis and conversion
 - **CL Translator**: Command language to modern script migration
+- **EBCDIC Converter**: Python Flask backend with SOSI handling
 - **Validation System**: Real-time error detection and suggestions
+
+### ASP System Terminal
+- **Command Interface**: Interactive terminal for ASP system commands
+- **History Navigation**: Arrow key navigation through command history
+- **Auto-completion**: Smart Tab completion for ASP commands
+- **Cursor Management**: Auto-focus on SMED input fields
 
 ### Documentation Platform
 - **Command Mapping**: 710 ASP commands → Open source alternatives
@@ -95,7 +115,7 @@ OpenASP Refactor
 | Layer | Technology |
 |-------|------------|
 | **Frontend** | React 19, TypeScript, Tailwind CSS |
-| **Backend** | Node.js, Express.js, TensorFlow.js |
+| **Backend** | Python Flask, Node.js, Express.js, TensorFlow.js |
 | **Database** | PostgreSQL, Vector embeddings |
 | **Authentication** | JWT, bcrypt, Session management |
 | **Deployment** | Docker, nginx, PM2 |
@@ -114,9 +134,15 @@ OpenASP Refactor
 
 ### Environment Variables
 ```bash
-REACT_APP_DEFAULT_LANG=ja    # Default language (ja/ko)
-PORT=3005                    # Application port
-HOST=0.0.0.0                # Host binding
+# React Frontend
+REACT_APP_DEFAULT_LANG=ja                               # Default language (ja/ko)
+PORT=3005                                              # Application port
+HOST=0.0.0.0                                          # Host binding
+REACT_APP_PYTHON_CONVERTER_URL=http://localhost:3003   # Python service URL
+
+# Python Service
+FLASK_PORT=3003                                        # Python service port
+CODEPAGE_BASE_PATH=/home/aspuser/app/ofasp-refactor/public/codepages
 ```
 
 ### Language Support

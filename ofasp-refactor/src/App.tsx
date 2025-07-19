@@ -19,7 +19,7 @@ import ToolsPage from './pages/ToolsPage';
 import DocumentationPage from './pages/DocumentationPage';
 import SourceConversionPage from './pages/SourceConversionPage';
 import DatasetConversionPage from './pages/DatasetConversionPage';
-import ASPWebUITerminal from './components/ASPWebUITerminal';
+import AspCliWebTerminal from './components/AspCliWebTerminal';
 import ASPMapEditor from './components/ASPMapEditor';
 import MapLink from './components/MapLink';
 import MarkdownRenderer from './components/MarkdownRenderer';
@@ -145,8 +145,8 @@ function App() {
         break;
       case 'asp-webui':
         content = (
-          <div className="h-full flex items-center justify-center bg-black">
-            <ASPWebUITerminal isDarkMode={theme.mode === 'dark'} />
+          <div className="h-full">
+            <AspCliWebTerminal isDarkMode={theme.mode === 'dark'} />
           </div>
         );
         break;
@@ -296,7 +296,7 @@ function App() {
       icon: <CogIcon />,
       subItems: [
         { id: 'ai-transform-main', label: 'AI変換処理', icon: <CogIcon /> },
-        { id: 'asp-webui', label: 'ASP WebUI', icon: <CommandLineIcon /> },
+        { id: 'asp-webui', label: 'ASP System Command', icon: <CommandLineIcon /> },
         { id: 'asp-map-editor', label: 'ASP MapEditor', icon: <DocumentTextIcon /> },
         { id: 'asp-map-link', label: 'MapLink', icon: <DocumentTextIcon /> }
       ]
