@@ -114,5 +114,33 @@
   },
   "user": {
     "role": "AX管理者"
+  },
+  "mapEditor": {
+    "statusMessage": "ドラッグアンドドロップでフィールドを追加し、クリックで選択してプロパティを編集してください。",
+    "textField": "テキストフィールド",
+    "inputField": "入力フィールド",
+    "outputField": "出力フィールド",
+    "buttonField": "ボタンフィールド",
+    "fieldProperties": "フィールドプロパティ",
+    "fieldId": "フィールドID",
+    "fieldName": "フィールド名",
+    "width": "幅",
+    "height": "高さ",
+    "defaultValue": "デフォルト値",
+    "attributes": "属性",
+    "normal": "通常",
+    "readonly": "読み取り専用",
+    "required": "必須入力",
+    "disabled": "無効",
+    "hidden": "非表示",
+    "backgroundColor": "背景色",
+    "textColor": "テキスト色",
+    "deleteSelected": "選択したフィールドを削除",
+    "smedPreview": "SMED画面プレビュー",
+    "description": "ドラッグアンドドロップでフィールドを追加し、SMEDマップを編集してください",
+    "fileDownloaded": "SMEDファイルがダウンロードされました。"
+  },
+  "mapLink": {
+    "statusMessage": "ノードを追加して接続し、マップとプログラムの関係を定義してください。"
   }
 }

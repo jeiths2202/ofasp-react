@@ -56,5 +56,33 @@
   },
   "user": {
     "role": "Administrator"
+  },
+  "mapEditor": {
+    "statusMessage": "Add fields by drag and drop, click to select and edit properties.",
+    "textField": "Text Field",
+    "inputField": "Input Field",
+    "outputField": "Output Field",
+    "buttonField": "Button Field",
+    "fieldProperties": "Field Properties",
+    "fieldId": "Field ID",
+    "fieldName": "Field Name",
+    "width": "Width",
+    "height": "Height",
+    "defaultValue": "Default Value",
+    "attributes": "Attributes",
+    "normal": "Normal",
+    "readonly": "Read Only",
+    "required": "Required",
+    "disabled": "Disabled",
+    "hidden": "Hidden",
+    "backgroundColor": "Background Color",
+    "textColor": "Text Color",
+    "deleteSelected": "Delete Selected Field",
+    "smedPreview": "SMED Screen Preview",
+    "description": "Add fields by drag and drop and edit SMED maps",
+    "fileDownloaded": "SMED file has been downloaded."
+  },
+  "mapLink": {
+    "statusMessage": "Add nodes and connect them to define relationships between maps and programs."
   }
 }

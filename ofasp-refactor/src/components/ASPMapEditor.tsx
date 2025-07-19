@@ -8,6 +8,7 @@ import {
   PlayIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
+import { useI18n } from '../hooks/useI18n';
 
 interface Field {
   id: string;
@@ -37,6 +38,7 @@ interface ASPMapEditorProps {
 }
 
 const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
+  const { t } = useI18n();
   const [fields, setFields] = useState<Map<string, Field>>(new Map());
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
@@ -45,7 +47,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [mapDataOutput, setMapDataOutput] = useState('');
   const [smedFiles, setSmedFiles] = useState<string[]>([]);
-  const [statusMessage, setStatusMessage] = useState('드래그 앤 드롭으로 필드를 추가하고, 클릭으로 선택하여 속성을 편집하세요.');
+  const [statusMessage, setStatusMessage] = useState(t('mapEditor.statusMessage'));
   
   const screenPanelRef = useRef<HTMLDivElement>(null);
   const [fieldProperties, setFieldProperties] = useState({
@@ -88,10 +90,10 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   };
 
   const fieldTypes = [
-    { type: 'text', label: '📝 Text Field', icon: DocumentTextIcon },
-    { type: 'input', label: '📥 Input Field', icon: PlusIcon },
-    { type: 'output', label: '📤 Output Field', icon: DocumentTextIcon },
-    { type: 'button', label: '🔘 Button Field', icon: PlayIcon }
+    { type: 'text', label: `📝 ${t('mapEditor.textField')}`, icon: DocumentTextIcon },
+    { type: 'input', label: `📥 ${t('mapEditor.inputField')}`, icon: PlusIcon },
+    { type: 'output', label: `📤 ${t('mapEditor.outputField')}`, icon: DocumentTextIcon },
+    { type: 'button', label: `🔘 ${t('mapEditor.buttonField')}`, icon: PlayIcon }
   ];
 
   const getDefaultValue = (type: string) => {
@@ -333,7 +335,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    setStatusMessage('SMED 파일이 다운로드되었습니다.');
+    setStatusMessage(t('mapEditor.fileDownloaded'));
   };
 
   const showPreview = () => {
@@ -350,7 +352,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white mb-2">ASP SMED Map Editor</h1>
-          <p className="text-gray-400">드래그 앤 드롭으로 필드를 추가하고 SMED 맵을 편집하세요</p>
+          <p className="text-gray-400">{t('mapEditor.description')}</p>
         </div>
 
         {/* Toolbar */}
@@ -477,11 +479,11 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
 
           {/* Properties Panel */}
           <div className="w-80 bg-gray-800 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-4">필드 속성</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('mapEditor.fieldProperties')}</h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">필드 ID</label>
+                <label className="block text-sm font-medium mb-1">{t('mapEditor.fieldId')}</label>
                 <input
                   type="text"
                   value={fieldProperties.id}
@@ -491,7 +493,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">필드명</label>
+                <label className="block text-sm font-medium mb-1">{t('mapEditor.fieldName')}</label>
                 <input
                   type="text"
                   value={fieldProperties.name}
@@ -502,7 +504,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm font-medium mb-1">폭</label>
+                  <label className="block text-sm font-medium mb-1">{t('mapEditor.width')}</label>
                   <input
                     type="number"
                     value={fieldProperties.width}
@@ -513,7 +515,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">높이</label>
+                  <label className="block text-sm font-medium mb-1">{t('mapEditor.height')}</label>
                   <input
                     type="number"
                     value={fieldProperties.height}
@@ -526,7 +528,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">기본값</label>
+                <label className="block text-sm font-medium mb-1">{t('mapEditor.defaultValue')}</label>
                 <input
                   type="text"
                   value={fieldProperties.value}
@@ -536,23 +538,23 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">속성</label>
+                <label className="block text-sm font-medium mb-1">{t('mapEditor.attributes')}</label>
                 <select
                   value={fieldProperties.attributes}
                   onChange={(e) => handleFieldPropertyChange('attributes', e.target.value)}
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
                 >
-                  <option value="normal">일반</option>
-                  <option value="readonly">읽기전용</option>
-                  <option value="required">필수입력</option>
-                  <option value="disabled">비활성화</option>
-                  <option value="hidden">숨김</option>
+                  <option value="normal">{t('mapEditor.normal')}</option>
+                  <option value="readonly">{t('mapEditor.readonly')}</option>
+                  <option value="required">{t('mapEditor.required')}</option>
+                  <option value="disabled">{t('mapEditor.disabled')}</option>
+                  <option value="hidden">{t('mapEditor.hidden')}</option>
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm font-medium mb-1">배경색</label>
+                  <label className="block text-sm font-medium mb-1">{t('mapEditor.backgroundColor')}</label>
                   <input
                     type="color"
                     value={fieldProperties.backgroundColor}
@@ -561,7 +563,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">텍스트색</label>
+                  <label className="block text-sm font-medium mb-1">{t('mapEditor.textColor')}</label>
                   <input
                     type="color"
                     value={fieldProperties.textColor}
@@ -576,7 +578,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                 disabled={!selectedField}
                 className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded transition-colors"
               >
-                선택된 필드 삭제
+                {t('mapEditor.deleteSelected')}
               </button>
             </div>
           </div>
@@ -593,7 +595,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">SMED 화면 미리보기</h3>
+              <h3 className="text-xl font-bold">{t('mapEditor.smedPreview')}</h3>
               <button
                 onClick={closePreview}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors"

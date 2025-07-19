@@ -11,6 +11,7 @@ import {
   MagnifyingGlassPlusIcon,
   MagnifyingGlassMinusIcon
 } from '@heroicons/react/24/outline';
+import { useI18n } from '../hooks/useI18n';
 
 interface Position {
   x: number;
@@ -51,6 +52,7 @@ interface MapLinkProps {
 }
 
 const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
+  const { t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [nodes, setNodes] = useState<MapNode[]>([]);
@@ -67,7 +69,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
   const [smedFiles, setSmedFiles] = useState<string[]>([]);
   const [programs, setPrograms] = useState<string[]>([]);
   const [javaClasses, setJavaClasses] = useState<string[]>([]);
-  const [statusMessage, setStatusMessage] = useState('노드를 추가하고 연결하여 맵과 프로그램의 관계를 정의하세요.');
+  const [statusMessage, setStatusMessage] = useState(t('mapLink.statusMessage'));
   const [zoom, setZoom] = useState(1);
   const [isMouseInCanvas, setIsMouseInCanvas] = useState(false);
 
