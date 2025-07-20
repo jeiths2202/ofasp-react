@@ -1,86 +1,115 @@
 #!/bin/bash
-# OpenASP AX 전체 개발 환경 종료 스크립트
+# OpenASP AX Complete Development Environment Shutdown Script
 
-echo "🛑 OpenASP AX 전체 개발 환경 종료..."
+echo "[STOP] OpenASP AX Complete Development Environment Shutdown..."
 echo "========================================="
 
-# 색상 정의
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 저장된 PID 파일 읽기
-if [ -f /home/aspuser/app/.running_services ]; then
-    source /home/aspuser/app/.running_services
-    echo -e "${GREEN}저장된 프로세스 정보를 찾았습니다.${NC}"
-else
-    echo -e "${YELLOW}저장된 프로세스 정보가 없습니다. 프로세스 이름으로 종료합니다.${NC}"
-fi
+# Force kill processes by pattern
+force_kill_by_pattern() {
+    local pattern="$1"
+    local description="$2"
+    
+    echo -n "$description shutdown... "
+    
+    # Try graceful termination with SIGTERM first
+    pkill -f "$pattern" 2>/dev/null || true
+    sleep 2
+    
+    # Force kill with SIGKILL if still running
+    pkill -9 -f "$pattern" 2>/dev/null || true
+    
+    echo -e "${GREEN}[OK]${NC}"
+}
 
-# 프로세스 종료
-echo -e "\n${YELLOW}프로세스 종료 중...${NC}"
+# Force kill processes by port
+force_kill_by_port() {
+    local port="$1"
+    local description="$2"
+    
+    echo -n "$description (Port $port) shutdown... "
+    
+    # Find processes using the port
+    local pids=$(lsof -ti:$port 2>/dev/null || true)
+    
+    if [ ! -z "$pids" ]; then
+        # Try SIGTERM first
+        echo "$pids" | xargs -r kill 2>/dev/null || true
+        sleep 2
+        
+        # Force kill if still running
+        local remaining_pids=$(lsof -ti:$port 2>/dev/null || true)
+        if [ ! -z "$remaining_pids" ]; then
+            echo "$remaining_pids" | xargs -r kill -9 2>/dev/null || true
+        fi
+    fi
+    
+    echo -e "${GREEN}[OK]${NC}"
+}
 
-# SMED Map Viewer 종료
-echo -n "SMED Map Viewer 종료... "
-pkill -f "react-scripts.*3000" 2>/dev/null
-if [ ! -z "$SMED_VIEWER_PID" ]; then
-    kill $SMED_VIEWER_PID 2>/dev/null
-fi
-echo -e "${GREEN}✓${NC}"
+echo -e "\n${YELLOW}Shutting down processes by pattern...${NC}"
 
-# Python 서비스 종료
-echo -n "Python 변환 서비스 종료... "
-pkill -f "flask.*3003" 2>/dev/null
-if [ ! -z "$PYTHON_SERVICE_PID" ]; then
-    kill $PYTHON_SERVICE_PID 2>/dev/null
-fi
-echo -e "${GREEN}✓${NC}"
+# React development servers
+force_kill_by_pattern "react-scripts" "React Development Servers"
 
-# OpenASP Refactor 종료
-echo -n "OpenASP Refactor 종료... "
-pkill -f "react-scripts.*3005" 2>/dev/null
-if [ ! -z "$REFACTOR_APP_PID" ]; then
-    kill $REFACTOR_APP_PID 2>/dev/null
-fi
-echo -e "${GREEN}✓${NC}"
+# Node.js related processes
+force_kill_by_pattern "webpack-dev-server" "Webpack Dev Servers"
+force_kill_by_pattern "fork-ts-checker" "TypeScript Checkers"
 
-# ASP Manager 백엔드 종료
-echo -n "ASP Manager 백엔드 종료... "
-pkill -f "node.*server.js" 2>/dev/null
-if [ ! -z "$BACKEND_PROXY_PID" ]; then
-    kill $BACKEND_PROXY_PID 2>/dev/null
-fi
-echo -e "${GREEN}✓${NC}"
+# Python services
+force_kill_by_pattern "flask.*3003" "Python Flask Services"
+force_kill_by_pattern "python.*api.run" "Python API Services"
+force_kill_by_pattern "python.*api_server" "Python API Servers"
 
-# ASP Manager 종료
-echo -n "ASP Manager 종료... "
-pkill -f "react-scripts.*3007" 2>/dev/null
-if [ ! -z "$MANAGER_APP_PID" ]; then
-    kill $MANAGER_APP_PID 2>/dev/null
-fi
-echo -e "${GREEN}✓${NC}"
+echo -e "\n${YELLOW}Force killing processes by port...${NC}"
 
-# 관련 노드 프로세스 정리
-echo -n "관련 노드 프로세스 정리... "
-pkill -f "webpack-dev-server" 2>/dev/null
-pkill -f "fork-ts-checker" 2>/dev/null
-echo -e "${GREEN}✓${NC}"
+# Force kill by each port
+force_kill_by_port "3000" "SMED Map Viewer"
+force_kill_by_port "3003" "Python Service"
+force_kill_by_port "3005" "OpenASP Refactor"
+force_kill_by_port "3007" "ASP Manager"
+force_kill_by_port "8000" "API Server"
 
-# PID 파일 삭제
+# Cleanup configuration files
+echo -e "\n${YELLOW}Cleaning up configuration files...${NC}"
 rm -f /home/aspuser/app/.running_services
+rm -f /home/aspuser/app/pids/*.pid 2>/dev/null || true
 
-# 포트 확인
-echo -e "\n${YELLOW}포트 상태 확인...${NC}"
-for port in 3000 3003 3005 3007 3008; do
+# Wait for process termination
+echo -e "\n${YELLOW}Waiting for process termination...${NC}"
+sleep 3
+
+# Final port status check
+echo -e "\n${YELLOW}Final port status check...${NC}"
+all_clear=true
+
+for port in 3000 3003 3005 3007 8000; do
     if lsof -i :$port > /dev/null 2>&1; then
-        echo -e "${RED}⚠️  포트 $port 아직 사용 중${NC}"
+        echo -e "${RED}[WARN] Port $port still in use${NC}"
+        all_clear=false
+        
+        # Final attempt to force kill
+        local final_pids=$(lsof -ti:$port 2>/dev/null || true)
+        if [ ! -z "$final_pids" ]; then
+            echo "  Final force kill attempt..."
+            echo "$final_pids" | xargs -r kill -9 2>/dev/null || true
+        fi
     else
-        echo -e "${GREEN}✓ 포트 $port 해제됨${NC}"
+        echo -e "${GREEN}[OK] Port $port released${NC}"
     fi
 done
 
 echo ""
 echo "========================================="
-echo -e "${GREEN}🎉 OpenASP AX 개발 환경이 종료되었습니다.${NC}"
+if [ "$all_clear" = true ]; then
+    echo -e "${GREEN}[DONE] OpenASP AX Development Environment completely shutdown.${NC}"
+else
+    echo -e "${YELLOW}[WARN] Some ports are still in use.${NC}"
+    echo -e "${YELLOW}       System reboot is recommended.${NC}"
+fi
 echo ""
