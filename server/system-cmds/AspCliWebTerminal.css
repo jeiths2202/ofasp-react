@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  font-family: 'MS Gothic', 'Yu Gothic', 'Hiragino Kaku Gothic Pro', 'Meiryo', 'Courier New', monospace;
+  font-family: 'Courier New', monospace;
   background: linear-gradient(135deg, #0c1e2b 0%, #1a3347 100%);
   color: #e0f0ff;
   overflow: hidden;
@@ -115,7 +115,7 @@
 }
 
 .welcome-logo {
-  font-family: 'MS Gothic', 'Yu Gothic', 'Hiragino Kaku Gothic Pro', 'Meiryo', 'Courier New', monospace;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   color: #00ff88;
   margin-bottom: 20px;
@@ -233,7 +233,7 @@
   border-radius: 6px;
   padding: 10px 12px;
   color: #fff;
-  font-family: 'MS Gothic', 'Yu Gothic', 'Hiragino Kaku Gothic Pro', 'Meiryo', 'Courier New', monospace;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   outline: none;
   transition: all 0.3s ease;
@@ -439,96 +439,6 @@
   }
 }
 
-/* 드롭다운 메뉴 스타일 */
-.dropdown-container {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-trigger {
-  cursor: pointer;
-  user-select: none;
-  transition: color 0.2s ease;
-}
-
-.dropdown-trigger:hover {
-  color: #00ff88;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 120px;
-  background: rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(0, 255, 136, 0.5);
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  animation: dropdownSlide 0.2s ease-out;
-  backdrop-filter: blur(10px);
-}
-
-.dropdown-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #a0d0ff;
-  font-size: 13px;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
-}
-
-.dropdown-item:last-child {
-  border-bottom: none;
-}
-
-.dropdown-item:hover {
-  background: rgba(0, 255, 136, 0.2);
-  color: #fff;
-}
-
-.dropdown-item.selected {
-  background: rgba(0, 255, 136, 0.3);
-  color: #00ff88;
-  font-weight: bold;
-}
-
-/* 라이트 모드 드롭다운 */
-.asp-cli-terminal.light .dropdown-trigger:hover {
-  color: #007acc;
-}
-
-.asp-cli-terminal.light .dropdown-menu {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(0, 122, 204, 0.5);
-}
-
-.asp-cli-terminal.light .dropdown-item {
-  color: #2c3e50;
-  border-bottom-color: rgba(0, 122, 204, 0.1);
-}
-
-.asp-cli-terminal.light .dropdown-item:hover {
-  background: rgba(0, 122, 204, 0.2);
-  color: #1a252f;
-}
-
-.asp-cli-terminal.light .dropdown-item.selected {
-  background: rgba(0, 122, 204, 0.3);
-  color: #007acc;
-}
-
-@keyframes dropdownSlide {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* 접근성 개선 */
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -536,60 +446,4 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* SMED Map Overlay Styles */
-.smed-map-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.smed-map-container {
-  background-color: #000;
-  border: 2px solid #00ff00;
-  border-radius: 4px;
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.smed-map-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #111;
-  border-bottom: 1px solid #00ff00;
-}
-
-.smed-map-header h3 {
-  margin: 0;
-  color: #00ff00;
-  font-family: 'Courier New', monospace;
-}
-
-.smed-close-button {
-  background: none;
-  border: 1px solid #00ff00;
-  color: #00ff00;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 5px 10px;
-  transition: all 0.3s;
-}
-
-.smed-close-button:hover {
-  background-color: #00ff00;
-  color: #000;
 }

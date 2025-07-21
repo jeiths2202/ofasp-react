@@ -413,7 +413,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex gap-6 overflow-hidden">
+        <div className="flex-1 flex gap-6 overflow-hidden h-full">
           {/* Screen Panel */}
           <div className="flex-1 flex flex-col">
             <div
@@ -478,10 +478,10 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
           </div>
 
           {/* Properties Panel */}
-          <div className="w-80 bg-gray-800 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-4">{t('mapEditor.fieldProperties')}</h3>
+          <div className="w-80 bg-gray-800 rounded-lg flex flex-col h-full">
+            <h3 className="text-lg font-semibold p-4 pb-2 border-b border-gray-700 flex-shrink-0">{t('mapEditor.fieldProperties')}</h3>
             
-            <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto scrollbar-custom p-4 space-y-4 min-h-0">
               <div>
                 <label className="block text-sm font-medium mb-1">{t('mapEditor.fieldId')}</label>
                 <input
@@ -572,7 +572,10 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                   />
                 </div>
               </div>
-
+            </div>
+            
+            {/* Fixed Delete Button */}
+            <div className="p-4 border-t border-gray-700 flex-shrink-0">
               <button
                 onClick={deleteSelectedField}
                 disabled={!selectedField}

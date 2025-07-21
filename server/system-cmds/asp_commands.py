@@ -34,6 +34,23 @@ os.makedirs(CONFIG_ROOT, exist_ok=True)
 os.makedirs(PROFILE_DIR, exist_ok=True)
 os.makedirs(JOB_LOG_DIR, exist_ok=True)
 
+# Global variable for program execution code (@PGMEC)
+_PGMEC = 0
+
+def set_pgmec(value):
+    """Set @PGMEC variable (program execution code)"""
+    global _PGMEC
+    _PGMEC = value
+
+def get_pgmec():
+    """Get @PGMEC variable (program execution code)"""
+    return _PGMEC
+
+def reset_pgmec():
+    """Reset @PGMEC to 0 (successful execution)"""
+    global _PGMEC
+    _PGMEC = 0
+
 def get_catalog_info():
     """Get file information from centralized catalog.json"""
     if os.path.exists(CATALOG_FILE):
@@ -44,22 +61,54 @@ def get_catalog_info():
             pass
     return {}
 
-def update_catalog_info(volume, filename, rectype="FB", reclen=80, **kwargs):
-    """Update file information in catalog.json"""
+def update_catalog_info(volume, library, object_name, object_type="DATASET", **kwargs):
+    """Update object information in catalog.json with new hierarchical structure"""
     catalog = get_catalog_info()
     
+    # Ensure volume exists
     if volume not in catalog:
         catalog[volume] = {}
     
-    if filename not in catalog[volume]:
-        catalog[volume][filename] = {}
+    # Ensure library exists in volume
+    if library not in catalog[volume]:
+        catalog[volume][library] = {}
     
-    catalog[volume][filename]["RECTYPE"] = rectype
-    catalog[volume][filename]["RECLEN"] = reclen
+    # Ensure object exists in library
+    if object_name not in catalog[volume][library]:
+        catalog[volume][library][object_name] = {}
+    
+    # Set object type
+    catalog[volume][library][object_name]["TYPE"] = object_type
+    
+    # Add timestamp information
+    current_time = datetime.now().isoformat() + "Z"
+    if "CREATED" not in catalog[volume][library][object_name]:
+        catalog[volume][library][object_name]["CREATED"] = current_time
+    catalog[volume][library][object_name]["UPDATED"] = current_time
+    
+    # Handle different object types with appropriate attributes
+    if object_type == "DATASET":
+        # Set dataset-specific defaults
+        catalog[volume][library][object_name]["RECTYPE"] = kwargs.get("RECTYPE", "FB")
+        catalog[volume][library][object_name]["RECLEN"] = kwargs.get("RECLEN", 80)
+        catalog[volume][library][object_name]["ENCODING"] = kwargs.get("ENCODING", "utf-8")
+    elif object_type == "PGM":
+        # Set program-specific defaults
+        catalog[volume][library][object_name]["PGMTYPE"] = kwargs.get("PGMTYPE", "COBOL")
+        catalog[volume][library][object_name]["VERSION"] = kwargs.get("VERSION", "1.0")
+    elif object_type == "MAP":
+        # Set map-specific defaults
+        catalog[volume][library][object_name]["MAPTYPE"] = kwargs.get("MAPTYPE", "SMED")
+        catalog[volume][library][object_name]["ROWS"] = kwargs.get("ROWS", 24)
+        catalog[volume][library][object_name]["COLS"] = kwargs.get("COLS", 80)
+    elif object_type == "JOB":
+        # Set job-specific defaults
+        catalog[volume][library][object_name]["JOBTYPE"] = kwargs.get("JOBTYPE", "BATCH")
+        catalog[volume][library][object_name]["SCHEDULE"] = kwargs.get("SCHEDULE", "MANUAL")
     
     # Update additional attributes
     for key, value in kwargs.items():
-        catalog[volume][filename][key] = value
+        catalog[volume][library][object_name][key] = value
     
     try:
         with open(CATALOG_FILE, 'w', encoding='utf-8') as f:
@@ -67,13 +116,31 @@ def update_catalog_info(volume, filename, rectype="FB", reclen=80, **kwargs):
     except Exception as e:
         print(f"[WARNING] catalog.json update failed: {e}")
 
-def get_file_info(volume, filename):
-    """Get catalog information for a specific file"""
+def get_object_info(volume, library, object_name):
+    """Get catalog information for a specific object"""
     catalog = get_catalog_info()
-    return catalog.get(volume, {}).get(filename, {
-        "RECTYPE": "FB",
-        "RECLEN": 80
-    })
+    return catalog.get(volume, {}).get(library, {}).get(object_name, {})
+
+def get_file_info(volume, filename):
+    """Legacy function: Get catalog information for a specific file (backward compatibility)"""
+    # Parse library/filename if in format LIB/FILE
+    if '/' in filename:
+        library, object_name = filename.split('/', 1)
+        return get_object_info(volume, library, object_name)
+    else:
+        # Search through all libraries for the file
+        catalog = get_catalog_info()
+        volume_data = catalog.get(volume, {})
+        for library, objects in volume_data.items():
+            if filename in objects:  # Fixed: use 'filename' instead of undefined 'object_name'
+                return objects[filename]
+        # Return default for dataset if not found
+        return {
+            "TYPE": "DATASET",
+            "RECTYPE": "FB",
+            "RECLEN": 80,
+            "ENCODING": "utf-8"
+        }
 
 def _convert_bytes_to_string(data, encoding='utf-8'):
     """Convert bytes to string using Java API or fallback methods"""
@@ -134,32 +201,109 @@ def _convert_bytes_to_string(data, encoding='utf-8'):
 
 
 def WRKOBJ(command):
-    # Example: WRKOBJ LIB-SALES,VOL-DISK01
+    # Example: WRKOBJ TYPE-DATASET,VOL-DISK01,LIB-TESTLIB
+    # Example: WRKOBJ TYPE-PGM,VOL-DISK01
+    # Example: WRKOBJ TYPE-ALL,VOL-DISK01,LIB-TESTLIB
     params = dict(item.split('-') for item in command.replace('WRKOBJ ', '').split(','))
-    lib = params.get('LIB')
+    obj_type = params.get('TYPE', 'ALL')
     vol = params.get('VOL')
+    lib = params.get('LIB')
 
-    if not lib or not vol:
-        print("[ERROR] LIB or VOL parameter is missing.")
+    if not vol:
+        print("[ERROR] VOL parameter is required.")
         return
 
-    lib_path = os.path.join(VOLUME_ROOT, vol, lib)
-
-    if not os.path.isdir(lib_path):
-        print(f"[ERROR] Library '{lib}'does not exist in volume '{vol}'.")
+    catalog = get_catalog_info()
+    volume_data = catalog.get(vol, {})
+    
+    if not volume_data:
+        print(f"[ERROR] Volume '{vol}' not found in catalog.")
         return
 
-    files = os.listdir(lib_path)
-    if not files:
-        print(f"[INFO] Library '{lib}'has no objects.")
-        return
+    # Filter by library if specified
+    libraries_to_check = [lib] if lib else list(volume_data.keys())
+    
+    print(f"[INFO] Objects in volume '{vol}':")
+    print("=" * 80)
+    
+    total_objects = 0
+    for library_name in libraries_to_check:
+        if library_name not in volume_data:
+            if lib:  # Only show error if specific library was requested
+                print(f"[ERROR] Library '{library_name}' not found in volume '{vol}'.")
+            continue
+            
+        library_objects = volume_data[library_name]
+        if not library_objects:
+            continue
+            
+        print(f"\nLibrary: {library_name}")
+        print("-" * 40)
+        
+        # Group objects by type
+        objects_by_type = {}
+        for obj_name, obj_info in library_objects.items():
+            obj_obj_type = obj_info.get('TYPE', 'UNKNOWN')
+            if obj_obj_type not in objects_by_type:
+                objects_by_type[obj_obj_type] = []
+            objects_by_type[obj_obj_type].append((obj_name, obj_info))
+        
+        # Display objects filtered by type
+        for current_type in sorted(objects_by_type.keys()):
+            if obj_type != 'ALL' and obj_type != current_type:
+                continue
+                
+            print(f"\n  {current_type} Objects:")
+            for obj_name, obj_info in sorted(objects_by_type[current_type]):
+                total_objects += 1
+                
+                # Get filesystem info if file exists
+                file_path = os.path.join(VOLUME_ROOT, vol, library_name, obj_name)
+                size_info = "N/A"
+                mtime_info = "N/A"
+                
+                if os.path.exists(file_path):
+                    size = os.path.getsize(file_path)
+                    mtime = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
+                    size_info = f"{size} bytes"
+                    mtime_info = mtime
+                
+                # Display object details based on type
+                print(f"    {obj_name.ljust(15)} |", end="")
+                
+                if current_type == "DATASET":
+                    rectype = obj_info.get('RECTYPE', 'FB')
+                    reclen = obj_info.get('RECLEN', 80)
+                    encoding = obj_info.get('ENCODING', 'utf-8')
+                    print(f" {rectype}-{reclen} | {encoding} | {size_info} | {mtime_info}")
+                elif current_type == "PGM":
+                    pgmtype = obj_info.get('PGMTYPE', 'UNKNOWN')
+                    version = obj_info.get('VERSION', '1.0')
+                    print(f" {pgmtype} | V{version} | {size_info} | {mtime_info}")
+                elif current_type == "MAP":
+                    maptype = obj_info.get('MAPTYPE', 'SMED')
+                    rows = obj_info.get('ROWS', 24)
+                    cols = obj_info.get('COLS', 80)
+                    print(f" {maptype} | {rows}x{cols} | {size_info} | {mtime_info}")
+                elif current_type == "JOB":
+                    jobtype = obj_info.get('JOBTYPE', 'BATCH')
+                    schedule = obj_info.get('SCHEDULE', 'MANUAL')
+                    print(f" {jobtype} | {schedule} | {size_info} | {mtime_info}")
+                else:
+                    print(f" {size_info} | {mtime_info}")
+                
+                # Show description if available
+                description = obj_info.get('DESCRIPTION')
+                if description:
+                    print(f"                     Description: {description}")
 
-    print(f"[INFO] Library '{lib}' object list (volume: {vol}):")
-    for f in files:
-        f_path = os.path.join(lib_path, f)
-        size = os.path.getsize(f_path)
-        mtime = datetime.fromtimestamp(os.path.getmtime(f_path)).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"  [FILE] {f.ljust(20)} | Size: {str(size).rjust(6)} Byte | Modified: {mtime}")
+    print("=" * 80)
+    print(f"Total objects found: {total_objects}")
+    
+    if obj_type != 'ALL':
+        print(f"Filter applied: TYPE={obj_type}")
+    if lib:
+        print(f"Library filter: {lib}")
 
 def DSPFD(command):
     # Example: DSPFD FILE(SALES/REPORT),VOL-DISK01
@@ -275,21 +419,62 @@ def SAVLIB(command):
     print(f"[INFO] Library '{lib}'has been backed up: {backup_path}")
     log_message("INFO", f"SAVLIB {lib} → {backup_name}")
 def DSPJOB(command=None):
+    """Enhanced DSPJOB - Display Job Information and System Variables"""
+    print("[INFO] DSPJOB - Display Job Information and System Variables")
+    
+    # Display system variables
+    print("\n=== System Variables ===")
+    print(f"  @PGMEC (Program Exit Code): {get_pgmec()}")
+    print(f"  @USER (Current User): admin")  # TODO: Get from session
+    print(f"  @DATE (Current Date): {datetime.now().strftime('%Y-%m-%d')}")
+    print(f"  @TIME (Current Time): {datetime.now().strftime('%H:%M:%S')}")
+    print(f"  @JOB (Current Job): ASP_TERMINAL_{datetime.now().strftime('%Y%m%d')}")
+    
+    # Display process information
+    try:
+        import psutil
+        current_process = psutil.Process()
+        print(f"\n=== Process Information ===")
+        print(f"  Process ID: {current_process.pid}")
+        print(f"  Memory Usage: {current_process.memory_info().rss // 1024 // 1024} MB")
+        print(f"  CPU Time: {current_process.cpu_times().user + current_process.cpu_times().system:.2f} seconds")
+    except ImportError:
+        print(f"\n=== Process Information ===")
+        print("  psutil not available - basic info only")
+        print(f"  Process ID: {os.getpid()}")
+    
+    # Display environment information
+    print(f"\n=== Environment ===")
+    print(f"  Volume Root: {VOLUME_ROOT}")
+    print(f"  Config Root: {CONFIG_ROOT}")
+    print(f"  Job Log Dir: {JOB_LOG_DIR}")
+    print(f"  Python Version: {sys.version.split()[0]}")
+    
+    # Display job history
     log_path = os.path.join(VOLUME_ROOT, "JOBLOG", "job.log")
-    if not os.path.isfile(log_path):
-        print("[INFO] No job history available.")
-        return
-
-    print("[INFO] Job history (latest first):")
-    with open(log_path, "r") as f:
-        lines = f.readlines()
-        for line in reversed(lines[-10:]):  # 최근 10개만 표시
-            job_id, lib, prog, start, end, status = line.strip().split(',')
-            print(f"  [JOB] Job ID: {job_id}")
-            print(f"    |- program: {lib}/{prog}")
-            print(f"    |- start time: {start}")
-            print(f"    |- end time: {end}")
-            print(f"    -- status: {status}")
+    if os.path.isfile(log_path):
+        print(f"\n=== Recent Job History ===")
+        try:
+            with open(log_path, "r") as f:
+                lines = f.readlines()
+                if lines:
+                    for line in reversed(lines[-5:]):  # Show last 5 jobs
+                        try:
+                            job_id, lib, prog, start, end, status = line.strip().split(',')
+                            print(f"  [JOB] {job_id}")
+                            print(f"    |- Program: {lib}/{prog}")
+                            print(f"    |- Start: {start}")
+                            print(f"    |- End: {end}")
+                            print(f"    |- Status: {status}")
+                        except ValueError:
+                            continue
+                else:
+                    print("  No job history available.")
+        except Exception as e:
+            print(f"  Error reading job history: {e}")
+    else:
+        print(f"\n=== Recent Job History ===")
+        print("  No job log file found.")
 def record_job(lib, prog, status, start_time, end_time):
     job_dir = os.path.join(VOLUME_ROOT, "JOBLOG")
     os.makedirs(job_dir, exist_ok=True)
@@ -348,44 +533,534 @@ def WRKVOL(command=None):
         print(f"     -- Disk Usage    : {total_size:,} Byte")
 
 def CALL(command):
-    # Yes: CALL PGM-HELLO,VOL-DISK01
-    params = dict(item.split('-') for item in command.replace('CALL ', '').split(','))
-    pgm = params.get('PGM')
-    vol = params.get('VOL')
-
-    if not pgm or not vol:
-        print("[ERROR] PGM or VOL parameter is missing.")
-        return
-
-    # Construct path
-    parts = pgm.split('/')
-    if len(parts) != 2:
-        print("[ERROR] PGM must be in library/program name format.. ex: PGM-SALES/HELLO")
-        return
-
-    lib, prog = parts
-    prog_path = os.path.join(VOLUME_ROOT, vol, lib, prog)
-
-    if not os.path.isfile(prog_path):
-        print(f"[ERROR] Program '{prog}'does not exist in volume '{vol}'in library '{lib}'.")
-        return
-
-    # Determine execution method
-    if prog_path.endswith('.py'):
-        cmd = ['python3', prog_path]
-    elif prog_path.endswith('.sh'):
-        cmd = ['bash', prog_path]
-    else:
-        print(f"[ERROR] Non-executable extension: {prog_path}")
-        return
-
+    """
+    Enhanced CALL command following Fujitsu ASP manual format
+    Format: CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]
+    """
     try:
-        print(f"[INFO] Program execution started: {prog_path}")
-        result = subprocess.run(cmd, check=True, text=True, capture_output=True)
-        print("[OUTPUT]")
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Failed to execute:\n{e.stderr}")
+        # Parse command parameters with improved handling
+        command_part = command.replace('CALL ', '', 1)
+        params = {}
+        
+        # Handle PARA parameter with parentheses
+        if "PARA-(" in command_part:
+            # Split on PARA to handle parameters in parentheses
+            main_part, para_part = command_part.split("PARA-(", 1)
+            # Find matching closing parenthesis
+            paren_count = 1
+            para_end = 0
+            for i, char in enumerate(para_part):
+                if char == '(':
+                    paren_count += 1
+                elif char == ')':
+                    paren_count -= 1
+                    if paren_count == 0:
+                        para_end = i
+                        break
+            
+            if para_end > 0:
+                para_value = para_part[:para_end]
+                params['PARA'] = para_value
+                # Remove PARA part from command
+                remaining = para_part[para_end + 1:]
+                if remaining.startswith(','):
+                    remaining = remaining[1:]
+                command_part = main_part.rstrip(',')
+                if remaining:
+                    command_part += ',' + remaining
+        
+        # Parse remaining parameters
+        for item in command_part.split(','):
+            if '-' in item:
+                key, value = item.split('-', 1)
+                params[key.strip()] = value.strip()
+        
+        pgm_spec = params.get('PGM')
+        vol = params.get('VOL')
+        para = params.get('PARA', '')
+        
+        if not pgm_spec:
+            print("[ERROR] PGM parameter is required.")
+            print("[USAGE] CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]")
+            return
+        
+        # Parse program[.library] format
+        if '.' in pgm_spec:
+            prog, lib = pgm_spec.split('.', 1)
+        else:
+            prog = pgm_spec
+            lib = None
+        
+        # If library not specified, search in library list or use default
+        if not lib:
+            if vol:
+                # Search for program in all libraries of the volume
+                lib = _find_program_library(vol, prog)
+                if not lib:
+                    print(f"[ERROR] Program '{prog}' not found in any library in volume '{vol}'")
+                    print("[INFO] Available libraries can be checked with WRKLIB command")
+                    return
+            else:
+                print("[ERROR] Library must be specified when VOL parameter is not provided")
+                print("[USAGE] CALL PGM-<program>.<library> or CALL PGM-<program>,VOL-<volume>")
+                return
+        
+        # Get program information from catalog
+        program_info = get_object_info(vol, lib, prog)
+        if not program_info or program_info.get('TYPE') != 'PGM':
+            print(f"[ERROR] Program '{prog}' not found in catalog or is not a program object.")
+            print(f"[INFO] Check catalog.json for volume '{vol}', library '{lib}'")
+            return
+        
+        # Determine execution method based on program type
+        pgm_type = program_info.get('PGMTYPE', 'COBOL')
+        
+        print(f"[INFO] Calling program: {prog}")
+        if lib:
+            print(f"[INFO] Library: {lib}")
+        print(f"[INFO] Program type: {pgm_type}")
+        if vol:
+            print(f"[INFO] Volume: {vol}")
+        if para:
+            print(f"[INFO] Parameters: {para}")
+        
+        # Reset @PGMEC before program execution
+        reset_pgmec()
+        
+        success = False
+        if pgm_type == 'JAVA':
+            success = _call_java_program(vol, lib, prog, program_info, para)
+        elif pgm_type == 'COBOL':
+            success = _call_cobol_program(vol, lib, prog, program_info, para)
+        elif pgm_type == 'SHELL':
+            success = _call_shell_program(vol, lib, prog, program_info, para)
+        elif pgm_type == 'PYTHON':
+            success = _call_python_program(vol, lib, prog, program_info, para)
+        else:
+            print(f"[ERROR] Unsupported program type: {pgm_type}")
+            print(f"[INFO] Supported types: JAVA, COBOL, SHELL, PYTHON")
+            set_pgmec(999)  # System error
+            return False
+        
+        # Display final program execution status
+        pgmec = get_pgmec()
+        if success and pgmec == 0:
+            print(f"[INFO] Program '{prog}' completed successfully (@PGMEC={pgmec})")
+        else:
+            print(f"[WARNING] Program '{prog}' completed with return code @PGMEC={pgmec}")
+        
+        return success
+            
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] CALL command failed: {e}")
+        print(f"[DEBUG] Full traceback:")
+        traceback.print_exc()
+        return
+
+def _find_program_library(volume, program):
+    """Find which library contains the specified program"""
+    catalog = get_catalog_info()
+    volume_data = catalog.get(volume, {})
+    
+    for library, objects in volume_data.items():
+        if program in objects and objects[program].get('TYPE') == 'PGM':
+            return library
+    
+    return None
+
+def _call_java_program(volume, library, program, program_info, parameters):
+    """Execute Java program with SMED map integration"""
+    try:
+        # Construct Java program path
+        jar_file = program_info.get('JARFILE', f"{program}.jar")
+        prog_class = program_info.get('PGMNAME', program)
+        
+        # Check if JAR file exists
+        jar_path = os.path.join(VOLUME_ROOT, volume, library, jar_file)
+        if not os.path.isfile(jar_path):
+            print(f"[ERROR] JAR file not found: {jar_path}")
+            return False
+        
+        # Prepare comprehensive input data for Java program
+        input_data = {
+            "program": program,
+            "library": library,
+            "volume": volume,
+            "user": "admin",  # TODO: Get from session
+            "parameters": _parse_parameters(parameters) if parameters else {},
+            "timestamp": datetime.now().isoformat(),
+            "session": {
+                "id": f"ASP_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{program}",
+                "type": "CALL",
+                "terminal": "ASP_TERMINAL",
+                "encoding": "UTF-8"
+            },
+            "system": {
+                "asp_version": "1.0",
+                "java_version": "openjdk-11",
+                "platform": "Linux",
+                "catalog_version": "2.0"
+            },
+            "environment": {
+                "volume_root": VOLUME_ROOT,
+                "config_root": CONFIG_ROOT,
+                "job_log_dir": JOB_LOG_DIR,
+                "current_pgmec": get_pgmec()
+            }
+        }
+        
+        print(f"[INFO] Executing Java program: {prog_class}")
+        print(f"[INFO] JAR file: {jar_file}")
+        
+        # Execute Java program
+        cmd = ['java', '-jar', jar_path]
+        input_json = json.dumps(input_data, ensure_ascii=False)
+        
+        result = subprocess.run(
+            cmd,
+            input=input_json,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            cwd=os.path.dirname(jar_path)
+        )
+        
+        # Set @PGMEC based on Java program exit code
+        set_pgmec(result.returncode)
+        
+        if result.returncode != 0:
+            print(f"[ERROR] Java program execution failed (exit code: {result.returncode})")
+            if result.stderr:
+                print(f"[ERROR] {result.stderr}")
+            return False
+        
+        # Process Java program output
+        if result.stdout:
+            return _process_java_output(result.stdout, volume, library, program)
+        else:
+            print("[INFO] Java program completed with no output")
+            return True
+            
+    except subprocess.TimeoutExpired:
+        print("[ERROR] Java program execution timeout (60 seconds)")
+        return False
+    except Exception as e:
+        print(f"[ERROR] Java program execution error: {e}")
+        return False
+
+def _call_cobol_program(volume, library, program, program_info, parameters):
+    """Execute COBOL program (placeholder for future implementation)"""
+    print(f"[INFO] COBOL program execution not yet implemented")
+    print(f"[INFO] Program: {library}/{program}")
+    if parameters:
+        print(f"[INFO] Parameters: {parameters}")
+    return True
+
+def _call_shell_program(volume, library, program, program_info, parameters):
+    """Execute Shell script program"""
+    try:
+        # Construct shell script path
+        script_file = program_info.get('PGMNAME', f"{program}.sh")
+        script_path = os.path.join(VOLUME_ROOT, volume, library, script_file)
+        
+        if not os.path.isfile(script_path):
+            print(f"[ERROR] Shell script not found: {script_path}")
+            return False
+        
+        # Prepare environment variables
+        env = os.environ.copy()
+        env['ASP_PROGRAM'] = program
+        env['ASP_LIBRARY'] = library
+        env['ASP_VOLUME'] = volume
+        if parameters:
+            env['ASP_PARAMETERS'] = parameters
+        
+        print(f"[INFO] Executing shell script: {script_file}")
+        
+        # Execute shell script
+        cmd = ['bash', script_path]
+        if parameters:
+            # Split parameters and pass as arguments
+            args = _parse_parameters(parameters)
+            for key, value in args.items():
+                cmd.extend([f"--{key}", str(value)])
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            env=env,
+            cwd=os.path.dirname(script_path)
+        )
+        
+        if result.returncode != 0:
+            print(f"[ERROR] Shell script execution failed (exit code: {result.returncode})")
+            if result.stderr:
+                print(f"[ERROR] {result.stderr}")
+            return False
+        
+        if result.stdout:
+            print("[OUTPUT]")
+            print(result.stdout)
+        
+        print("[INFO] Shell script completed successfully")
+        return True
+        
+    except subprocess.TimeoutExpired:
+        print("[ERROR] Shell script execution timeout (60 seconds)")
+        return False
+    except Exception as e:
+        print(f"[ERROR] Shell script execution error: {e}")
+        return False
+
+def _call_python_program(volume, library, program, program_info, parameters):
+    """Execute Python program"""
+    try:
+        # Construct Python script path
+        script_file = program_info.get('PGMNAME', f"{program}.py")
+        script_path = os.path.join(VOLUME_ROOT, volume, library, script_file)
+        
+        if not os.path.isfile(script_path):
+            print(f"[ERROR] Python script not found: {script_path}")
+            return False
+        
+        print(f"[INFO] Executing Python script: {script_file}")
+        
+        # Execute Python script
+        cmd = ['python3', script_path]
+        if parameters:
+            cmd.append(parameters)
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            cwd=os.path.dirname(script_path)
+        )
+        
+        if result.returncode != 0:
+            print(f"[ERROR] Python script execution failed (exit code: {result.returncode})")
+            if result.stderr:
+                print(f"[ERROR] {result.stderr}")
+            return False
+        
+        if result.stdout:
+            print("[OUTPUT]")
+            print(result.stdout)
+        
+        print("[INFO] Python script completed successfully")
+        return True
+        
+    except subprocess.TimeoutExpired:
+        print("[ERROR] Python script execution timeout (60 seconds)")
+        return False
+    except Exception as e:
+        print(f"[ERROR] Python script execution error: {e}")
+        return False
+
+def _parse_parameters(param_string):
+    """Parse parameter string into key-value pairs"""
+    params = {}
+    if not param_string:
+        return params
+    
+    # Handle different parameter formats
+    # Format 1: key1=value1,key2=value2
+    # Format 2: value1,value2,value3 (positional)
+    
+    if '=' in param_string:
+        # Key-value format
+        for item in param_string.split(','):
+            if '=' in item:
+                key, value = item.split('=', 1)
+                params[key.strip()] = value.strip()
+    else:
+        # Positional format
+        values = param_string.split(',')
+        for i, value in enumerate(values):
+            params[f"arg{i+1}"] = value.strip()
+    
+    return params
+
+def _process_java_output(output, volume, library, program):
+    """Process Java program output and handle SMED map display"""
+    try:
+        # Try to parse as JSON
+        try:
+            output_data = json.loads(output)
+        except json.JSONDecodeError:
+            # If not JSON, treat as plain text output
+            print("[OUTPUT]")
+            print(output)
+            return True
+        
+        # Handle different types of Java program responses
+        action = output_data.get('action', 'display_text')
+        
+        # Check if Java program specified a custom return code
+        program_return_code = output_data.get('return_code')
+        if program_return_code is not None:
+            set_pgmec(program_return_code)
+        
+        if action == 'display_text':
+            # Simple text output
+            message = output_data.get('message', output_data.get('output', ''))
+            if message:
+                print("[OUTPUT]")
+                print(message)
+            return True
+            
+        elif action == 'display_map':
+            # SMED map display request
+            map_file = output_data.get('map_file')
+            if map_file:
+                return _display_smed_map(map_file, output_data, volume, library, program)
+            else:
+                print("[ERROR] Java program requested map display but no map_file specified")
+                set_pgmec(825)  # Missing parameter error
+                return False
+                
+        elif action == 'error':
+            # Error response from Java program
+            error_msg = output_data.get('message', 'Unknown error from Java program')
+            error_code = output_data.get('error_code', 999)
+            print(f"[ERROR] Java program error: {error_msg}")
+            set_pgmec(error_code)
+            return False
+            
+        elif action == 'continue':
+            # Program wants to continue execution (for interactive programs)
+            print("[INFO] Java program is continuing execution...")
+            return _handle_program_continuation(output_data, volume, library, program)
+            
+        else:
+            # Unknown action
+            print(f"[WARNING] Unknown action from Java program: {action}")
+            print("[OUTPUT]")
+            print(output)
+            return True
+            
+    except Exception as e:
+        print(f"[ERROR] Error processing Java program output: {e}")
+        print("[OUTPUT] Raw output:")
+        print(output)
+        set_pgmec(999)  # System error
+        return False
+
+def _display_smed_map(map_file, output_data, volume, library, program):
+    """Handle SMED map display request with interactive CLI input"""
+    print(f"[INFO] SMED map display requested: {map_file}")
+    print(f"[INFO] Program: {program}")
+    
+    # Construct full map file path for reference
+    if not os.path.isabs(map_file):
+        # Handle relative paths like "TESTLIB/MAINMENU" (without .smed extension)
+        if '/' in map_file:
+            lib_name, map_name = map_file.split('/', 1)
+            # Add .smed extension if not present
+            if not map_name.endswith('.smed'):
+                map_name += '.smed'
+            full_map_path = os.path.join(VOLUME_ROOT, volume, lib_name, map_name)
+        else:
+            # Add .smed extension if not present
+            if not map_file.endswith('.smed'):
+                map_file += '.smed'
+            full_map_path = os.path.join(VOLUME_ROOT, volume, library, map_file)
+    else:
+        full_map_path = map_file
+    
+    # Display basic information for CLI users
+    fields = output_data.get('fields', {})
+    messages = output_data.get('messages', [])
+    next_action = output_data.get('next_action', 'wait_input')
+    
+    if messages:
+        print("\n[MESSAGES]")
+        for msg in messages:
+            print(f"  {msg}")
+    
+    # Interactive field input for CLI users
+    if fields and next_action == 'wait_input':
+        print(f"\n=== Interactive Input - Map: {map_file.replace('.smed', '')} ===")
+        print(f"[INFO] Enter values for the following fields (Press Enter to keep current values):")
+        
+        updated_fields = {}
+        for field_name, current_value in fields.items():
+            try:
+                # Display current value
+                display_value = current_value if current_value else "(empty)"
+                user_input = input(f"{field_name} [{display_value}]: ").strip()
+                
+                # Keep current value if user just pressed Enter
+                if user_input == "":
+                    updated_fields[field_name] = current_value
+                else:
+                    updated_fields[field_name] = user_input
+                    
+            except KeyboardInterrupt:
+                print("\n[INFO] Input cancelled by user")
+                return False
+            except EOFError:
+                print("\n[INFO] End of input detected")
+                break
+        
+        # Display updated field values
+        print(f"\n[UPDATED FIELD DATA] - Map: {map_file.replace('.smed', '')}")
+        for field_name, field_value in updated_fields.items():
+            print(f"  {field_name}: {field_value}")
+        
+        # For interactive sessions, we would typically call the Java program again 
+        # with the updated field data, but for now we'll just display the results
+        print(f"\n[INFO] Field input completed")
+        print(f"[NOTE] Updated field values have been captured")
+        print(f"[NOTE] In full implementation, these values would be sent back to the Java program")
+        
+        return True
+    elif fields:
+        # Non-interactive display
+        print(f"\n[FIELD DATA] - Map: {map_file.replace('.smed', '')}")
+        for field_name, field_value in fields.items():
+            print(f"  {field_name}: {field_value}")
+    
+    print(f"\n[INFO] Map file path: {full_map_path}")
+    print(f"[INFO] Next action: {next_action}")
+    
+    # Show web terminal option for full SMED experience
+    if next_action == 'wait_input':
+        print(f"[NOTE] For full interactive SMED experience, use the ASP Web Terminal at:")
+        print(f"[NOTE]   http://localhost:3000/asp-terminal")
+        print(f"[NOTE] Web terminal provides:")
+        print(f"[NOTE]   - Visual field positioning and validation")
+        print(f"[NOTE]   - Color-coded display and cursor navigation")
+        print(f"[NOTE]   - F-key functions and mouse interaction")
+    
+    return True
+
+
+def _handle_program_continuation(output_data, volume, library, program):
+    """Handle continued execution of Java programs (for interactive sessions)"""
+    print(f"[INFO] Handling program continuation for: {program}")
+    
+    # This will be expanded in Phase 4 for interactive session management
+    continuation_type = output_data.get('continuation_type', 'simple')
+    message = output_data.get('message', 'Program is continuing...')
+    
+    print(f"[INFO] Continuation type: {continuation_type}")
+    print(f"[INFO] {message}")
+    
+    if continuation_type == 'wait_input':
+        print("[TODO] Wait for user input and continue program")
+    elif continuation_type == 'background':
+        print("[TODO] Continue program in background")
+    elif continuation_type == 'schedule':
+        schedule_time = output_data.get('schedule_time')
+        print(f"[TODO] Schedule program continuation at: {schedule_time}")
+    
+    return True
+
 def DSPFD(command):
     # Example: DSPFD FILE(SALES/REPORT),VOL-DISK01
     main_part, *others = command.replace('DSPFD ', '').split(',')
@@ -460,10 +1135,136 @@ def CRTLIB(command):
 
     path = os.path.join(VOLUME_ROOT, vol, lib)
     os.makedirs(path, exist_ok=True)
-    print(f"[INFO] Library '{lib}'in volume '{vol}'has been created: {path}")
+    print(f"[INFO] Library '{lib}' in volume '{vol}' has been created: {path}")
+
+def CRTPGM(command):
+    # Example: CRTPGM PGM(TESTLIB/PAYROLL01),VOL-DISK01,PGMTYPE-COBOL,VERSION-2.1,DESC-'Monthly payroll calculation'
+    main_part, *others = command.replace('CRTPGM ', '').split(',')
+    pgm_lib, pgm_name = main_part.replace('PGM(', '').replace(')', '').split('/')
+    params = dict(item.split('-', 1) for item in others if '-' in item)
+    vol = params.get('VOL')
+
+    if not vol:
+        print("[ERROR] VOL parameter is missing.")
+        return
+
+    lib_path = os.path.join(VOLUME_ROOT, vol, pgm_lib)
+    
+    if not os.path.exists(lib_path):
+        print(f"[ERROR] Library '{pgm_lib}' does not exist. Please run CRTLIB command first.")
+        return
+
+    # Parse program attributes
+    pgmtype = params.get('PGMTYPE', 'COBOL')
+    version = params.get('VERSION', '1.0')
+    description = params.get('DESC', f'{pgm_name} program').strip("'\"")
+    pgmname = params.get('PGMNAME', pgm_name)
+    
+    # Type-specific attributes
+    program_attrs = {
+        'PGMNAME': pgmname,
+        'VERSION': version,
+        'DESCRIPTION': description
+    }
+    
+    if pgmtype.upper() == 'JAVA':
+        program_attrs['JARFILE'] = params.get('JARFILE', f'{pgm_name}.jar')
+    elif pgmtype.upper() == 'COBOL':
+        program_attrs['SOURCEFILE'] = params.get('SOURCEFILE', f'{pgm_name}.cbl')
+        program_attrs['EXECUTABLE'] = params.get('EXECUTABLE', pgm_name)
+    elif pgmtype.upper() == 'SHELL':
+        program_attrs['SHELLFILE'] = params.get('SHELLFILE', f'{pgm_name}.sh')
+
+    # Create program entry in filesystem (placeholder)
+    pgm_path = os.path.join(lib_path, pgm_name)
+    with open(pgm_path, 'w', encoding='utf-8') as f:
+        f.write(f"# {pgmtype} Program: {pgm_name}\n")
+        f.write(f"# Description: {description}\n")
+        f.write(f"# Version: {version}\n")
+
+    # Update catalog with new hierarchical structure
+    update_catalog_info(
+        volume=vol, 
+        library=pgm_lib, 
+        object_name=pgm_name,
+        object_type="PGM",
+        PGMTYPE=pgmtype,
+        **program_attrs
+    )
+    
+    print(f"[INFO] Program '{pgm_name}' in library '{pgm_lib}' has been created: {pgm_path}")
+    print(f"[INFO] Program registered in catalog.json:")
+    print(f"       TYPE: PGM")
+    print(f"       PGMTYPE: {pgmtype}")
+    print(f"       VERSION: {version}")
+    if pgmtype.upper() == 'JAVA':
+        print(f"       JARFILE: {program_attrs.get('JARFILE')}")
+    elif pgmtype.upper() == 'COBOL':
+        print(f"       SOURCEFILE: {program_attrs.get('SOURCEFILE')}")
+
+def CRTMAP(command):
+    # Example: CRTMAP MAP(TESTLIB/MAINMENU),VOL-DISK01,MAPTYPE-SMED,ROWS-24,COLS-80,DESC-'Main menu screen'
+    main_part, *others = command.replace('CRTMAP ', '').split(',')
+    map_lib, map_name = main_part.replace('MAP(', '').replace(')', '').split('/')
+    params = dict(item.split('-', 1) for item in others if '-' in item)
+    vol = params.get('VOL')
+
+    if not vol:
+        print("[ERROR] VOL parameter is missing.")
+        return
+
+    lib_path = os.path.join(VOLUME_ROOT, vol, map_lib)
+    
+    if not os.path.exists(lib_path):
+        print(f"[ERROR] Library '{map_lib}' does not exist. Please run CRTLIB command first.")
+        return
+
+    # Parse map attributes
+    maptype = params.get('MAPTYPE', 'SMED')
+    rows = int(params.get('ROWS', '24'))
+    cols = int(params.get('COLS', '80'))
+    description = params.get('DESC', f'{map_name} screen map').strip("'\"")
+    
+    # Type-specific attributes
+    map_attrs = {
+        'ROWS': rows,
+        'COLS': cols,
+        'DESCRIPTION': description
+    }
+    
+    if maptype.upper() == 'SMED':
+        map_attrs['MAPFILE'] = params.get('MAPFILE', f'{map_name}.smed')
+    elif maptype.upper() == 'HTML':
+        map_attrs['MAPFILE'] = params.get('MAPFILE', f'{map_name}.html')
+        map_attrs['RESPONSIVE'] = params.get('RESPONSIVE', 'true').lower() == 'true'
+
+    # Create map file in filesystem
+    map_path = os.path.join(lib_path, map_name)
+    with open(map_path, 'w', encoding='utf-8') as f:
+        f.write(f"# {maptype} Map: {map_name}\n")
+        f.write(f"# Description: {description}\n")
+        f.write(f"# Dimensions: {rows}x{cols}\n")
+
+    # Update catalog with new hierarchical structure
+    update_catalog_info(
+        volume=vol, 
+        library=map_lib, 
+        object_name=map_name,
+        object_type="MAP",
+        MAPTYPE=maptype,
+        **map_attrs
+    )
+    
+    print(f"[INFO] Map '{map_name}' in library '{map_lib}' has been created: {map_path}")
+    print(f"[INFO] Map registered in catalog.json:")
+    print(f"       TYPE: MAP")
+    print(f"       MAPTYPE: {maptype}")
+    print(f"       DIMENSIONS: {rows}x{cols}")
+    if maptype.upper() == 'HTML':
+        print(f"       RESPONSIVE: {map_attrs.get('RESPONSIVE', False)}")
 
 def CRTFILE(command):
-    # Example: CRTFILE FILE(ACCTLIB/CUSTMAST),VOL-DISK01,ENT-100
+    # Example: CRTFILE FILE(ACCTLIB/CUSTMAST),VOL-DISK01,RECTYPE-FB,RECLEN-80
     main_part, *others = command.replace('CRTFILE ', '').split(',')
     file_lib, file_name = main_part.replace('FILE(', '').replace(')', '').split('/')
     params = dict(item.split('-') for item in others if '-' in item)
@@ -477,24 +1278,42 @@ def CRTFILE(command):
     file_path = os.path.join(lib_path, file_name)
 
     if not os.path.exists(lib_path):
-        print(f"[ERROR] Library '{file_lib}'does not exist. Please run CRTLIB command first.")
+        print(f"[ERROR] Library '{file_lib}' does not exist. Please run CRTLIB command first.")
         return
 
-    with open(file_path, 'w') as f:
+    # Create empty dataset file
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write("")  # Create empty dataset
 
-    # Update file information in catalog.json
-    reclen = params.get('RECLEN', 80)
+    # Parse dataset attributes
+    reclen = params.get('RECLEN', '80')
     rectype = params.get('RECTYPE', 'FB')
+    encoding = params.get('ENCODING', 'utf-8')
+    description = params.get('DESC', f'{file_name} dataset')
+    
     try:
         reclen = int(reclen)
     except:
         reclen = 80
     
-    update_catalog_info(vol, file_name, rectype=rectype, reclen=reclen)
+    # Update catalog with new hierarchical structure
+    update_catalog_info(
+        volume=vol, 
+        library=file_lib, 
+        object_name=file_name,
+        object_type="DATASET",
+        RECTYPE=rectype, 
+        RECLEN=reclen,
+        ENCODING=encoding,
+        DESCRIPTION=description
+    )
     
-    print(f"[INFO] '{file_name}'in library '{file_lib}'has been created: {file_path}")
-    print(f"[INFO] File information registered in catalog.json (RECTYPE={rectype}, RECLEN={reclen})")
+    print(f"[INFO] Dataset '{file_name}' in library '{file_lib}' has been created: {file_path}")
+    print(f"[INFO] Dataset registered in catalog.json:")
+    print(f"       TYPE: DATASET")
+    print(f"       RECTYPE: {rectype}")
+    print(f"       RECLEN: {reclen}")
+    print(f"       ENCODING: {encoding}")
     
 def WRKLIB(command=None):
     print(f"[INFO] All libraries in '{VOLUME_ROOT}':")
@@ -577,7 +1396,7 @@ def EDTFILE(command):
         return
     
     # Get file format info from catalog
-    file_info = get_file_info(volume, filename)
+    file_info = get_file_info(volume, f"{lib}/{filename}")
     reclen = file_info.get('RECLEN', 80)
     rectype = file_info.get('RECTYPE', 'FB')
     encoding = file_info.get('ENCODING', 'utf-8')
@@ -1527,9 +2346,32 @@ SYSTEM INFORMATION:
     - Example: DSPJOB or DSPJOB JOB-BATCH001
 
 JOB MANAGEMENT:
-  CALL PGM-<program>[,PARM-'<parameters>']
-    - Execute a program with optional parameters
-    - Example: CALL PGM-PAYROLL,PARM-'MONTHLY UPDATE'
+  CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]
+    - Execute a program with optional parameters (Fujitsu ASP format)
+    - program: Program name (required)
+    - library: Library name (optional, searched if not specified)
+    - parameters: Parameter list in parentheses (optional)
+    - volume: Volume name (optional, used for library search)
+    - Examples: 
+      CALL PGM-LOGOPGM1.TESTLIB,VOL-DISK01
+      CALL PGM-PAYROLL,PARA-(MONTHLY UPDATE),VOL-DISK01
+      CALL PGM-TestProgram.TESTLIB,PARA-(user=admin,debug=true)
+
+PROGRAM AND MAP MANAGEMENT:
+  CRTPGM PGM(<library>/<program>),VOL-<volume>[,PGMTYPE-<type>][,VERSION-<version>][,DESC-'<description>']
+    - Create a new program object in the specified library
+    - PGMTYPE: COBOL, JAVA, SHELL (default: COBOL)
+    - VERSION: Version number (default: 1.0)
+    - DESC: Program description
+    - Example: CRTPGM PGM(TESTLIB/PAYROLL01),VOL-DISK01,PGMTYPE-COBOL,VERSION-2.1,DESC-'Monthly payroll'
+
+  CRTMAP MAP(<library>/<mapname>),VOL-<volume>[,MAPTYPE-<type>][,ROWS-<rows>][,COLS-<cols>][,DESC-'<description>']
+    - Create a new screen map object in the specified library
+    - MAPTYPE: SMED, HTML (default: SMED)
+    - ROWS: Number of rows (default: 24)
+    - COLS: Number of columns (default: 80)
+    - DESC: Map description
+    - Example: CRTMAP MAP(TESTLIB/MAINMENU),VOL-DISK01,MAPTYPE-SMED,ROWS-24,COLS-80,DESC-'Main menu'
 
 MESSAGING:
   SNDMSG USER-<user>,MSG-'<message>'

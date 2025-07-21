@@ -13,7 +13,8 @@ locale.setlocale(locale.LC_ALL, 'C.UTF-8')
 from asp_commands import (
     CRTLIB, DLTLIB, WRKLIB, CRTFILE, DLTFILE, DSPFD,
     WRKOBJ, CALL, WRKVOL, WRKSPLF, WRKMSG,
-    DSPJOB, SAVLIB, RSTLIB, SNDMSG, RCVMSG, EDTFILE, HELP
+    DSPJOB, SAVLIB, RSTLIB, SNDMSG, RCVMSG, EDTFILE, HELP,
+    CRTPGM, CRTMAP
 )
 
 VOLUME_ROOT = "/home/aspuser/app/volume"
@@ -48,6 +49,8 @@ if __name__ == "__main__":
         "SNDMSG": SNDMSG,
         "RCVMSG": RCVMSG,
         "EDTFILE": EDTFILE,
+        "CRTPGM": CRTPGM,
+        "CRTMAP": CRTMAP,
     }
 
     if args.command in command_map:
@@ -55,8 +58,11 @@ if __name__ == "__main__":
             command_map[args.command](full_command)
         except Exception as e:
             import traceback
+            import sys
             print(f"[ERROR] Command execution failed: {e}")
+            print(f"[DEBUG] Exception type: {type(e).__name__}")
+            print(f"[DEBUG] Command: {full_command}")
             print(f"[DEBUG] Full traceback:")
-            traceback.print_exc()
+            traceback.print_exc(file=sys.stdout, limit=None, chain=True)
     else:
         print(f"[ERROR] It's an unknown command: {args.command}")

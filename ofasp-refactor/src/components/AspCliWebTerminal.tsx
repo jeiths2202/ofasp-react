@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './AspCliWebTerminal.css';
 import EdtfileBrowser from './EdtfileBrowser';
+import SmedMapDisplay from './SmedMapDisplay';
 
 interface AspCliWebTerminalProps {
   isDarkMode: boolean;
@@ -38,13 +39,16 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
   const [showLibraryDropdown, setShowLibraryDropdown] = useState(false);
   const [showEdtfileBrowser, setShowEdtfileBrowser] = useState(false);
   const [edtfileData, setEdtfileData] = useState<any>(null);
+  const [showSmedMap, setShowSmedMap] = useState(false);
+  const [smedMapData, setSmedMapData] = useState<any>(null);
   
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [commandSuggestions] = useState([
     'HELP', 'CRTLIB', 'DLTLIB', 'WRKLIB', 'CRTFILE', 'DLTFILE', 
     'DSPFD', 'WRKOBJ', 'WRKVOL', 'WRKSPLF', 'WRKMSG',
-    'DSPJOB', 'SAVLIB', 'RSTLIB', 'SNDMSG', 'RCVMSG', 'EDTFILE', 'CTTFILE'
+    'DSPJOB', 'SAVLIB', 'RSTLIB', 'SNDMSG', 'RCVMSG', 'EDTFILE', 'CTTFILE',
+    'CRTPGM', 'CRTMAP', 'CALL'
   ]);
 
   // 실제 Python API를 통해 볼륨 목록 로드
@@ -269,7 +273,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
         }
       };
 
-      await fetch('http://localhost:3007/api/logs', {
+      await fetch('http://localhost:8000/api/logs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -322,6 +326,37 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
             setCurrentCommand('');
             setHistoryIndex(-1);
             return;
+          }
+        }
+        
+        // Check if this output contains SMED map display request
+        if (output.includes('[INFO] SMED map display requested:')) {
+          const mapMatch = output.match(/SMED map display requested: ([^\n]+)/);
+          if (mapMatch) {
+            const mapFile = mapMatch[1];
+            try {
+              // Call API to parse SMED map
+              const parseResponse = await fetch('http://localhost:8000/api/smed/parse', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ map_file: mapFile }),
+              });
+              
+              if (parseResponse.ok) {
+                const mapData = await parseResponse.json();
+                setSmedMapData(mapData);
+                setShowSmedMap(true);
+                // Don't show the output text, just show the map
+                setIsExecuting(false);
+                setCurrentCommand('');
+                setHistoryIndex(-1);
+                return;
+              }
+            } catch (error) {
+              console.error('Failed to parse SMED map:', error);
+            }
           }
         }
       } else {
@@ -1117,6 +1152,46 @@ HELP を入力して使用可能なコマンドを確認してください。`;
             setEdtfileData(null);
           }}
         />
+      )}
+      
+      {/* SMED Map Display */}
+      {showSmedMap && smedMapData && (
+        <div className="smed-map-overlay">
+          <div className="smed-map-container">
+            <div className="smed-map-header">
+              <h3>SMED Map: {smedMapData.map_name}</h3>
+              <button 
+                className="smed-close-button"
+                onClick={() => {
+                  setShowSmedMap(false);
+                  setSmedMapData(null);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            <SmedMapDisplay
+              fields={smedMapData.fields}
+              mapName={smedMapData.map_name}
+              onSubmit={async (fieldValues) => {
+                // Submit field values back to the Java program
+                console.log('SMED field values submitted:', fieldValues);
+                // TODO: Send field values to the server for processing
+                setShowSmedMap(false);
+                setSmedMapData(null);
+                
+                // Show success message in terminal
+                const newEntry: CommandHistory = {
+                  command: 'SMED Submit',
+                  output: `Fields submitted: ${JSON.stringify(fieldValues, null, 2)}`,
+                  timestamp: new Date(),
+                  success: true
+                };
+                setCommandHistory(prev => [...prev, newEntry]);
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

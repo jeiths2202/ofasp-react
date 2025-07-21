@@ -22,6 +22,7 @@ import logging
 from datetime import datetime
 from collections import deque
 import uuid
+from io import StringIO
 
 # ?? ??
 logging.basicConfig(
@@ -32,9 +33,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['http://localhost:3005', 'http://localhost:3000', 'http://localhost:3007', 'http://localhost:3006'])
 
 # ?? ??
+VOLUME_ROOT = "/home/aspuser/app/volume"
 SMED_DIR = None
 ACCOUNT_FILE = None
 SMED_PGM_FILE = None
@@ -793,6 +795,30 @@ def get_logs():
         logger.error(f"Failed to get logs: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/logs', methods=['POST'])
+def add_log_entry():
+    """Add a new log entry"""
+    try:
+        data = request.get_json()
+        log_entry = {
+            'id': str(uuid.uuid4()),
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'level': data.get('level', 'INFO'),
+            'source': data.get('service', 'UNKNOWN'),
+            'message': data.get('message', ''),
+            'details': data.get('details', {})
+        }
+        execution_logs.append(log_entry)
+        logger.info(f"[{log_entry['level']}] {log_entry['source']}: {log_entry['message']}")
+        return jsonify({
+            'success': True,
+            'message': 'Log entry added successfully',
+            'log_id': log_entry['id']
+        })
+    except Exception as e:
+        logger.error(f"Failed to add log entry: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/logs', methods=['DELETE'])
 def clear_logs():
     """Clear execution logs"""
@@ -805,6 +831,256 @@ def clear_logs():
     except Exception as e:
         logger.error(f"Failed to clear logs: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/smed/parse', methods=['POST'])
+def parse_smed_map():
+    """Parse SMED map file and return grid layout for web rendering"""
+    try:
+        data = request.get_json()
+        map_file = data.get('map_file')
+        
+        if not map_file:
+            return jsonify({'error': 'map_file parameter required'}), 400
+        
+        # Parse map file path
+        if '/' in map_file:
+            lib_name, map_name = map_file.split('/', 1)
+        else:
+            lib_name = 'TESTLIB'  # Default library
+            map_name = map_file
+        
+        # Add .smed extension if not present
+        if not map_name.endswith('.smed'):
+            map_name += '.smed'
+        
+        # Construct full path
+        map_path = os.path.join(VOLUME_ROOT, 'DISK01', lib_name, map_name)
+        
+        if not os.path.exists(map_path):
+            return jsonify({'error': f'Map file not found: {map_path}'}), 404
+        
+        # Parse SMED file
+        with open(map_path, 'r', encoding='utf-8') as f:
+            smed_content = f.read()
+        
+        # Initialize 24x80 grid
+        grid = [[' ' for _ in range(80)] for _ in range(24)]
+        fields = []
+        
+        # Parse SMED content line by line
+        lines = smed_content.strip().split('\n')
+        map_name_parsed = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            if line.startswith('MAPNAME'):
+                map_name_parsed = line.split()[1] if len(line.split()) > 1 else 'UNKNOWN'
+            elif line.startswith('ITEM'):
+                # Parse ITEM definition
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                    
+                field_name = parts[1]
+                field_info = {
+                    'name': field_name,
+                    'type': 'output',  # Default
+                    'row': 0,
+                    'col': 0,
+                    'length': 0,
+                    'value': '',
+                    'color': '#FFFFFF',
+                    'prompt': ''
+                }
+                
+                # Parse attributes
+                for i, part in enumerate(parts[2:]):
+                    if part.startswith('TYPE='):
+                        field_info['type'] = 'output' if part.split('=')[1] == 'T' else 'input'
+                    elif part.startswith('POS='):
+                        pos_str = part.split('=')[1]
+                        if pos_str.startswith('(') and ')' in pos_str:
+                            row, col = pos_str.strip('()').split(',')
+                            field_info['row'] = int(row) - 1  # Convert to 0-based
+                            field_info['col'] = int(col) - 1
+                    elif part.startswith('LEN='):
+                        field_info['length'] = int(part.split('=')[1])
+                    elif part.startswith('COLOR='):
+                        field_info['color'] = part.split('=')[1]
+                    elif part.startswith('PROMPT='):
+                        # Handle quoted prompt text
+                        prompt_start = line.find('PROMPT="') + 8
+                        prompt_end = line.find('"', prompt_start)
+                        if prompt_start > 7 and prompt_end > prompt_start:
+                            field_info['prompt'] = line[prompt_start:prompt_end]
+                            field_info['value'] = field_info['prompt']
+                
+                # If PROMPT exists, it's output mode; if not, it's input mode
+                if field_info['prompt']:
+                    field_info['type'] = 'output'
+                    # Place prompt text on grid
+                    text = field_info['prompt']
+                    row = field_info['row']
+                    col = field_info['col']
+                    for j, char in enumerate(text):
+                        if col + j < 80 and row < 24:
+                            grid[row][col + j] = char
+                else:
+                    field_info['type'] = 'input'
+                    # Set default length if not specified
+                    if field_info['length'] == 0:
+                        field_info['length'] = 10
+                
+                fields.append(field_info)
+        
+        # Convert grid to string representation for easy rendering
+        grid_lines = [''.join(row) for row in grid]
+        
+        return jsonify({
+            'success': True,
+            'map_name': map_name_parsed,
+            'grid': grid_lines,
+            'fields': fields,
+            'rows': 24,
+            'cols': 80
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to parse SMED map: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/asp-command', methods=['POST'])
+def asp_command():
+    """Execute ASP system command"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        command = data.get('command', '').strip()
+        user = data.get('user', 'unknown')
+        
+        if not command:
+            return jsonify({'error': 'Command parameter required'}), 400
+        
+        logger.info(f"Received ASP command request: {command} from user: {user}")
+        add_log('INFO', 'ASP_COMMAND', f'Executing command: {command}', {'user': user, 'command': command})
+        
+        # ASP 명령어 실행
+        result = execute_asp_command(command, user)
+        
+        if result['success']:
+            add_log('INFO', 'ASP_COMMAND', f'Command completed successfully: {command}', 
+                   {'user': user, 'command': command, 'output_length': len(result['output'])})
+            return jsonify({
+                'success': True,
+                'output': result['output'],
+                'command': command,
+                'user': user
+            })
+        else:
+            add_log('ERROR', 'ASP_COMMAND', f'Command failed: {command}', 
+                   {'user': user, 'command': command, 'error': result['error']})
+            return jsonify({
+                'success': False,
+                'error': result['error'],
+                'command': command,
+                'user': user
+            }), 500
+    
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"ASP command API error: {error_msg}")
+        add_log('ERROR', 'ASP_COMMAND', f'API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+def execute_asp_command(command, user):
+    """Execute ASP command using aspcli.py"""
+    try:
+        # ASP 명령어 실행을 위한 스크립트 경로
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        aspcli_path = os.path.join(script_dir, 'system-cmds', 'aspcli.py')
+        
+        if not os.path.exists(aspcli_path):
+            raise Exception(f"aspcli.py not found at {aspcli_path}")
+        
+        # Python 명령어 실행 (UTF-8 인코딩 설정)
+        env = os.environ.copy()
+        env['PYTHONIOENCODING'] = 'utf-8'
+        env['LC_ALL'] = 'C.UTF-8'
+        env['LANG'] = 'C.UTF-8'
+        
+        logger.info(f"Executing ASP command: {command} for user: {user}")
+        
+        # Parse command to extract command name and parameters
+        command_parts = command.strip().split()
+        if not command_parts:
+            raise Exception("Empty command")
+        
+        command_name = command_parts[0]
+        command_params = command[len(command_name):].strip()
+        
+        # Build arguments for aspcli.py: command_name [params...]
+        cmd_args = [sys.executable, aspcli_path, command_name]
+        if command_params:
+            cmd_args.append(command_params)
+        
+        process = subprocess.Popen(
+            cmd_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,  # Use binary mode to avoid encoding issues
+            env=env,
+            cwd=os.path.dirname(aspcli_path)
+        )
+        
+        stdout_bytes, stderr_bytes = process.communicate(timeout=30)
+        
+        # Safely decode output using UTF-8 with error handling
+        stdout = stdout_bytes.decode('utf-8', errors='replace') if stdout_bytes else ""
+        stderr = stderr_bytes.decode('utf-8', errors='replace') if stderr_bytes else ""
+        
+        if process.returncode != 0:
+            error_msg = stderr.strip() if stderr else "Command execution failed"
+            logger.error(f"ASP command failed: {error_msg}")
+            return {
+                'success': False,
+                'output': '',
+                'error': error_msg
+            }
+        
+        output = stdout.strip()
+        logger.info(f"ASP command completed successfully")
+        
+        return {
+            'success': True,
+            'output': output,
+            'error': None
+        }
+        
+    except subprocess.TimeoutExpired:
+        process.kill()
+        error_msg = "Command execution timeout"
+        logger.error(f"ASP command timeout: {command}")
+        return {
+            'success': False,
+            'output': '',
+            'error': error_msg
+        }
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"ASP command execution error: {error_msg}")
+        return {
+            'success': False,
+            'output': '',
+            'error': error_msg
+        }
 
 def add_log(level, source, message, details=None):
     """Add log entry"""
