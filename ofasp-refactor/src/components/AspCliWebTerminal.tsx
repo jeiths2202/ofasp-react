@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './AspCliWebTerminal.css';
+import EdtfileBrowser from './EdtfileBrowser';
 
 interface AspCliWebTerminalProps {
   isDarkMode: boolean;
@@ -25,19 +26,195 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
   const [isExecuting, setIsExecuting] = useState(false);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [systemInfo, setSystemInfo] = useState<SystemInfo>({
-    currentUser: 'ASPUSER',
-    currentVolume: 'DISK99',
-    currentLibrary: 'QGPL',
+    currentUser: 'admin',
+    currentVolume: '',
+    currentLibrary: '',
     systemTime: new Date().toLocaleString()
   });
+  
+  const [availableVolumes, setAvailableVolumes] = useState<string[]>([]);
+  const [availableLibraries, setAvailableLibraries] = useState<string[]>([]);
+  const [showVolumeDropdown, setShowVolumeDropdown] = useState(false);
+  const [showLibraryDropdown, setShowLibraryDropdown] = useState(false);
+  const [showEdtfileBrowser, setShowEdtfileBrowser] = useState(false);
+  const [edtfileData, setEdtfileData] = useState<any>(null);
   
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [commandSuggestions] = useState([
-    'CRTLIB', 'DLTLIB', 'WRKLIB', 'CRTFILE', 'DLTFILE', 
+    'HELP', 'CRTLIB', 'DLTLIB', 'WRKLIB', 'CRTFILE', 'DLTFILE', 
     'DSPFD', 'WRKOBJ', 'WRKVOL', 'WRKSPLF', 'WRKMSG',
-    'DSPJOB', 'SAVLIB', 'RSTLIB', 'SNDMSG', 'RCVMSG'
+    'DSPJOB', 'SAVLIB', 'RSTLIB', 'SNDMSG', 'RCVMSG', 'EDTFILE', 'CTTFILE'
   ]);
+
+  // 실제 Python API를 통해 볼륨 목록 로드
+  const loadAvailableVolumes = async () => {
+    try {
+      // Python aspcli.py WRKVOL 명령 호출
+      const response = await fetch('http://localhost:8000/api/asp-command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          command: 'WRKVOL',
+          user: systemInfo.currentUser 
+        }),
+      });
+
+      let volumeOutput = '';
+      if (response.ok) {
+        const result = await response.json();
+        volumeOutput = result.output || '';
+      } else {
+        // 백엔드가 없는 경우 시뮬레이션으로 폴백
+        volumeOutput = await simulateCommand('WRKVOL');
+      }
+      
+      const volumes = parseVolumesFromOutput(volumeOutput);
+      setAvailableVolumes(volumes);
+      
+      // 첫 번째 볼륨을 기본값으로 설정
+      if (volumes.length > 0 && !systemInfo.currentVolume) {
+        setSystemInfo(prev => ({
+          ...prev,
+          currentVolume: volumes[0]
+        }));
+        // 첫 번째 볼륨의 라이브러리도 로드
+        loadLibrariesForVolume(volumes[0]);
+      }
+    } catch (error) {
+      console.error('Error loading volumes:', error);
+      // 에러 시 시뮬레이션으로 폴백
+      try {
+        const volumeOutput = await simulateCommand('WRKVOL');
+        const volumes = parseVolumesFromOutput(volumeOutput);
+        setAvailableVolumes(volumes);
+        if (volumes.length > 0 && !systemInfo.currentVolume) {
+          setSystemInfo(prev => ({
+            ...prev,
+            currentVolume: volumes[0]
+          }));
+          loadLibrariesForVolume(volumes[0]);
+        }
+      } catch (fallbackError) {
+        console.error('Fallback error:', fallbackError);
+      }
+    }
+  };
+
+  // 실제 Python API를 통해 라이브러리 목록 로드
+  const loadLibrariesForVolume = async (volume: string) => {
+    try {
+      // Python aspcli.py WRKLIB 명령 호출
+      const response = await fetch('http://localhost:8000/api/asp-command', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          command: 'WRKLIB',
+          user: systemInfo.currentUser 
+        }),
+      });
+
+      let libraryOutput = '';
+      if (response.ok) {
+        const result = await response.json();
+        libraryOutput = result.output || '';
+      } else {
+        // 백엔드가 없는 경우 시뮬레이션으로 폴백
+        libraryOutput = await simulateCommand('WRKLIB');
+      }
+      
+      const libraries = parseLibrariesFromOutput(libraryOutput, volume);
+      setAvailableLibraries(libraries);
+      
+      // 첫 번째 라이브러리를 기본값으로 설정
+      if (libraries.length > 0) {
+        setSystemInfo(prev => ({
+          ...prev,
+          currentLibrary: libraries[0]
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading libraries:', error);
+      // 에러 시 시뮬레이션으로 폴백
+      try {
+        const libraryOutput = await simulateCommand('WRKLIB');
+        const libraries = parseLibrariesFromOutput(libraryOutput, volume);
+        setAvailableLibraries(libraries);
+        if (libraries.length > 0) {
+          setSystemInfo(prev => ({
+            ...prev,
+            currentLibrary: libraries[0]
+          }));
+        }
+      } catch (fallbackError) {
+        console.error('Fallback error:', fallbackError);
+      }
+    }
+  };
+
+  // WRKVOL 출력에서 볼륨 목록 파싱
+  const parseVolumesFromOutput = (output: string): string[] => {
+    const lines = output.split('\n');
+    const volumes: string[] = [];
+    
+    lines.forEach(line => {
+      const volumeMatch = line.match(/Volume Name\s*:\s*(\w+)/);
+      if (volumeMatch) {
+        volumes.push(volumeMatch[1]);
+      }
+    });
+    
+    return volumes;
+  };
+
+  // WRKLIB 출력에서 라이브러리 목록 파싱
+  const parseLibrariesFromOutput = (output: string, volume: string): string[] => {
+    const lines = output.split('\n');
+    const libraries: string[] = [];
+    let isVolumeSection = false;
+    
+    lines.forEach(line => {
+      if (line.includes(`Volume: ${volume}`)) {
+        isVolumeSection = true;
+      } else if (line.includes('Volume:') && !line.includes(volume)) {
+        isVolumeSection = false;
+      } else if (isVolumeSection && line.includes('- Library:')) {
+        const libraryMatch = line.match(/- Library:\s*(\w+)/);
+        if (libraryMatch) {
+          libraries.push(libraryMatch[1]);
+        }
+      }
+    });
+    
+    return libraries;
+  };
+
+  // 로그인 유저 정보 가져오기 및 초기 데이터 로드
+  useEffect(() => {
+    const getUserInfo = () => {
+      const userInfo = localStorage.getItem('openaspUser');
+      if (userInfo) {
+        try {
+          const parsedUser = JSON.parse(userInfo);
+          if (parsedUser.app === 'ofasp-ax' && parsedUser.username) {
+            setSystemInfo(prev => ({
+              ...prev,
+              currentUser: parsedUser.username
+            }));
+          }
+        } catch (error) {
+          console.error('Error parsing user info:', error);
+        }
+      }
+    };
+
+    getUserInfo();
+    loadAvailableVolumes();
+  }, []);
 
   // 시스템 시간 업데이트
   useEffect(() => {
@@ -51,12 +228,59 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
     return () => clearInterval(timer);
   }, []);
 
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-container')) {
+        setShowVolumeDropdown(false);
+        setShowLibraryDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // 터미널 스크롤 자동 조정
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [commandHistory]);
+
+  // OpenASP Manager에 로그 전송
+  const sendLogToOpenASPManager = async (entry: CommandHistory) => {
+    try {
+      const logData = {
+        timestamp: entry.timestamp.toISOString(),
+        level: entry.success ? 'INFO' : 'ERROR',
+        service: 'ASP System Command',
+        user: systemInfo.currentUser,
+        message: `[${entry.command}] ${entry.output}`,
+        details: {
+          command: entry.command,
+          output: entry.output,
+          success: entry.success,
+          volume: systemInfo.currentVolume,
+          library: systemInfo.currentLibrary
+        }
+      };
+
+      await fetch('http://localhost:3007/api/logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(logData),
+      });
+    } catch (error) {
+      // OpenASP Manager가 실행되지 않은 경우 무시
+      console.debug('OpenASP Manager log sending failed:', error);
+    }
+  };
 
   // ASP 명령어 실행
   const executeCommand = useCallback(async (command: string) => {
@@ -68,7 +292,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
     
     try {
       // Python aspcli.py 호출
-      const response = await fetch('/api/asp-command', {
+      const response = await fetch('http://localhost:8000/api/asp-command', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,6 +310,20 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
         const result = await response.json();
         output = result.output || result.error || '명령이 실행되었습니다.';
         success = result.success !== false;
+        
+        // Check if this is an EDTFILE command and try to parse the data
+        if (command.trim().toUpperCase().startsWith('EDTFILE') && success) {
+          const parsedData = parseEdtfileOutput(output, command.trim());
+          if (parsedData) {
+            setEdtfileData(parsedData);
+            setShowEdtfileBrowser(true);
+            // Don't add this to command history since we're opening browser
+            setIsExecuting(false);
+            setCurrentCommand('');
+            setHistoryIndex(-1);
+            return;
+          }
+        }
       } else {
         // 백엔드가 없는 경우 시뮬레이션
         output = await simulateCommand(command.trim());
@@ -102,6 +340,9 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
       commandOutput = output;
       setCommandHistory(prev => [...prev, newEntry]);
       
+      // OpenASP Manager(localhost:3007)에 로그 전송
+      await sendLogToOpenASPManager(newEntry);
+      
     } catch (error) {
       // 에러 발생 시 시뮬레이션으로 폴백
       const output = await simulateCommand(command.trim());
@@ -113,6 +354,9 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
       };
       commandOutput = output;
       setCommandHistory(prev => [...prev, newEntry]);
+      
+      // OpenASP Manager에 로그 전송 (시뮬레이션 결과도)
+      await sendLogToOpenASPManager(newEntry);
     }
 
     setIsExecuting(false);
@@ -124,6 +368,115 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
       focusCursor(commandOutput);
     }, 100);
   }, [systemInfo.currentUser]);
+
+  // Parse EDTFILE output to extract structured data
+  const parseEdtfileOutput = (output: string, command: string) => {
+    try {
+      // Extract filename from command
+      const fileMatch = command.match(/FILE\(([^/]+)\/([^)]+)\)/i);
+      if (!fileMatch) return null;
+      
+      const [, library, filename] = fileMatch;
+      
+      // Look for the structured data section
+      const lines = output.split('\n');
+      const records: Array<{number: number, data: string, rawBytes: number[]}> = [];
+      
+      let rectype = 'FB';
+      let reclen = 80;
+      let encoding = 'shift_jis';
+      
+      // Extract metadata
+      const typeMatch = output.match(/Type:\s*(\w+)/);
+      const lenMatch = output.match(/RecLen:\s*(\d+)/);
+      const encMatch = output.match(/Encoding:\s*(\w+)/);
+      
+      if (typeMatch) rectype = typeMatch[1];
+      if (lenMatch) reclen = parseInt(lenMatch[1]);
+      if (encMatch) encoding = encMatch[1];
+      
+      // Parse record data - look for "Record X:" pattern
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]; // Don't trim - preserve all data including nulls and binary
+        
+        // Look for record line: "Record     1: data..." - capture everything as-is
+        const recordMatch = line.match(/^Record\s+(\d+):\s*(.*)$/);
+        
+        if (recordMatch) {
+          const recordNum = parseInt(recordMatch[1]);
+          const recordData = recordMatch[2]; // Use exactly as server sent - no parsing or trimming
+          
+          console.log(`[DEBUG] React: Found record ${recordNum}`);
+          console.log(`[DEBUG] React: Record data: ${recordData}`);
+          console.log(`[DEBUG] React: Record data length: ${recordData.length}`);
+          
+          // Check for Unicode characters in recordData
+          for (let k = 0; k < Math.min(recordData.length, 20); k++) {
+            const char = recordData[k];
+            const code = char.charCodeAt(0);
+            if (code > 127) {
+              console.log(`[DEBUG] React: Unicode char at pos ${k}: U+${code.toString(16).toUpperCase().padStart(4, '0')} = '${char}'`);
+            }
+          }
+          
+          // Look for HEX lines that follow this record
+          const hexBytes: number[] = [];
+          let foundHexSection = false;
+          
+          for (let j = i + 1; j < lines.length && j < i + 15; j++) {
+            const hexLine = lines[j].trim();
+            
+            // Check if this line contains HEX data
+            if (hexLine.includes('HEX:')) {
+              foundHexSection = true;
+              // Extract hex values after "HEX:"
+              const hexPart = hexLine.substring(hexLine.indexOf('HEX:') + 4).trim();
+              const hexMatches = hexPart.match(/[0-9A-F]{2}/g);
+              if (hexMatches) {
+                hexBytes.push(...hexMatches.map(h => parseInt(h, 16)));
+              }
+            } else if (foundHexSection && hexLine.match(/^\s*[0-9A-F]{2}(\s+[0-9A-F]{2})*\s*$/)) {
+              // Line with only hex values (continuation of HEX data)
+              const hexMatches = hexLine.match(/[0-9A-F]{2}/g);
+              if (hexMatches) {
+                hexBytes.push(...hexMatches.map(h => parseInt(h, 16)));
+              }
+            } else if (hexLine.includes('CHR:')) {
+              // Skip CHR lines, but continue in HEX section
+              continue;
+            } else if (hexLine.includes('Record') || hexLine.includes('Total Records') || hexLine.includes('---')) {
+              // Hit next record or end, stop looking for hex
+              break;
+            } else if (foundHexSection && hexLine.includes('...')) {
+              // Found "... (80 total bytes)" line, we have incomplete hex data
+              break;
+            }
+          }
+          
+          // Use hex bytes from server as-is, don't try to regenerate or pad
+          
+          records.push({
+            number: recordNum,
+            data: recordData,
+            rawBytes: hexBytes
+          });
+        }
+      }
+      
+      if (records.length === 0) return null;
+      
+      return {
+        filename: `${library}/${filename}`,
+        records,
+        rectype,
+        reclen,
+        encoding
+      };
+    } catch (error) {
+      console.error('Failed to parse EDTFILE output:', error);
+      return null;
+    }
+  };
 
   // 명령어 시뮬레이션 (백엔드 없을 때)
   const simulateCommand = async (command: string): Promise<string> => {
@@ -618,7 +971,58 @@ HELP を入力して使用可能なコマンドを確認してください。`;
         <div className="header-info">
           <span className="info-item">ユーザー: {systemInfo.currentUser}</span>
           <span className="info-separator">|</span>
-          <span className="info-item">ボリューム: {systemInfo.currentVolume}</span>
+          <div className="info-item dropdown-container">
+            <span 
+              className="dropdown-trigger"
+              onClick={() => setShowVolumeDropdown(!showVolumeDropdown)}
+              title="ボリューム選択"
+            >
+              ボリューム: {systemInfo.currentVolume || 'N/A'} ▼
+            </span>
+            {showVolumeDropdown && (
+              <div className="dropdown-menu">
+                {availableVolumes.map(volume => (
+                  <div 
+                    key={volume}
+                    className={`dropdown-item ${volume === systemInfo.currentVolume ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSystemInfo(prev => ({ ...prev, currentVolume: volume }));
+                      setShowVolumeDropdown(false);
+                      loadLibrariesForVolume(volume);
+                    }}
+                  >
+                    {volume}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <span className="info-separator">|</span>
+          <div className="info-item dropdown-container">
+            <span 
+              className="dropdown-trigger"
+              onClick={() => setShowLibraryDropdown(!showLibraryDropdown)}
+              title="ライブラリ選択"
+            >
+              ライブラリ: {systemInfo.currentLibrary || 'N/A'} ▼
+            </span>
+            {showLibraryDropdown && (
+              <div className="dropdown-menu">
+                {availableLibraries.map(library => (
+                  <div 
+                    key={library}
+                    className={`dropdown-item ${library === systemInfo.currentLibrary ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSystemInfo(prev => ({ ...prev, currentLibrary: library }));
+                      setShowLibraryDropdown(false);
+                    }}
+                  >
+                    {library}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <span className="info-separator">|</span>
           <span className="info-item">{systemInfo.systemTime}</span>
         </div>
@@ -702,6 +1106,18 @@ HELP を入力して使用可能なコマンドを確認してください。`;
       <div className="help-panel">
         <strong>ショートカット:</strong> Tab(自動完成), ↑↓(コマンド履歴), Ctrl+L(画面クリア) | <strong>履歴:</strong> 最大 10 コマンド保存
       </div>
+
+      {/* EDTFILE Browser */}
+      {showEdtfileBrowser && edtfileData && (
+        <EdtfileBrowser
+          isDarkMode={isDarkMode}
+          fileData={edtfileData}
+          onClose={() => {
+            setShowEdtfileBrowser(false);
+            setEdtfileData(null);
+          }}
+        />
+      )}
     </div>
   );
 };

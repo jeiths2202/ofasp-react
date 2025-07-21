@@ -5,13 +5,15 @@ import argparse
 import os
 from datetime import datetime
 
-# UTF-8 인코딩 설정
+# UTF-8 encode
 os.environ['PYTHONIOENCODING'] = 'utf-8'
+import locale
+locale.setlocale(locale.LC_ALL, 'C.UTF-8')
 
 from asp_commands import (
     CRTLIB, DLTLIB, WRKLIB, CRTFILE, DLTFILE, DSPFD,
     WRKOBJ, CALL, WRKVOL, WRKSPLF, WRKMSG,
-    DSPJOB, SAVLIB, RSTLIB, SNDMSG, RCVMSG
+    DSPJOB, SAVLIB, RSTLIB, SNDMSG, RCVMSG, EDTFILE, HELP
 )
 
 VOLUME_ROOT = "/home/aspuser/app/volume"
@@ -28,6 +30,7 @@ if __name__ == "__main__":
     full_command = args.command + ' ' + ','.join(args.params)
 
     command_map = {
+        "HELP": HELP,
         "CRTLIB": CRTLIB,
         "DLTLIB": DLTLIB,
         "WRKLIB": WRKLIB,
@@ -44,9 +47,16 @@ if __name__ == "__main__":
         "RSTLIB": RSTLIB,
         "SNDMSG": SNDMSG,
         "RCVMSG": RCVMSG,
+        "EDTFILE": EDTFILE,
     }
 
     if args.command in command_map:
-        command_map[args.command](full_command)
+        try:
+            command_map[args.command](full_command)
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] Command execution failed: {e}")
+            print(f"[DEBUG] Full traceback:")
+            traceback.print_exc()
     else:
-        print(f"[ERROR] 알 수 없는 명령입니다: {args.command}")
+        print(f"[ERROR] It's an unknown command: {args.command}")
