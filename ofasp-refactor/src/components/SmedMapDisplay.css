@@ -45,6 +45,9 @@
   background-color: transparent;
   cursor: default;
   transition: background-color 0.1s ease;
+  font-family: 'MS Gothic', 'Yu Gothic', 'Hiragino Kaku Gothic Pro', 'Meiryo', 'Courier New', monospace;
+  vertical-align: top;
+  overflow: hidden;
 }
 
 .grid-char.input-field {
@@ -107,7 +110,7 @@
   z-index: 1;
 }
 
-/* Subtle scanline effect */
+/* Subtle scanline effect - disabled to prevent distraction */
 .terminal-grid::after {
   content: '';
   position: absolute;
@@ -115,10 +118,11 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: rgba(0, 255, 0, 0.1);
-  animation: scanline 8s linear infinite;
+  background: rgba(0, 255, 0, 0.02);
+  /* animation: scanline 8s linear infinite; */
   pointer-events: none;
   z-index: 2;
+  display: none; /* Completely hide the scanline */
 }
 
 @keyframes scanline {
@@ -134,4 +138,11 @@
 .grid-char.input-field {
   border-bottom: 1px solid #00ff00;
   margin-bottom: -1px;
+}
+
+/* Full-width character support */
+.grid-char.full-width {
+  width: 1.2em !important;
+  text-align: left !important;
+  font-weight: normal;
 }

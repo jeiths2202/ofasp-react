@@ -2292,131 +2292,317 @@ def _cttfile_convert(infile, outfile, inenc, outenc, rectype, reclen):
 
 def HELP(command=None):
     """Display help information for ASP system commands"""
+    
+    if command:
+        # Show specific command help
+        command = command.upper()
+        specific_help = get_specific_command_help(command)
+        if specific_help:
+            print(specific_help)
+            return
+        else:
+            print(f"[ERROR] No help available for command: {command}")
+            print("Use HELP without parameters to see all available commands.")
+            return
+    
+    # Show general help
     help_text = """
 ================================================================================
-                           ASP SYSTEM COMMAND HELP
+                        ASP SYSTEM COMMAND REFERENCE MANUAL
 ================================================================================
 
-Available Commands:
+OVERVIEW:
+The ASP (Application System Platform) Command Terminal provides a comprehensive
+set of commands for managing libraries, files, programs, and system resources.
+All commands follow Fujitsu ASP standard syntax and conventions.
 
-LIBRARY MANAGEMENT:
-  CRTLIB LIB-<library>,VOL-<volume>
-    - Create a new library in specified volume
-    - Example: CRTLIB LIB-TESTLIB,VOL-DISK01
+COMMAND CATEGORIES:
 
-  DLTLIB LIB-<library>,VOL-<volume>
-    - Delete an existing library
-    - Example: DLTLIB LIB-TESTLIB,VOL-DISK01
+┌─ LIBRARY MANAGEMENT ──────────────────────────────────────────────────────┐
+│ CRTLIB  - Create a new library in specified volume                        │
+│ DLTLIB  - Delete an existing library                                      │
+│ WRKLIB  - Display library contents and information                        │
+└────────────────────────────────────────────────────────────────────────────┘
 
-  WRKLIB LIB-<library>,VOL-<volume>
-    - Display library contents and information
-    - Example: WRKLIB LIB-TESTLIB,VOL-DISK01
+┌─ FILE MANAGEMENT ─────────────────────────────────────────────────────────┐
+│ CRTFILE - Create a new file with specified attributes                     │
+│ DLTFILE - Delete an existing file                                         │
+│ DSPFD   - Display file description and attributes                         │
+│ EDTFILE - Interactive file editor with multiple modes                     │
+└────────────────────────────────────────────────────────────────────────────┘
 
-FILE MANAGEMENT:
-  CRTFILE FILE(<library>/<filename>),VOL-<volume>[,RECTYPE-<type>][,RECLEN-<length>]
-    - Create a new file with specified attributes
-    - RECTYPE: FB (Fixed Block), VB (Variable Block), LB (Line Block)
-    - Example: CRTFILE FILE(TESTLIB/EMPLOYEE),VOL-DISK01,RECTYPE-FB,RECLEN-80
+┌─ PROGRAM & MAP MANAGEMENT ────────────────────────────────────────────────┐
+│ CALL    - Execute programs (JAVA/COBOL/SHELL) with SMED map support       │
+│ CRTPGM  - Create program objects in catalog                               │
+│ CRTMAP  - Create screen map objects for SMED displays                     │
+└────────────────────────────────────────────────────────────────────────────┘
 
-  DLTFILE FILE(<library>/<filename>),VOL-<volume>
-    - Delete an existing file
-    - Example: DLTFILE FILE(TESTLIB/EMPLOYEE),VOL-DISK01
+┌─ SYSTEM INFORMATION ──────────────────────────────────────────────────────┐
+│ WRKVOL  - Display volume information and usage statistics                 │
+│ WRKOBJ  - Display objects by type (FILE/LIB/PGM/MAP)                      │
+│ DSPJOB  - Display job information and status                              │
+└────────────────────────────────────────────────────────────────────────────┘
 
-  DSPFD FILE(<library>/<filename>),VOL-<volume>
-    - Display file description and attributes
-    - Example: DSPFD FILE(TESTLIB/EMPLOYEE),VOL-DISK01
+┌─ ENCODING & CONVERSION ───────────────────────────────────────────────────┐
+│ CTTFILE - Convert file encoding (SJIS ↔ UTF-8 ↔ ASCII)                   │
+└────────────────────────────────────────────────────────────────────────────┘
 
-  EDTFILE FILE(<library>/<filename>),VOL-<volume>[,MODE-<mode>]
-    - Edit file contents using built-in editor
-    - MODE: BROWSE (read-only), DISPLAY (web view), EDIT (interactive)
-    - Example: EDTFILE FILE(TESTLIB/EMPLOYEE),VOL-DISK01,MODE-BROWSE
+┌─ MESSAGING SYSTEM ────────────────────────────────────────────────────────┐
+│ SNDMSG  - Send messages to users                                          │
+│ RCVMSG  - Receive messages from queue                                     │
+│ WRKMSG  - Work with message queue                                         │
+└────────────────────────────────────────────────────────────────────────────┘
 
-SYSTEM INFORMATION:
-  WRKVOL [VOL-<volume>]
-    - Display volume information and usage
-    - Example: WRKVOL or WRKVOL VOL-DISK01
+┌─ BACKUP & RESTORE ────────────────────────────────────────────────────────┐
+│ SAVLIB  - Save library to backup file                                     │
+│ RSTLIB  - Restore library from backup file                                │
+└────────────────────────────────────────────────────────────────────────────┘
 
-  WRKOBJ TYPE-<type>,VOL-<volume>[,LIB-<library>]
-    - Display objects of specified type
-    - TYPE: FILE, LIB, PGM
-    - Example: WRKOBJ TYPE-FILE,VOL-DISK01,LIB-TESTLIB
+SYNTAX CONVENTIONS:
+• Commands are case-insensitive
+• Parameters are separated by commas (,)
+• Parameter format: KEYWORD-VALUE
+• Optional parameters are shown in [brackets]
+• Required parameters are shown in <angle brackets>
+• File paths use library/filename format
+• Quotes required for parameters with spaces
+• Japanese SJIS encoding fully supported
 
-  DSPJOB [JOB-<jobname>]
-    - Display job information and status
-    - Example: DSPJOB or DSPJOB JOB-BATCH001
-
-JOB MANAGEMENT:
-  CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]
-    - Execute a program with optional parameters (Fujitsu ASP format)
-    - program: Program name (required)
-    - library: Library name (optional, searched if not specified)
-    - parameters: Parameter list in parentheses (optional)
-    - volume: Volume name (optional, used for library search)
-    - Examples: 
-      CALL PGM-LOGOPGM1.TESTLIB,VOL-DISK01
-      CALL PGM-PAYROLL,PARA-(MONTHLY UPDATE),VOL-DISK01
-      CALL PGM-TestProgram.TESTLIB,PARA-(user=admin,debug=true)
-
-PROGRAM AND MAP MANAGEMENT:
-  CRTPGM PGM(<library>/<program>),VOL-<volume>[,PGMTYPE-<type>][,VERSION-<version>][,DESC-'<description>']
-    - Create a new program object in the specified library
-    - PGMTYPE: COBOL, JAVA, SHELL (default: COBOL)
-    - VERSION: Version number (default: 1.0)
-    - DESC: Program description
-    - Example: CRTPGM PGM(TESTLIB/PAYROLL01),VOL-DISK01,PGMTYPE-COBOL,VERSION-2.1,DESC-'Monthly payroll'
-
-  CRTMAP MAP(<library>/<mapname>),VOL-<volume>[,MAPTYPE-<type>][,ROWS-<rows>][,COLS-<cols>][,DESC-'<description>']
-    - Create a new screen map object in the specified library
-    - MAPTYPE: SMED, HTML (default: SMED)
-    - ROWS: Number of rows (default: 24)
-    - COLS: Number of columns (default: 80)
-    - DESC: Map description
-    - Example: CRTMAP MAP(TESTLIB/MAINMENU),VOL-DISK01,MAPTYPE-SMED,ROWS-24,COLS-80,DESC-'Main menu'
-
-MESSAGING:
-  SNDMSG USER-<user>,MSG-'<message>'
-    - Send message to specified user
-    - Example: SNDMSG USER-ADMIN,MSG-'System maintenance at 10PM'
-
-  RCVMSG [USER-<user>]
-    - Receive messages for current or specified user
-    - Example: RCVMSG or RCVMSG USER-ADMIN
-
-  WRKMSG [USER-<user>]
-    - Work with messages (display message queue)
-    - Example: WRKMSG or WRKMSG USER-ADMIN
-
-LIBRARY BACKUP/RESTORE:
-  SAVLIB LIB-<library>,VOL-<volume>,SAV-<savefile>
-    - Save library to backup file
-    - Example: SAVLIB LIB-TESTLIB,VOL-DISK01,SAV-TESTLIB.SAV
-
-  RSTLIB LIB-<library>,VOL-<volume>,SAV-<savefile>
-    - Restore library from backup file
-    - Example: RSTLIB LIB-TESTLIB,VOL-DISK01,SAV-TESTLIB.SAV
-
-ENCODING CONVERSION:
-  CTTFILE INFILE-<input>,OUTFILE-<output>,INENC-<encoding>,OUTENC-<encoding>
-    - Convert file encoding (supports SJIS, UTF-8, ASCII, etc.)
-    - Example: CTTFILE INFILE-data.sjis,OUTFILE-data.utf8,INENC-shift_jis,OUTENC-utf-8
-
-GENERAL SYNTAX NOTES:
-  - Commands are case-insensitive
-  - Parameters are separated by commas
-  - Parameter format: KEYWORD-VALUE
-  - File paths use library/filename format
-  - Quotes are required for parameters containing spaces
+SPECIAL FEATURES:
+• Full-width Japanese character support in SMED maps
+• Interactive web terminal with 24x80 grid display
+• Real-time SMED map rendering with field input/output
+• Automatic program type detection (JAVA/COBOL/SHELL)
+• @PGMEC variable for program execution status tracking
+• Hierarchical catalog system (VOLUME→LIBRARY→OBJECT)
 
 EXAMPLES:
-  CRTLIB LIB-PAYROLL,VOL-DISK01
-  CRTFILE FILE(PAYROLL/EMPLOYEE),VOL-DISK01,RECTYPE-FB,RECLEN-120
-  EDTFILE FILE(PAYROLL/EMPLOYEE),VOL-DISK01,MODE-BROWSE
-  DSPFD FILE(PAYROLL/EMPLOYEE),VOL-DISK01
-  WRKVOL VOL-DISK01
+  HELP CALL                    - Show detailed help for CALL command
+  CALL PGM-TestProgram.TESTLIB - Execute Java program with SMED display
+  EDTFILE FILE(TESTLIB/DATA),VOL-DISK01,MODE-BROWSE
+  CTTFILE INFILE-jp.sjis,OUTFILE-jp.utf8,INENC-shift_jis,OUTENC-utf-8
 
-For more detailed information about a specific command, refer to the ASP System 
-Administrator's Guide or contact your system administrator.
+For specific command syntax, use: HELP <command>
+For system administration guide, contact your system administrator.
 
 ================================================================================
 """
     print(help_text)
+
+def get_specific_command_help(command):
+    """Get detailed help for a specific command"""
+    
+    help_dict = {
+        'CALL': """
+================================================================================
+                                CALL COMMAND HELP
+================================================================================
+
+PURPOSE:
+Execute programs (JAVA, COBOL, SHELL) with optional parameters and SMED map 
+display support. Follows Fujitsu ASP standard command format.
+
+SYNTAX:
+CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]
+
+PARAMETERS:
+• PGM-<program>    : Program name (required)
+• .<library>       : Library name (optional, auto-searched if omitted)
+• PARA-(<params>)  : Parameters in parentheses (optional)
+• VOL-<volume>     : Volume name (optional, for library search)
+
+SUPPORTED PROGRAM TYPES:
+• JAVA   : JAR files with JSON parameter support
+• COBOL  : Compiled programs with standard linkage
+• SHELL  : Shell scripts with environment variables
+
+SMED MAP INTEGRATION:
+• Automatic SMED map detection and display
+• 24x80 terminal grid rendering in web interface
+• Interactive field input/output with full-width character support
+• Tab navigation and Enter submission
+
+SYSTEM VARIABLES:
+• @PGMEC : Program execution code (0=success, non-zero=error)
+
+EXAMPLES:
+CALL PGM-TestProgram.TESTLIB
+CALL PGM-PAYROLL.HRLIB,PARA-(month=12,year=2024),VOL-DISK01
+CALL PGM-BATCH001,PARA-(debug=true,verbose=on)
+
+NOTES:
+• Programs must exist in catalog.json
+• SMED maps only displayed in web terminal
+• Parameters passed as JSON to JAVA programs
+• Library search performed across all volumes if not specified
+        """,
+        
+        'EDTFILE': """
+================================================================================
+                               EDTFILE COMMAND HELP
+================================================================================
+
+PURPOSE:
+Interactive file editor supporting multiple record types and display modes.
+Provides both CLI curses interface and web browser interface.
+
+SYNTAX:
+EDTFILE FILE(<library>/<filename>),VOL-<volume>[,MODE-<mode>]
+
+PARAMETERS:
+• FILE(<lib>/<file>) : File specification (required)
+• VOL-<volume>       : Volume name (required)
+• MODE-<mode>        : Display mode (optional)
+
+MODES:
+• BROWSE   : Read-only curses browser (default)
+• DISPLAY  : Web browser interface
+• EDIT     : Interactive editing mode
+
+SUPPORTED RECORD TYPES:
+• FB (Fixed Block)   : Fixed-length records
+• VB (Variable Block): Variable-length records with length prefix
+• LB (Line Block)    : Line-based records with line terminators
+
+FEATURES:
+• Hexadecimal display toggle (:hexon/:hexoff)
+• Record-by-record navigation
+• SJIS encoding support for Japanese text
+• Cursor positioning and field highlighting
+• F1 help, F3 exit, navigation keys
+
+EXAMPLES:
+EDTFILE FILE(TESTLIB/EMPLOYEE),VOL-DISK01
+EDTFILE FILE(DATALIB/SALES),VOL-DISK01,MODE-DISPLAY
+EDTFILE FILE(LOGLIB/AUDIT),VOL-DISK99,MODE-BROWSE
+
+KEYBOARD SHORTCUTS:
+• Arrow Keys : Navigate records/fields
+• F1         : Show help
+• F3         : Exit editor
+• :hexon     : Enable hex display
+• :hexoff    : Disable hex display
+        """,
+        
+        'CTTFILE': """
+================================================================================
+                              CTTFILE COMMAND HELP
+================================================================================
+
+PURPOSE:
+Convert file encoding between different character sets with support for
+Japanese SJIS, UTF-8, ASCII, and other international encodings.
+
+SYNTAX:
+CTTFILE INFILE-<input>,OUTFILE-<output>,INENC-<input_encoding>,OUTENC-<output_encoding>
+
+PARAMETERS:
+• INFILE-<input>    : Input file path (required)
+• OUTFILE-<output>  : Output file path (required)
+• INENC-<encoding>  : Input file encoding (required)
+• OUTENC-<encoding> : Output file encoding (required)
+
+SUPPORTED ENCODINGS:
+• shift_jis  : Japanese Shift-JIS (SJIS)
+• utf-8      : Unicode UTF-8
+• ascii      : ASCII (7-bit)
+• cp932      : Windows Japanese
+• euc-jp     : Extended Unix Code Japan
+• iso-2022-jp: ISO-2022 Japanese
+
+FEATURES:
+• Automatic encoding detection fallback
+• Error handling with graceful degradation
+• Preservation of file structure
+• Support for large files
+• Validation of encoding compatibility
+
+EXAMPLES:
+CTTFILE INFILE-japanese.sjis,OUTFILE-japanese.utf8,INENC-shift_jis,OUTENC-utf-8
+CTTFILE INFILE-data.txt,OUTFILE-data.ascii,INENC-utf-8,OUTENC-ascii
+CTTFILE INFILE-legacy.cp932,OUTFILE-modern.utf8,INENC-cp932,OUTENC-utf-8
+
+NOTES:
+• Files are processed entirely in memory
+• Original files are preserved
+• Output directories must exist
+• Character mapping may cause data loss between incompatible encodings
+        """,
+        
+        'CRTLIB': """
+================================================================================
+                               CRTLIB COMMAND HELP
+================================================================================
+
+PURPOSE:
+Create a new library directory structure in the specified volume with proper
+initialization for ASP system usage.
+
+SYNTAX:
+CRTLIB LIB-<library>,VOL-<volume>
+
+PARAMETERS:
+• LIB-<library> : Library name (required, alphanumeric)
+• VOL-<volume>  : Volume name (required)
+
+FEATURES:
+• Creates physical directory structure
+• Updates catalog.json with new library entry
+• Sets proper permissions and attributes
+• Validates library name conventions
+• Checks for existing library conflicts
+
+EXAMPLES:
+CRTLIB LIB-PAYROLL,VOL-DISK01
+CRTLIB LIB-TESTLIB,VOL-DISK99
+
+NOTES:
+• Library names must be valid directory names
+• Volume must exist before library creation
+• Library creation is logged in system audit trail
+        """,
+
+        'WRKOBJ': """
+================================================================================
+                               WRKOBJ COMMAND HELP
+================================================================================
+
+PURPOSE:
+Display and manage objects of specified types within the ASP catalog system.
+Supports filtering by type, volume, and library.
+
+SYNTAX:
+WRKOBJ TYPE-<type>,VOL-<volume>[,LIB-<library>]
+
+PARAMETERS:
+• TYPE-<type>    : Object type (required: FILE, LIB, PGM, MAP, DATASET)
+• VOL-<volume>   : Volume name (required)
+• LIB-<library>  : Library filter (optional)
+
+OBJECT TYPES:
+• FILE    : Data files and datasets
+• LIB     : Library directories
+• PGM     : Program objects (JAVA/COBOL/SHELL)
+• MAP     : Screen map definitions (SMED)
+• DATASET : Structured data collections
+
+DISPLAY FORMAT:
+Shows hierarchical object structure with attributes:
+• Object name and type
+• Size and creation date
+• Permissions and access rights
+• Associated metadata
+
+EXAMPLES:
+WRKOBJ TYPE-FILE,VOL-DISK01,LIB-TESTLIB
+WRKOBJ TYPE-PGM,VOL-DISK01
+WRKOBJ TYPE-MAP,VOL-DISK99,LIB-MENULIB
+
+NOTES:
+• Results sorted by object name
+• Large libraries may have paginated output
+• Requires read permissions on target volume/library
+        """
+    }
+    
+    return help_dict.get(command)

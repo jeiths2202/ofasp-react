@@ -343,11 +343,39 @@ def get_smed_file_path(map_name):
     
     return None
 
+def fix_corrupted_japanese_text(content):
+    """Fix common corrupted Japanese text patterns in SMED files"""
+    # Common corrupted patterns and their fixes
+    fixes = {
+        '���[�UID:': 'ユーザーUID:',
+        '�p�X���[�h:': 'パスワード:',
+        '���[��': 'ユーザー',
+        '�p�X���[�h': 'パスワード'
+    }
+    
+    for corrupted, fixed in fixes.items():
+        content = content.replace(corrupted, fixed)
+    
+    return content
+
 def parse_smed_file(file_path):
     """SMEDファイル解析"""
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
+        # Try to read with proper encoding - handle corrupted SJIS gracefully
+        try:
+            # Try SJIS first with error handling (standard for Japanese SMED files)
+            with open(file_path, 'r', encoding='shift_jis', errors='replace') as f:
+                content = f.read()
+        except Exception:
+            # Fallback to UTF-8 with error handling
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                    content = f.read()
+            except Exception:
+                # Last resort - read as binary and decode manually
+                with open(file_path, 'rb') as f:
+                    raw_bytes = f.read()
+                content = raw_bytes.decode('utf-8', errors='replace')
         
         # SMEDファイルの行を解析
         lines = content.split('\n')
@@ -859,9 +887,24 @@ def parse_smed_map():
         if not os.path.exists(map_path):
             return jsonify({'error': f'Map file not found: {map_path}'}), 404
         
-        # Parse SMED file
-        with open(map_path, 'r', encoding='utf-8') as f:
-            smed_content = f.read()
+        # Parse SMED file - handle corrupted SJIS gracefully
+        try:
+            # Try SJIS first with error handling (standard for Japanese SMED files)
+            with open(map_path, 'r', encoding='shift_jis', errors='replace') as f:
+                smed_content = f.read()
+        except Exception:
+            # Fallback to UTF-8 with error handling
+            try:
+                with open(map_path, 'r', encoding='utf-8', errors='replace') as f:
+                    smed_content = f.read()
+            except Exception:
+                # Last resort - read as binary and decode manually
+                with open(map_path, 'rb') as f:
+                    raw_bytes = f.read()
+                smed_content = raw_bytes.decode('utf-8', errors='replace')
+        
+        # Fix common corrupted Japanese text patterns
+        smed_content = fix_corrupted_japanese_text(smed_content)
         
         # Initialize 24x80 grid
         grid = [[' ' for _ in range(80)] for _ in range(24)]
