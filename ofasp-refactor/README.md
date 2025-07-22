@@ -26,6 +26,22 @@ Modern web-based refactoring platform for migrating legacy ASP systems to open-s
 - **Smart Focus**: Auto-focus on SMED map input fields
 - **Real-time Info**: Live system status (user, volume, time)
 
+### 🎯 **Core Features (핵심 기능)**
+
+#### 1. **SJIS to Unicode / Unicode to SJIS 변환 기능**
+- **완전한 양방향 변환**: 서버의 SJIS 파일과 웹 UI의 UTF-8 간 seamless 변환
+- **일본어 텍스트 지원**: mojibake 없는 완벽한 더블바이트 문자 처리
+- **Flask API 자동 처리**: `encoding='shift_jis'` 파라미터로 투명한 변환
+- **파일 저장 최적화**: 확장자 없이 SJIS 형식으로 정확한 저장
+- **실시간 검증**: 저장된 파일의 인코딩 자동 확인 및 검증
+
+#### 2. **WebTerminal과 SMED Maps 연동**
+- **CALL 명령어 지원**: `CALL PGM-TestProgram.TESTLIB,VOL-DISK01` 완전 구현
+- **Java 프로그램 실행**: JAR 기반 ASP 프로그램의 직접 실행
+- **SMED 맵 표시**: 80x24 터미널에서 완벽한 화면 맵 렌더링
+- **Function Key 처리**: F1-F12 키를 Java 프로그램으로 전달
+- **세션 관리**: 프로그램별 상태 유지 및 인터랙티브 처리
+
 ### 📚 **Documentation System**
 - **710 ASP Commands** mapped to open-source alternatives
 - **Interactive search** with filtering by category and priority
@@ -51,11 +67,28 @@ cd ofasp-react/ofasp-refactor
 # Install dependencies
 npm install
 
-# Start development server
-npm start
+# Start Python conversion service (port 3003)
+cd python-service
+FLASK_PORT=3003 python -c "from src.api.app import api; api.run()" &
+
+# Start React application (port 3005)
+cd ..
+PORT=3005 npm start
 ```
 
 Visit `http://localhost:3005` to access the application.
+
+### 🎯 Core Features Access
+
+#### SJIS/Unicode Conversion
+- **SMED Map Editor**: Real-time Japanese text editing with SJIS encoding
+- **File Operations**: Load/Save SMED files with automatic encoding conversion
+- **Test Example**: Load "MAINMENU" from catalog to see Japanese text display
+
+#### WebTerminal SMED Integration  
+- **Terminal Access**: Built-in ASP command terminal
+- **CALL Commands**: Execute `CALL PGM-TestProgram.TESTLIB,VOL-DISK01`
+- **Interactive Maps**: Full SMED map display with Function Key support
 
 ## 📖 Available Scripts
 
@@ -74,16 +107,25 @@ OpenASP Refactor
 ├── 🎨 Frontend (React + TypeScript)
 │   ├── Code refactoring interface
 │   ├── Documentation system
-│   └── Interactive command mapping
+│   ├── SMED Map Editor (with SJIS support)
+│   └── WebTerminal (with CALL command integration)
 ├── 🔧 Backend Services
 │   ├── Python conversion service (Flask, port 3003)
+│   ├── Flask API Server (port 8000) - SJIS/UTF-8 conversion
+│   ├── Java Program Executor (JAR-based ASP programs)
 │   ├── File server (Express.js)
 │   ├── RAG system (TensorFlow.js)
 │   └── Authentication layer
+├── 💾 Data Layer
+│   ├── SMED Files (SJIS encoding in /volume/)
+│   ├── Catalog.json (Resource management)
+│   ├── Java Programs (JAR files with ASP logic)
+│   └── Configuration files (smed_pgm.json)
 └── 📚 Documentation
     ├── ASP command mapping (710 commands)
     ├── Technical implementation guides
-    └── Migration best practices
+    ├── SJIS/Unicode conversion documentation
+    └── WebTerminal/SMED integration guides
 ```
 
 ## 🎯 Core Modules
@@ -93,6 +135,20 @@ OpenASP Refactor
 - **CL Translator**: Command language to modern script migration
 - **EBCDIC Converter**: Python Flask backend with SOSI handling
 - **Validation System**: Real-time error detection and suggestions
+
+### SJIS/Unicode Conversion Engine ⭐
+- **Automatic Encoding Detection**: SJIS 파일 자동 감지 및 UTF-8 변환
+- **Flask API Integration**: `encoding='shift_jis'` 기반 transparent conversion
+- **File Operations**: 확장자 관리 없이 정확한 SJIS 저장
+- **Real-time Validation**: 저장된 파일의 인코딩 검증 시스템
+- **Japanese Text Support**: mojibake 방지 완벽한 더블바이트 처리
+
+### WebTerminal SMED Integration ⭐  
+- **CALL Command Processor**: ASP CALL 명령어 완전 구현
+- **Java Program Executor**: JAR 기반 프로그램 실행 엔진
+- **SMED Map Renderer**: 80x24 터미널 화면 맵 표시 시스템
+- **Function Key Handler**: F1-F12 키 이벤트 Java 프로그램 전달
+- **Session Management**: 프로그램별 상태 유지 및 인터랙티브 처리
 
 ### ASP System Terminal
 - **Command Interface**: Interactive terminal for ASP system commands
@@ -143,6 +199,32 @@ REACT_APP_PYTHON_CONVERTER_URL=http://localhost:3003   # Python service URL
 # Python Service
 FLASK_PORT=3003                                        # Python service port
 CODEPAGE_BASE_PATH=/home/aspuser/app/ofasp-refactor/public/codepages
+
+# Flask API Server (SJIS/Unicode Integration)
+API_SERVER_PORT=8000                                   # SJIS conversion API port
+SMED_FILES_PATH=/home/aspuser/app/volume               # SMED files directory
+CATALOG_JSON_PATH=/home/aspuser/app/config/catalog.json # Resource catalog
+JAVA_JAR_PATH=/home/aspuser/app/server/java_jars/ofasp.jar # ASP Java programs
+```
+
+### Core Features Configuration
+
+#### SJIS/Unicode Conversion
+```python
+# Flask API encoding settings
+DEFAULT_ENCODING = 'shift_jis'
+ENCODING_ERRORS = 'replace'
+AUTO_EXTENSION_HANDLING = False  # 확장자 자동 추가 방지
+```
+
+#### WebTerminal SMED Integration
+```json
+{
+  "smed_pgm_mapping": "/home/aspuser/app/src/smed_pgm.json",
+  "java_execution_timeout": 30,
+  "function_keys": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"],
+  "terminal_size": {"cols": 80, "rows": 24}
+}
 ```
 
 ### Language Support
@@ -150,6 +232,41 @@ CODEPAGE_BASE_PATH=/home/aspuser/app/ofasp-refactor/public/codepages
 - **English (en)**: Alternative interface language  
 - **Development Language**: Japanese for comments and variable names
 - **Claude Communication**: Korean (for this project context)
+
+## 📚 Documentation
+
+### Core Features Documentation
+
+For detailed information about the core features, please refer to:
+
+#### SJIS to Unicode / Unicode to SJIS 변환 기능
+- **Full Documentation**: [`docs/SJIS_UNICODE_CONVERSION.md`](./docs/SJIS_UNICODE_CONVERSION.md)
+- **Key Topics**: 
+  - Technical background and problem analysis
+  - Implementation details (Flask API, React components)
+  - File encoding management and extension handling
+  - Testing methods and troubleshooting
+  - Performance optimization and security considerations
+
+#### WebTerminal과 SMED Maps 연동
+- **Full Documentation**: [`docs/WEBTERMINAL_SMED_INTEGRATION.md`](./docs/WEBTERMINAL_SMED_INTEGRATION.md)
+- **Key Topics**:
+  - System architecture and component integration
+  - CALL command processing and Java program execution
+  - SMED map rendering and Function Key handling
+  - Session management and interactive processing
+  - Configuration files and testing procedures
+
+### AI Code Agent Memory Reset Support
+
+These documentation files are designed to help AI Code Agents understand the project state immediately after memory reset or system restart. They include:
+
+- **Complete implementation details** with code examples
+- **File locations** and directory structures  
+- **Configuration requirements** and environment setup
+- **Testing procedures** and validation methods
+- **Troubleshooting guides** and common issues
+- **Extension possibilities** and future development
 
 ## 🤝 Contributing
 
