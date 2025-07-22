@@ -114,5 +114,15 @@
   },
   "user": {
     "role": "AX 관리자"
+  },
+  "mapEditor": {
+    "statusMessage": "드래그 앤 드롭으로 필드를 추가하고, 클릭하여 선택 후 속성을 편집하세요.",
+    "ctrlClickRequired": "필드를 선택하려면 Ctrl+클릭이 필요합니다",
+    "selectionCleared": "필드 선택이 해제되었습니다",
+    "ctrlClickToDeselect": "선택 해제하려면 Ctrl+그리드 클릭이 필요합니다",
+    "fieldSelected": "필드 {fieldId}이 선택되었습니다",
+    "multiSelectUpdated": "{count}개의 필드가 선택되어 있습니다",
+    "dragHint": "필드를 드래그하여 이동할 수 있습니다. 선택하려면 Ctrl+클릭",
+    "fieldMoved": "필드 {fieldId}가 이동되었습니다"
   }
 }

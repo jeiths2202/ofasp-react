@@ -41,6 +41,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   const { t } = useI18n();
   const [fields, setFields] = useState<Map<string, Field>>(new Map());
   const [selectedField, setSelectedField] = useState<string | null>(null);
+  
   const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
   const [fieldCounter, setFieldCounter] = useState(0);
   const [draggedFieldType, setDraggedFieldType] = useState<string | null>(null);
@@ -65,6 +66,9 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [resizeHandle, setResizeHandle] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 0.5 = 50%, 2 = 200%
+  const [lastFieldInteraction, setLastFieldInteraction] = useState(0); // Timestamp of last field interaction
+  const [draggedField, setDraggedField] = useState<string | null>(null);
+  const [fieldDragOffset, setFieldDragOffset] = useState({ x: 0, y: 0 });
   
   const screenPanelRef = useRef<HTMLDivElement>(null);
   const [fieldProperties, setFieldProperties] = useState({
@@ -79,10 +83,18 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     textColor: '#ffffff'
   });
 
-  const charWidth = 10 * zoomLevel;
-  const charHeight = 20 * zoomLevel;
   const cols = 80;
   const rows = 24;
+  
+  // Calculate character size based on grid panel dimensions and zoom level
+  const availableWidth = gridPanel.width - 40; // Subtract padding/margins
+  const availableHeight = gridPanel.height - 80; // Subtract header and margins
+  
+  const baseCharWidth = Math.max(6, availableWidth / cols);
+  const baseCharHeight = Math.max(12, availableHeight / rows);
+  
+  const charWidth = baseCharWidth * zoomLevel;
+  const charHeight = baseCharHeight * zoomLevel;
 
   // Zoom functions
   const handleZoomIn = () => {
@@ -107,10 +119,17 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     loadVolumes();
   }, []);
 
+
   // Floating panel drag and resize handlers
   const handlePanelMouseDown = useCallback((e: React.MouseEvent, panelType: 'properties' | 'grid', action: 'drag' | 'resize', handle?: string) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Clear any existing field selection to prevent conflicts
+    if (action === 'drag' || action === 'resize') {
+      setSelectedField(null);
+      setSelectedFields(new Set());
+    }
     
     if (action === 'drag') {
       // Get the panel's current position for offset calculation
@@ -190,20 +209,42 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   }, [propertiesPanel.isDragging, gridPanel.isDragging, gridPanel.isResizing, dragOffset, resizeHandle]);
 
   const handleMouseUp = useCallback(() => {
+    
     setPropertiesPanel(prev => ({ ...prev, isDragging: false, isResizing: false }));
     setGridPanel(prev => ({ ...prev, isDragging: false, isResizing: false }));
     setResizeHandle(null);
+    
+    // Reset document styles immediately and force reflow
     document.body.style.userSelect = '';
     document.body.style.cursor = '';
-  }, []);
+    document.body.style.pointerEvents = '';
+    
+    // Force a reflow to ensure styles are applied
+    void document.body.offsetHeight;
+    
+    // Clear any lingering event listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    
+    // Additional cleanup with a small delay to ensure all events are processed
+    setTimeout(() => {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      document.body.style.pointerEvents = '';
+    }, 50);
+  }, [handleMouseMove]);
 
   useEffect(() => {
     if (propertiesPanel.isDragging || gridPanel.isDragging || gridPanel.isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        // Clean up document styles on unmount
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
       };
     }
   }, [propertiesPanel.isDragging, gridPanel.isDragging, gridPanel.isResizing, handleMouseMove, handleMouseUp]);
@@ -352,6 +393,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const fieldType = e.dataTransfer.getData('text/plain');
     
     if (screenPanelRef.current) {
@@ -363,13 +405,43 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     }
     
     setDraggedFieldType(null);
+    
+    // Clean up any document styles that might interfere with clicking
+    setTimeout(() => {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    }, 100);
   };
 
   const handleFieldClick = (fieldId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+    
+    // Double-check field exists
+    const field = fields.get(fieldId);
+    if (!field) {
+      return;
+    }
+    
+    // Only allow field selection when Ctrl key is pressed
+    if (!e.ctrlKey && !e.metaKey) {
+      setStatusMessage(t('mapEditor.ctrlClickRequired'));
+      setTimeout(() => {
+        setStatusMessage(t('mapEditor.statusMessage'));
+      }, 2000);
+      return;
+    }
+    
+    // Check if we're in the middle of a panel drag/resize operation
+    if (propertiesPanel.isDragging || gridPanel.isDragging || gridPanel.isResizing) {
+      return; // Ignore clicks during drag operations
+    }
+    
+    // Ensure document styles are clean before processing click
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+    
     
     if (e.shiftKey) {
-      // Multi-select mode
+      // Multi-select mode (Ctrl+Shift+Click)
       const newSelectedFields = new Set(selectedFields);
       if (newSelectedFields.has(fieldId)) {
         newSelectedFields.delete(fieldId);
@@ -377,15 +449,63 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
         newSelectedFields.add(fieldId);
       }
       setSelectedFields(newSelectedFields);
+      setStatusMessage(t('mapEditor.multiSelectUpdated', { count: newSelectedFields.size.toString() }));
     } else {
-      // Single select mode
+      // Single select mode (Ctrl+Click)
       setSelectedField(fieldId);
       setSelectedFields(new Set());
       
-      const field = fields.get(fieldId);
-      if (field) {
-        updateFieldProperties(field);
+      updateFieldProperties(field);
+      setStatusMessage(t('mapEditor.fieldSelected', { fieldId }));
+    }
+  };
+
+  const handleFieldDragStart = (fieldId: string, e: React.MouseEvent) => {
+    setDraggedField(fieldId);
+    
+    const field = fields.get(fieldId);
+    if (field && screenPanelRef.current) {
+      const rect = screenPanelRef.current.getBoundingClientRect();
+      const fieldLeft = field.x * charWidth;
+      const fieldTop = field.y * charHeight;
+      
+      setFieldDragOffset({
+        x: e.clientX - rect.left - fieldLeft,
+        y: e.clientY - rect.top - fieldTop
+      });
+    }
+  };
+
+  const handleFieldDragMove = (e: React.MouseEvent) => {
+    if (draggedField && screenPanelRef.current) {
+      const rect = screenPanelRef.current.getBoundingClientRect();
+      const newX = Math.round((e.clientX - rect.left - fieldDragOffset.x) / charWidth);
+      const newY = Math.round((e.clientY - rect.top - fieldDragOffset.y) / charHeight);
+      
+      // Constrain to grid boundaries
+      const constrainedX = Math.max(0, Math.min(cols - 1, newX));
+      const constrainedY = Math.max(0, Math.min(rows - 1, newY));
+      
+      const field = fields.get(draggedField);
+      if (field && (field.x !== constrainedX || field.y !== constrainedY)) {
+        const updatedField = { ...field, x: constrainedX, y: constrainedY };
+        const newFields = new Map(fields);
+        newFields.set(draggedField, updatedField);
+        setFields(newFields);
+        
+        // Update field properties if this field is selected
+        if (selectedField === draggedField) {
+          updateFieldProperties(updatedField);
+        }
       }
+    }
+  };
+
+  const handleFieldDragEnd = () => {
+    if (draggedField) {
+      setDraggedField(null);
+      setFieldDragOffset({ x: 0, y: 0 });
+      setStatusMessage(t('mapEditor.fieldMoved', { fieldId: draggedField }));
     }
   };
 
@@ -844,7 +964,14 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
             </div>
             
             {/* Panel Footer */}
-            <div className="p-2 border-t border-gray-700">
+            <div className="p-2 border-t border-gray-700 space-y-2">
+              {!selectedField && (
+                <div className="text-xs text-gray-400 text-center bg-gray-700/50 p-2 rounded">
+                  <div className="mb-1 font-medium">フィールド選択方法:</div>
+                  <div>Ctrl+クリック: 単一選択</div>
+                  <div>Ctrl+Shift+クリック: 複数選択</div>
+                </div>
+              )}
               <button
                 onClick={deleteSelectedField}
                 disabled={!selectedField}
@@ -871,10 +998,10 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               className="flex justify-between items-center p-2 bg-gray-800 border-b border-green-400 cursor-grab active:cursor-grabbing"
               onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'drag')}
             >
-              <h3 className="text-sm font-semibold text-white">Grid Panel (80×24)</h3>
+              <h3 className="text-sm font-semibold text-white">Grid Panel ({cols}×{rows})</h3>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-green-400 font-mono">
-                  {Math.round(zoomLevel * 100)}% | {gridPanel.width}×{gridPanel.height}
+                  {Math.round(zoomLevel * 100)}% | {gridPanel.width}×{gridPanel.height} | Cell:{Math.round(baseCharWidth)}×{Math.round(baseCharHeight)}
                 </span>
                 <div className="text-green-400 text-xs">🔄</div>
               </div>
@@ -883,13 +1010,86 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
             {/* Grid Content */}
             <div
               ref={screenPanelRef}
-              className="relative overflow-auto bg-black"
+              className="relative overflow-hidden bg-black"
               style={{
                 width: '100%',
-                height: 'calc(100% - 40px)'
+                height: 'calc(100% - 40px)',
+                minWidth: `${cols * charWidth}px`,
+                minHeight: `${rows * charHeight}px`
               }}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
+              onMouseMove={handleFieldDragMove}
+              onMouseUp={handleFieldDragEnd}
+              onClick={(e) => {
+                
+                // Clear field selection only when clicking on grid background (not on fields or grid lines)
+                const target = e.target as HTMLElement;
+                const isGridBackground = target === e.currentTarget;
+                const isGridLine = target.classList.contains('bg-gray-700') && target.classList.contains('absolute');
+                const isFieldElement = target.classList.contains('cursor-pointer') || !!target.closest('.cursor-pointer');
+                
+                
+                // Check if clicking on any field area by coordinates
+                const clickX = e.nativeEvent.offsetX;
+                const clickY = e.nativeEvent.offsetY;
+                let clickedOnField = false;
+                
+                
+                Array.from(fields.values()).forEach(field => {
+                  const fieldLeft = field.x * charWidth;
+                  const fieldTop = field.y * charHeight;
+                  const fieldRight = fieldLeft + (field.width * charWidth);
+                  const fieldBottom = fieldTop + (field.height * charHeight);
+                  
+                  
+                  if (clickX >= fieldLeft && clickX <= fieldRight && 
+                      clickY >= fieldTop && clickY <= fieldBottom) {
+                    clickedOnField = true;
+                  }
+                });
+                
+                // If clicking on a field element or field area, don't interfere
+                if (isFieldElement || clickedOnField) {
+                  return;
+                }
+                
+                // Additional protection: if we have recent field interaction, ignore grid click
+                const now = Date.now();
+                const timeSinceLastFieldInteraction = now - lastFieldInteraction;
+                
+                if (timeSinceLastFieldInteraction < 200) { // Within 200ms of field interaction
+                  return;
+                }
+                
+                if (isGridBackground || isGridLine) {
+                  // Only clear if we're not in the middle of a drag operation AND Ctrl key is pressed
+                  if (!propertiesPanel.isDragging && !gridPanel.isDragging && !gridPanel.isResizing) {
+                    if (e.ctrlKey || e.metaKey) {
+                      setSelectedField(null);
+                      setSelectedFields(new Set());
+                      // Reset field properties to default
+                      setFieldProperties({
+                        id: '',
+                        name: '',
+                        width: 10,
+                        height: 1,
+                        value: '',
+                        cssClass: '',
+                        attributes: 'normal',
+                        backgroundColor: '#00ff00',
+                        textColor: '#ffffff'
+                      });
+                      setStatusMessage(t('mapEditor.selectionCleared'));
+                    } else {
+                      setStatusMessage(t('mapEditor.ctrlClickToDeselect'));
+                      setTimeout(() => {
+                        setStatusMessage(t('mapEditor.statusMessage'));
+                      }, 2000);
+                    }
+                  }
+                }
+              }}
             >
               {/* Grid */}
               <div className="absolute inset-0 opacity-30">
@@ -910,32 +1110,94 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               {/* Fields */}
-              {Array.from(fields.values()).map(field => (
+              {Array.from(fields.values()).map(field => {
+                // Create a memoized field component to prevent unnecessary re-renders
+                const fieldStyle: React.CSSProperties = {
+                  left: `${field.x * charWidth}px`,
+                  top: `${field.y * charHeight}px`,
+                  width: `${field.width * charWidth}px`,
+                  height: `${field.height * charHeight}px`,
+                  backgroundColor: field.backgroundColor + '20',
+                  color: field.textColor,
+                  padding: `${2 * zoomLevel}px`,
+                  fontSize: `${12 * zoomLevel}px`,
+                  lineHeight: `${16 * zoomLevel}px`,
+                  zIndex: selectedField === field.id ? 50 : 30, // Increased z-index significantly
+                  pointerEvents: 'auto',
+                  userSelect: 'none',
+                  minWidth: '10px',
+                  minHeight: '16px',
+                  position: 'absolute'
+                };
+                
+                return (
                 <div
                   key={field.id}
-                  className={`absolute cursor-pointer border font-mono text-sm transition-all ${
-                    selectedField === field.id ? 'border-yellow-400 bg-yellow-400/20' : 'border-green-400 bg-green-400/10'
+                  className={`cursor-pointer border-2 font-mono text-sm transition-all hover:border-yellow-300 hover:shadow-md hover:bg-yellow-100/50 ${
+                    selectedField === field.id ? 'border-yellow-400 bg-yellow-400/20 shadow-lg' : 'border-green-400 bg-green-400/10'
                   } ${selectedFields.has(field.id) ? 'border-orange-400 bg-orange-400/20' : ''}`}
-                  style={{
-                    left: `${field.x * charWidth}px`,
-                    top: `${field.y * charHeight}px`,
-                    width: `${field.width * charWidth}px`,
-                    height: `${field.height * charHeight}px`,
-                    backgroundColor: field.backgroundColor + '20',
-                    color: field.textColor,
-                    padding: `${2 * zoomLevel}px`,
-                    fontSize: `${12 * zoomLevel}px`,
-                    lineHeight: `${16 * zoomLevel}px`
+                  title="Ctrl+クリック: 単一選択 / Ctrl+Shift+クリック: 複数選択"
+                  style={fieldStyle}
+                  onClick={(e) => {
+                    // Stop propagation FIRST to prevent grid handler from interfering
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    
+                    // This is now a backup handler - main logic is in onMouseDown
+                    if (e.ctrlKey || e.metaKey) {
+                      handleFieldClick(field.id, e);
+                    }
                   }}
-                  onClick={(e) => handleFieldClick(field.id, e)}
+                  onMouseDown={(e) => {
+                    
+                    // Record field interaction timestamp
+                    setLastFieldInteraction(Date.now());
+                    
+                    // Stop event propagation to prevent grid click
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                    
+                    if (e.ctrlKey || e.metaKey) {
+                      // Ctrl+Click: Select field (prevent default to avoid drag)
+                      e.preventDefault();
+                      handleFieldClick(field.id, e);
+                    } else {
+                      // Regular click: Start drag operation (don't prevent default)
+                      handleFieldDragStart(field.id, e);
+                      
+                      // If field is not selected, show requirement message
+                      if (selectedField !== field.id) {
+                        setStatusMessage(t('mapEditor.dragHint'));
+                        setTimeout(() => {
+                          setStatusMessage(t('mapEditor.statusMessage'));
+                        }, 2000);
+                      }
+                    }
+                  }}
+                  onMouseUp={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
                 >
                   {field.value.substring(0, field.width * field.height)}
                 </div>
-              ))}
+                );
+              })}
 
               {/* Grid Info */}
-              <div className="absolute top-2 right-2 text-xs text-gray-500">
-                80 Cols x 24 Rows
+              <div className="absolute top-2 right-2 text-xs text-gray-500 bg-black/50 px-2 py-1 rounded">
+                {cols} Cols x {rows} Rows<br/>
+                Cell: {Math.round(baseCharWidth)}×{Math.round(baseCharHeight)}px<br/>
+                Zoom: {Math.round(zoomLevel * 100)}%
               </div>
             </div>
             
