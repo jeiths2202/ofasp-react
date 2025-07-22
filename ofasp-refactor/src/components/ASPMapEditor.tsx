@@ -55,8 +55,15 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   const [currentFileName, setCurrentFileName] = useState<string>('');
   const [showSaveDialog, setShowSaveDialog] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState(t('mapEditor.statusMessage'));
-  const [propertiesPanelWidth, setPropertiesPanelWidth] = useState(224); // 224px = w-56
-  const [isResizing, setIsResizing] = useState(false);
+  // Floating panel states
+  const [propertiesPanel, setPropertiesPanel] = useState({
+    x: 20, y: 60, width: 260, height: 600, isDragging: false, isResizing: false
+  });
+  const [gridPanel, setGridPanel] = useState({
+    x: 300, y: 60, width: 820, height: 500, isDragging: false, isResizing: false
+  });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 0.5 = 50%, 2 = 200%
   
   const screenPanelRef = useRef<HTMLDivElement>(null);
@@ -100,30 +107,98 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     loadVolumes();
   }, []);
 
-  // Handle mouse events for resizing properties panel
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsResizing(true);
+  // Floating panel drag and resize handlers
+  const handlePanelMouseDown = useCallback((e: React.MouseEvent, panelType: 'properties' | 'grid', action: 'drag' | 'resize', handle?: string) => {
     e.preventDefault();
-  }, []);
+    e.stopPropagation();
+    
+    if (action === 'drag') {
+      // Get the panel's current position for offset calculation
+      const panel = panelType === 'properties' ? propertiesPanel : gridPanel;
+      const offsetX = e.clientX - panel.x;
+      const offsetY = e.clientY - panel.y;
+      
+      setDragOffset({ x: offsetX, y: offsetY });
+      
+      if (panelType === 'properties') {
+        setPropertiesPanel(prev => ({ ...prev, isDragging: true }));
+      } else {
+        setGridPanel(prev => ({ ...prev, isDragging: true }));
+      }
+    } else if (action === 'resize') {
+      setResizeHandle(handle || '');
+      if (panelType === 'properties') {
+        setPropertiesPanel(prev => ({ ...prev, isResizing: true }));
+      } else {
+        setGridPanel(prev => ({ ...prev, isResizing: true }));
+      }
+    }
+    
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = action === 'drag' ? 'grabbing' : handle || 'nw-resize';
+  }, [propertiesPanel, gridPanel]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isResizing) return;
-    
-    const newWidth = window.innerWidth - e.clientX;
-    const minWidth = 180;
-    const maxWidth = 400;
-    
-    if (newWidth >= minWidth && newWidth <= maxWidth) {
-      setPropertiesPanelWidth(newWidth);
+    if (propertiesPanel.isDragging) {
+      setPropertiesPanel(prev => ({
+        ...prev,
+        x: Math.max(0, Math.min(window.innerWidth - prev.width, e.clientX - dragOffset.x)),
+        y: Math.max(0, Math.min(window.innerHeight - prev.height, e.clientY - dragOffset.y))
+      }));
     }
-  }, [isResizing]);
+    
+    if (gridPanel.isDragging) {
+      setGridPanel(prev => ({
+        ...prev,
+        x: Math.max(0, Math.min(window.innerWidth - prev.width, e.clientX - dragOffset.x)),
+        y: Math.max(0, Math.min(window.innerHeight - prev.height, e.clientY - dragOffset.y))
+      }));
+    }
+    
+    if (gridPanel.isResizing && resizeHandle) {
+      const panel = gridPanel;
+      let newWidth = panel.width;
+      let newHeight = panel.height;
+      let newX = panel.x;
+      let newY = panel.y;
+      
+      if (resizeHandle.includes('e')) {
+        newWidth = Math.max(300, e.clientX - panel.x);
+      }
+      if (resizeHandle.includes('w')) {
+        const right = panel.x + panel.width;
+        newX = Math.min(e.clientX, right - 300);
+        newWidth = right - newX;
+      }
+      if (resizeHandle.includes('s')) {
+        newHeight = Math.max(200, e.clientY - panel.y);
+      }
+      if (resizeHandle.includes('n')) {
+        const bottom = panel.y + panel.height;
+        newY = Math.min(e.clientY, bottom - 200);
+        newHeight = bottom - newY;
+      }
+      
+      setGridPanel(prev => ({
+        ...prev,
+        x: newX,
+        y: newY,
+        width: newWidth,
+        height: newHeight
+      }));
+    }
+  }, [propertiesPanel.isDragging, gridPanel.isDragging, gridPanel.isResizing, dragOffset, resizeHandle]);
 
   const handleMouseUp = useCallback(() => {
-    setIsResizing(false);
+    setPropertiesPanel(prev => ({ ...prev, isDragging: false, isResizing: false }));
+    setGridPanel(prev => ({ ...prev, isDragging: false, isResizing: false }));
+    setResizeHandle(null);
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
   }, []);
 
   useEffect(() => {
-    if (isResizing) {
+    if (propertiesPanel.isDragging || gridPanel.isDragging || gridPanel.isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -131,7 +206,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isResizing, handleMouseMove, handleMouseUp]);
+  }, [propertiesPanel.isDragging, gridPanel.isDragging, gridPanel.isResizing, handleMouseMove, handleMouseUp]);
 
   const loadSmedFiles = async () => {
     try {
@@ -530,7 +605,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     <div className="h-full bg-gray-900 text-white p-3 overflow-hidden">
       <div className="max-w-full mx-auto h-full flex flex-col">
         {/* Header */}
-        <div className="mb-3 flex-shrink-0">
+        <div className="mb-2 flex-shrink-0">
           <h1 className="text-lg font-bold text-white mb-1">ASP SMED Map Editor</h1>
           <p className="text-gray-400 text-xs">{t('mapEditor.description')}</p>
         </div>
@@ -646,87 +721,36 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex gap-3 overflow-hidden h-full">
-          {/* Screen Panel */}
-          <div className="flex-grow flex flex-col min-w-0">
-            <div
-              ref={screenPanelRef}
-              className="bg-black border-2 border-green-400 relative overflow-auto mx-auto"
-              style={{
-                width: `${cols * charWidth}px`,
-                height: `${rows * charHeight}px`,
-                maxWidth: `calc(100vw - ${propertiesPanelWidth + 120}px)`,
-                maxHeight: 'calc(100vh - 220px)',
-                minHeight: '400px',
-                minWidth: '500px'
-              }}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
+        {/* Main Content Area - Now just provides space for floating panels */}
+        <div className="flex-1 relative overflow-hidden bg-gray-900">
+          
+          {/* Properties Panel - Floating */}
+          <div 
+            className="absolute bg-gray-800 rounded-lg flex flex-col shadow-2xl border border-gray-600"
+            style={{ 
+              left: `${propertiesPanel.x}px`,
+              top: `${propertiesPanel.y}px`,
+              width: `${propertiesPanel.width}px`,
+              height: `${propertiesPanel.height}px`,
+              zIndex: 10
+            }}
+          >
+            {/* Panel Header - Draggable */}
+            <div 
+              className="flex justify-between items-center p-2 border-b border-gray-700 cursor-grab active:cursor-grabbing bg-gray-700 rounded-t-lg"
+              onMouseDown={(e) => handlePanelMouseDown(e, 'properties', 'drag')}
             >
-              {/* Grid */}
-              <div className="absolute inset-0 opacity-30">
-                {Array.from({ length: cols + 1 }, (_, i) => (
-                  <div
-                    key={`v-${i}`}
-                    className="absolute w-px h-full bg-gray-700"
-                    style={{ left: `${i * charWidth}px` }}
-                  />
-                ))}
-                {Array.from({ length: rows + 1 }, (_, i) => (
-                  <div
-                    key={`h-${i}`}
-                    className="absolute w-full h-px bg-gray-700"
-                    style={{ top: `${i * charHeight}px` }}
-                  />
-                ))}
-              </div>
-
-              {/* Fields */}
-              {Array.from(fields.values()).map(field => (
-                <div
-                  key={field.id}
-                  className={`absolute cursor-pointer border font-mono text-sm transition-all ${
-                    selectedField === field.id ? 'border-yellow-400 bg-yellow-400/20' : 'border-green-400 bg-green-400/10'
-                  } ${selectedFields.has(field.id) ? 'border-orange-400 bg-orange-400/20' : ''}`}
-                  style={{
-                    left: `${field.x * charWidth}px`,
-                    top: `${field.y * charHeight}px`,
-                    width: `${field.width * charWidth}px`,
-                    height: `${field.height * charHeight}px`,
-                    backgroundColor: field.backgroundColor + '20',
-                    color: field.textColor,
-                    padding: `${2 * zoomLevel}px`,
-                    fontSize: `${12 * zoomLevel}px`,
-                    lineHeight: `${16 * zoomLevel}px`
-                  }}
-                  onClick={(e) => handleFieldClick(field.id, e)}
-                >
-                  {field.value.substring(0, field.width * field.height)}
-                </div>
-              ))}
-
-              {/* Grid Info */}
-              <div className="absolute top-2 right-2 text-xs text-gray-500">
-                80 Cols x 24 Rows
+              <h3 className="text-sm font-semibold">{t('mapEditor.fieldProperties')}</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-blue-400 font-mono">
+                  {propertiesPanel.width}×{propertiesPanel.height}
+                </span>
+                <div className="text-gray-400 text-xs">📌</div>
               </div>
             </div>
-          </div>
-
-          {/* Resize Handle */}
-          <div 
-            className="w-1 bg-gray-600 hover:bg-gray-500 cursor-col-resize flex-shrink-0"
-            onMouseDown={handleMouseDown}
-          />
-          
-          {/* Properties Panel */}
-          <div 
-            className="bg-gray-800 rounded-lg flex flex-col h-full max-h-full flex-shrink-0"
-            style={{ width: `${propertiesPanelWidth}px` }}
-          >
-            <h3 className="text-sm font-semibold p-2 pb-1 border-b border-gray-700 flex-shrink-0">{t('mapEditor.fieldProperties')}</h3>
             
-            <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-0" style={{maxHeight: 'calc(100vh - 280px)'}}>
+            {/* Panel Content */}
+            <div className="overflow-y-auto p-2 space-y-2 flex-1">
               <div>
                 <label className="block text-xs font-medium mb-0.5">{t('mapEditor.fieldId')}</label>
                 <input
@@ -792,8 +816,8 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                   <option value="normal">{t('mapEditor.normal')}</option>
                   <option value="readonly">{t('mapEditor.readonly')}</option>
                   <option value="required">{t('mapEditor.required')}</option>
-                  <option value="disabled">{t('mapEditor.disabled')}</option>
                   <option value="hidden">{t('mapEditor.hidden')}</option>
+                  <option value="disabled">{t('mapEditor.disabled')}</option>
                 </select>
               </div>
 
@@ -819,8 +843,8 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
             </div>
             
-            {/* Fixed Delete Button */}
-            <div className="p-2 border-t border-gray-700 flex-shrink-0">
+            {/* Panel Footer */}
+            <div className="p-2 border-t border-gray-700">
               <button
                 onClick={deleteSelectedField}
                 disabled={!selectedField}
@@ -829,6 +853,109 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                 {t('mapEditor.deleteSelected')}
               </button>
             </div>
+          </div>
+
+          {/* Grid Panel - Floating with Resize Handles */}
+          <div 
+            className="absolute bg-black border-2 border-green-400 rounded-lg shadow-2xl overflow-hidden group"
+            style={{ 
+              left: `${gridPanel.x}px`,
+              top: `${gridPanel.y}px`,
+              width: `${gridPanel.width}px`,
+              height: `${gridPanel.height}px`,
+              zIndex: 5
+            }}
+          >
+            {/* Panel Header - Draggable */}
+            <div 
+              className="flex justify-between items-center p-2 bg-gray-800 border-b border-green-400 cursor-grab active:cursor-grabbing"
+              onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'drag')}
+            >
+              <h3 className="text-sm font-semibold text-white">Grid Panel (80×24)</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-green-400 font-mono">
+                  {Math.round(zoomLevel * 100)}% | {gridPanel.width}×{gridPanel.height}
+                </span>
+                <div className="text-green-400 text-xs">🔄</div>
+              </div>
+            </div>
+            
+            {/* Grid Content */}
+            <div
+              ref={screenPanelRef}
+              className="relative overflow-auto bg-black"
+              style={{
+                width: '100%',
+                height: 'calc(100% - 40px)'
+              }}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              {/* Grid */}
+              <div className="absolute inset-0 opacity-30">
+                {Array.from({ length: cols + 1 }, (_, i) => (
+                  <div
+                    key={`v-${i}`}
+                    className="absolute w-px h-full bg-gray-700"
+                    style={{ left: `${i * charWidth}px` }}
+                  />
+                ))}
+                {Array.from({ length: rows + 1 }, (_, i) => (
+                  <div
+                    key={`h-${i}`}
+                    className="absolute w-full h-px bg-gray-700"
+                    style={{ top: `${i * charHeight}px` }}
+                  />
+                ))}
+              </div>
+
+              {/* Fields */}
+              {Array.from(fields.values()).map(field => (
+                <div
+                  key={field.id}
+                  className={`absolute cursor-pointer border font-mono text-sm transition-all ${
+                    selectedField === field.id ? 'border-yellow-400 bg-yellow-400/20' : 'border-green-400 bg-green-400/10'
+                  } ${selectedFields.has(field.id) ? 'border-orange-400 bg-orange-400/20' : ''}`}
+                  style={{
+                    left: `${field.x * charWidth}px`,
+                    top: `${field.y * charHeight}px`,
+                    width: `${field.width * charWidth}px`,
+                    height: `${field.height * charHeight}px`,
+                    backgroundColor: field.backgroundColor + '20',
+                    color: field.textColor,
+                    padding: `${2 * zoomLevel}px`,
+                    fontSize: `${12 * zoomLevel}px`,
+                    lineHeight: `${16 * zoomLevel}px`
+                  }}
+                  onClick={(e) => handleFieldClick(field.id, e)}
+                >
+                  {field.value.substring(0, field.width * field.height)}
+                </div>
+              ))}
+
+              {/* Grid Info */}
+              <div className="absolute top-2 right-2 text-xs text-gray-500">
+                80 Cols x 24 Rows
+              </div>
+            </div>
+            
+            {/* Resize Handles - Hidden by default, visible on hover */}
+            <div className="absolute top-0 right-0 w-3 h-3 bg-green-400 cursor-nw-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'ne')} />
+            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 cursor-se-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'se')} />
+            <div className="absolute bottom-0 left-0 w-3 h-3 bg-green-400 cursor-sw-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'sw')} />
+            <div className="absolute top-0 left-0 w-3 h-3 bg-green-400 cursor-nw-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'nw')} />
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-green-400 cursor-n-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'n')} />
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-green-400 cursor-s-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 's')} />
+            <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-green-400 cursor-e-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'e')} />
+            <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-green-400 cursor-w-resize opacity-0 group-hover:opacity-75 hover:!opacity-100 transition-opacity"
+                 onMouseDown={(e) => handlePanelMouseDown(e, 'grid', 'resize', 'w')} />
           </div>
         </div>
 
