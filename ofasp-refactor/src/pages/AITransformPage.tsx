@@ -9,6 +9,12 @@ import {
   ExclamationTriangleIcon,
   CpuChipIcon,
   MagnifyingGlassIcon,
+  FunnelIcon,
+  Bars3BottomLeftIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  AdjustmentsHorizontalIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useI18n } from '../hooks/useI18n';
 import { CobolCallTreeAnalyzer } from '../utils/cobolCallTreeAnalyzer';
@@ -186,6 +192,28 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [directoryPath, setDirectoryPath] = useState('');
   const [isLoadingDirectory, setIsLoadingDirectory] = useState(false);
+  
+  // 프로그램 목록 필터링 및 검색 상태
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFileTypes, setSelectedFileTypes] = useState<string[]>(['ALL']);
+  const [sortBy, setSortBy] = useState<'name' | 'type' | 'calls' | 'size'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [minCalls, setMinCalls] = useState<number>(0);
+  const [maxCalls, setMaxCalls] = useState<number>(100);
+  const [includeLibraries, setIncludeLibraries] = useState<string[]>([]);
+  
+  // 파일 목록 필터링 및 검색 상태
+  const [fileSearchTerm, setFileSearchTerm] = useState('');
+  const [selectedFileTypeFilter, setSelectedFileTypeFilter] = useState<string[]>(['ALL']);
+  const [fileSortBy, setFileSortBy] = useState<'name' | 'type' | 'size' | 'encoding' | 'status'>('name');
+  const [fileSortOrder, setFileSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showFileAdvancedFilters, setShowFileAdvancedFilters] = useState(false);
+  const [minFileSize, setMinFileSize] = useState<number>(0);
+  const [maxFileSize, setMaxFileSize] = useState<number>(10000);
+  const [selectedEncodings, setSelectedEncodings] = useState<string[]>(['ALL']);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['ALL']);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // EBCDIC to ASCII character mapping (simplified)
@@ -1006,6 +1034,133 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     UNKNOWN: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
   };
 
+  // 필터링 및 정렬 로직
+  const getFilteredAndSortedPrograms = () => {
+    if (!analysisResult) return [];
+    
+    let filteredPrograms = analysisResult.clPrograms.filter(program => {
+      // 검색어 필터
+      const matchesSearch = searchTerm === '' || 
+        program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        program.calls.some(call => call.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // 파일 타입 필터
+      const matchesType = selectedFileTypes.includes('ALL') || 
+        selectedFileTypes.includes(program.type);
+      
+      // 호출 수 필터
+      const matchesCalls = program.calls.length >= minCalls && program.calls.length <= maxCalls;
+      
+      // 라이브러리 필터 (고급 기능)
+      const matchesLibrary = includeLibraries.length === 0 ||
+        program.libraries.some(lib => includeLibraries.includes(lib));
+      
+      return matchesSearch && matchesType && matchesCalls && matchesLibrary;
+    });
+    
+    // 정렬
+    filteredPrograms.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'type':
+          comparison = a.type.localeCompare(b.type);
+          break;
+        case 'calls':
+          comparison = a.calls.length - b.calls.length;
+          break;
+        case 'size':
+          comparison = (a.calls.length + a.libraries.length) - (b.calls.length + b.libraries.length);
+          break;
+        default:
+          comparison = 0;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    return filteredPrograms;
+  };
+  
+  // 사용 가능한 라이브러리 목록 추출
+  const getAvailableLibraries = () => {
+    if (!analysisResult) return [];
+    const allLibraries = new Set<string>();
+    analysisResult.clPrograms.forEach(program => {
+      program.libraries.forEach(lib => allLibraries.add(lib));
+    });
+    return Array.from(allLibraries).sort();
+  };
+  
+  // 파일 목록 필터링 및 정렬 로직
+  const getFilteredAndSortedFiles = () => {
+    let filteredFiles = files.filter(file => {
+      // 검색어 필터
+      const matchesSearch = fileSearchTerm === '' || 
+        file.name.toLowerCase().includes(fileSearchTerm.toLowerCase());
+      
+      // 파일 타입 필터
+      const matchesType = selectedFileTypeFilter.includes('ALL') || 
+        selectedFileTypeFilter.includes(file.type);
+      
+      // 파일 크기 필터 (KB 단위)
+      const fileSizeKB = file.size / 1024;
+      const matchesSize = fileSizeKB >= minFileSize && fileSizeKB <= maxFileSize;
+      
+      // 인코딩 필터
+      const matchesEncoding = selectedEncodings.includes('ALL') ||
+        selectedEncodings.includes(file.originalEncoding);
+      
+      // 상태 필터
+      const fileStatus = file.converted ? 'Converted' : 'Original';
+      const matchesStatus = selectedStatuses.includes('ALL') ||
+        selectedStatuses.includes(fileStatus);
+      
+      return matchesSearch && matchesType && matchesSize && matchesEncoding && matchesStatus;
+    });
+    
+    // 정렬
+    filteredFiles.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (fileSortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'type':
+          comparison = a.type.localeCompare(b.type);
+          break;
+        case 'size':
+          comparison = a.size - b.size;
+          break;
+        case 'encoding':
+          comparison = a.originalEncoding.localeCompare(b.originalEncoding);
+          break;
+        case 'status':
+          const aStatus = a.converted ? 'Converted' : 'Original';
+          const bStatus = b.converted ? 'Converted' : 'Original';
+          comparison = aStatus.localeCompare(bStatus);
+          break;
+        default:
+          comparison = 0;
+      }
+      
+      return fileSortOrder === 'asc' ? comparison : -comparison;
+    });
+    
+    return filteredFiles;
+  };
+  
+  // 사용 가능한 파일 타입 목록
+  const getAvailableFileTypes = () => {
+    const types = new Set(files.map(file => file.type));
+    return Array.from(types).sort();
+  };
+  
+  // 파일 타입별 통계
   const getFileTypeStats = () => {
     const stats = files.reduce((acc, file) => {
       acc[file.type] = (acc[file.type] || 0) + 1;
@@ -1231,9 +1386,201 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
       {files.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              File Analysis Results
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('aiTransform.fileAnalysisResults')}
+              </h3>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {t('aiTransform.filesShowing', { showing: getFilteredAndSortedFiles().length.toString(), total: files.length.toString() })}
+                </span>
+              </div>
+            </div>
+            
+            {/* 파일 검색 및 필터링 컨트롤 */}
+            <div className="space-y-4">
+              {/* 검색바 */}
+              <div className="flex gap-4">
+                <div className="flex-1 relative">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={t('aiTransform.searchFiles')}
+                    value={fileSearchTerm}
+                    onChange={(e) => setFileSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                  {fileSearchTerm && (
+                    <button
+                      onClick={() => setFileSearchTerm('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                
+                <button
+                  onClick={() => setShowFileAdvancedFilters(!showFileAdvancedFilters)}
+                  className="flex items-center space-x-1 px-3 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                >
+                  <FunnelIcon className="h-4 w-4" />
+                  <span>{t('aiTransform.filters')}</span>
+                  {showFileAdvancedFilters ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
+                </button>
+              </div>
+              
+              {/* 빠른 필터 */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('aiTransform.fileType')}:</span>
+                </div>
+                {['ALL', ...getAvailableFileTypes()].map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedFileTypeFilter(prev => 
+                      type === 'ALL' ? ['ALL'] : 
+                      prev.includes(type) ? prev.filter(t => t !== type && t !== 'ALL') : 
+                      [...prev.filter(t => t !== 'ALL'), type]
+                    )}
+                    className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                      selectedFileTypeFilter.includes(type)
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {type === 'ALL' ? t('aiTransform.all') : type}
+                  </button>
+                ))}
+                
+                {/* 정렬 */}
+                <div className="flex items-center space-x-2 ml-4">
+                  <Bars3BottomLeftIcon className="h-4 w-4 text-gray-500" />
+                  <select
+                    value={`${fileSortBy}-${fileSortOrder}`}
+                    onChange={(e) => {
+                      const [sort, order] = e.target.value.split('-') as [typeof fileSortBy, typeof fileSortOrder];
+                      setFileSortBy(sort);
+                      setFileSortOrder(order);
+                    }}
+                    className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="name-asc">{t('aiTransform.nameAsc')}</option>
+                    <option value="name-desc">{t('aiTransform.nameDesc')}</option>
+                    <option value="type-asc">{t('aiTransform.typeAsc')}</option>
+                    <option value="type-desc">{t('aiTransform.typeDesc')}</option>
+                    <option value="size-asc">{t('aiTransform.sizeAsc')}</option>
+                    <option value="size-desc">{t('aiTransform.sizeDesc')}</option>
+                    <option value="encoding-asc">{t('aiTransform.encodingAsc')}</option>
+                    <option value="encoding-desc">{t('aiTransform.encodingDesc')}</option>
+                    <option value="status-asc">{t('aiTransform.statusAsc')}</option>
+                    <option value="status-desc">{t('aiTransform.statusDesc')}</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* 고급 필터 패널 */}
+              {showFileAdvancedFilters && (
+                <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* 파일 크기 범위 */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        파일 크기 (KB)
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          min="0"
+                          value={minFileSize}
+                          onChange={(e) => setMinFileSize(Number(e.target.value))}
+                          className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                        <span className="text-gray-500">~</span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={maxFileSize}
+                          onChange={(e) => setMaxFileSize(Number(e.target.value))}
+                          className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* 인코딩 필터 */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        인코딩
+                      </label>
+                      <div className="flex flex-wrap gap-1">
+                        {['ALL', 'ASCII', 'EBCDIC'].map(encoding => (
+                          <button
+                            key={encoding}
+                            onClick={() => setSelectedEncodings(prev => 
+                              encoding === 'ALL' ? ['ALL'] :
+                              prev.includes(encoding) ? prev.filter(e => e !== encoding && e !== 'ALL') : 
+                              [...prev.filter(e => e !== 'ALL'), encoding]
+                            )}
+                            className={`px-2 py-1 text-xs rounded transition-colors ${
+                              selectedEncodings.includes(encoding)
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-500'
+                            }`}
+                          >
+                            {encoding}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* 상태 필터 */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        상태
+                      </label>
+                      <div className="flex flex-wrap gap-1">
+                        {['ALL', 'Original', 'Converted'].map(status => (
+                          <button
+                            key={status}
+                            onClick={() => setSelectedStatuses(prev => 
+                              status === 'ALL' ? ['ALL'] :
+                              prev.includes(status) ? prev.filter(s => s !== status && s !== 'ALL') : 
+                              [...prev.filter(s => s !== 'ALL'), status]
+                            )}
+                            className={`px-2 py-1 text-xs rounded transition-colors ${
+                              selectedStatuses.includes(status)
+                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                                : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-500'
+                            }`}
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 필터 초기화 */}
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <button
+                      onClick={() => {
+                        setFileSearchTerm('');
+                        setSelectedFileTypeFilter(['ALL']);
+                        setFileSortBy('name');
+                        setFileSortOrder('asc');
+                        setMinFileSize(0);
+                        setMaxFileSize(10000);
+                        setSelectedEncodings(['ALL']);
+                        setSelectedStatuses(['ALL']);
+                      }}
+                      className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      {t('aiTransform.resetAllFilters')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="overflow-x-auto">
@@ -1245,12 +1592,12 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                       type="checkbox"
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedFiles(files.map(f => f.name));
+                          setSelectedFiles(getFilteredAndSortedFiles().map(f => f.name));
                         } else {
                           setSelectedFiles([]);
                         }
                       }}
-                      checked={selectedFiles.length === files.length && files.length > 0}
+                      checked={getFilteredAndSortedFiles().length > 0 && getFilteredAndSortedFiles().every(f => selectedFiles.includes(f.name))}
                     />
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -1271,7 +1618,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {files.map((file, index) => (
+                {getFilteredAndSortedFiles().map((file, index) => (
                   <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-4 py-4 whitespace-nowrap">
                       <input
@@ -1393,13 +1740,173 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Programs List */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                📜 프로그램 목록 (CL & COBOL)
-              </h4>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  📜 프로그램 목록 (CL & COBOL)
+                </h4>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {getFilteredAndSortedPrograms().length} / {analysisResult.clPrograms.length}
+                  </span>
+                </div>
+              </div>
+              
+              {/* 검색 및 필터링 컨트롤 */}
+              <div className="space-y-4 mb-4">
+                {/* 검색바 */}
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="프로그램명 또는 호출 대상 검색..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                
+                {/* 빠른 필터 */}
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center space-x-2">
+                    <FunnelIcon className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">타입:</span>
+                  </div>
+                  {['ALL', 'CL', 'COBOL'].map(type => (
+                    <button
+                      key={type}
+                      onClick={() => setSelectedFileTypes(prev => 
+                        type === 'ALL' ? ['ALL'] : 
+                        prev.includes(type) ? prev.filter(t => t !== type && t !== 'ALL') : 
+                        [...prev.filter(t => t !== 'ALL'), type]
+                      )}
+                      className={`px-2 py-1 text-xs rounded-full transition-colors ${
+                        selectedFileTypes.includes(type)
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* 정렬 및 고급 필터 */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bars3BottomLeftIcon className="h-4 w-4 text-gray-500" />
+                    <select
+                      value={`${sortBy}-${sortOrder}`}
+                      onChange={(e) => {
+                        const [sort, order] = e.target.value.split('-') as [typeof sortBy, typeof sortOrder];
+                        setSortBy(sort);
+                        setSortOrder(order);
+                      }}
+                      className="text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="name-asc">이름 ↑</option>
+                      <option value="name-desc">이름 ↓</option>
+                      <option value="type-asc">타입 ↑</option>
+                      <option value="type-desc">타입 ↓</option>
+                      <option value="calls-asc">호출수 ↑</option>
+                      <option value="calls-desc">호출수 ↓</option>
+                    </select>
+                  </div>
+                  
+                  <button
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                    <span>고급 필터</span>
+                    {showAdvancedFilters ? <ChevronUpIcon className="h-3 w-3" /> : <ChevronDownIcon className="h-3 w-3" />}
+                  </button>
+                </div>
+                
+                {/* 고급 필터 패널 */}
+                {showAdvancedFilters && (
+                  <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* 호출 수 범위 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          호출 수 범위
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="number"
+                            min="0"
+                            value={minCalls}
+                            onChange={(e) => setMinCalls(Number(e.target.value))}
+                            className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          />
+                          <span className="text-gray-500">~</span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={maxCalls}
+                            onChange={(e) => setMaxCalls(Number(e.target.value))}
+                            className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* 라이브러리 필터 */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          라이브러리 포함
+                        </label>
+                        <div className="flex flex-wrap gap-1">
+                          {getAvailableLibraries().slice(0, 5).map(library => (
+                            <button
+                              key={library}
+                              onClick={() => setIncludeLibraries(prev => 
+                                prev.includes(library) ? prev.filter(l => l !== library) : [...prev, library]
+                              )}
+                              className={`px-2 py-1 text-xs rounded transition-colors ${
+                                includeLibraries.includes(library)
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-gray-100 text-gray-600 dark:bg-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-500'
+                              }`}
+                            >
+                              {library}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 필터 초기화 */}
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                      <button
+                        onClick={() => {
+                          setSearchTerm('');
+                          setSelectedFileTypes(['ALL']);
+                          setSortBy('name');
+                          setSortOrder('asc');
+                          setMinCalls(0);
+                          setMaxCalls(100);
+                          setIncludeLibraries([]);
+                        }}
+                        className="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        {t('aiTransform.resetAllFilters')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
               
               <div className="space-y-2 max-h-80 overflow-y-auto">
-                {analysisResult.clPrograms.length > 0 ? (
-                  analysisResult.clPrograms.map((program, index) => (
+                {getFilteredAndSortedPrograms().length > 0 ? (
+                  getFilteredAndSortedPrograms().map((program, index) => (
                     <div 
                       key={index} 
                       onClick={() => handleCLProgramSelect(program.name)}
@@ -1435,7 +1942,10 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                   ))
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    CALL 문이 있는 프로그램이 없습니다
+                    {searchTerm || selectedFileTypes.length > 1 || !selectedFileTypes.includes('ALL') || minCalls > 0 || maxCalls < 100 || includeLibraries.length > 0
+                      ? '🔍 필터 조건에 맞는 프로그램이 없습니다'
+                      : 'CALL 문이 있는 프로그램이 없습니다'
+                    }
                   </div>
                 )}
               </div>
