@@ -10,6 +10,8 @@ import {
   CpuChipIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
+import { useI18n } from '../hooks/useI18n';
+import { CobolCallTreeAnalyzer } from '../utils/cobolCallTreeAnalyzer';
 
 interface AITransformPageProps {
   isDarkMode: boolean;
@@ -37,7 +39,7 @@ interface AnalysisResult {
   };
   clPrograms: Array<{
     name: string;
-    type: 'CL';
+    type: 'CL' | 'COBOL';
     calls: string[];
     libraries: string[];
   }>;
@@ -51,6 +53,8 @@ interface CallTreeNode {
   isRepeated: boolean;
   isNotFound: boolean;
   children: CallTreeNode[];
+  calls?: string[];
+  cyclic?: boolean;
 }
 
 interface NeuralNetworkProps {
@@ -60,6 +64,7 @@ interface NeuralNetworkProps {
 
 // Neural Network Animation Component
 const NeuralNetworkAnimation: React.FC<NeuralNetworkProps> = ({ isVisible, onComplete }) => {
+  const { t } = useI18n();
   React.useEffect(() => {
     if (isVisible) {
       // Auto-complete after 3 seconds (simulating analysis time)
@@ -151,12 +156,12 @@ const NeuralNetworkAnimation: React.FC<NeuralNetworkProps> = ({ isVisible, onCom
         <div className="flex items-center justify-center mb-4">
           <CpuChipIcon className="h-6 w-6 text-blue-500 mr-2 animate-spin" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            AI 분석 진행중
+            {t('aiTransform.aiAnalyzing')}
           </h3>
         </div>
         
         <p className="text-gray-600 dark:text-gray-300 mb-4">
-          AI 신경망이 CL, COBOL, COPYBOOK 파일들의 의존성을 분석하고 있습니다...
+          {t('aiTransform.neuralNetworkAnalyzing')}
         </p>
         
         <div className="flex items-center justify-center space-x-2">
@@ -170,6 +175,7 @@ const NeuralNetworkAnimation: React.FC<NeuralNetworkProps> = ({ isVisible, onCom
 };
 
 const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
+  const { t } = useI18n();
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
@@ -181,7 +187,6 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
   const [directoryPath, setDirectoryPath] = useState('');
   const [isLoadingDirectory, setIsLoadingDirectory] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const directoryInputRef = useRef<HTMLInputElement>(null);
 
   // EBCDIC to ASCII character mapping (simplified)
   const ebcdicToAscii = (ebcdicString: string): string => {
@@ -295,16 +300,6 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     }
   };
 
-  const handleDirectoryUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = event.target.files;
-    if (uploadedFiles) {
-      processFiles(uploadedFiles);
-    }
-
-    if (event.target) {
-      event.target.value = '';
-    }
-  };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -365,20 +360,20 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
 
   const handleDirectoryPathLoad = async () => {
     if (!directoryPath.trim()) {
-      alert('디렉토리 경로를 입력해주세요.');
+      alert(t('aiTransform.directoryPathRequired'));
       return;
     }
 
     setIsLoadingDirectory(true);
     
     try {
-      // Demo: Load predefined files based on directory path
-      const mockFiles = await loadMockDirectoryFiles(directoryPath.trim());
+      // Load actual files from directory path
+      const realFiles = await loadRealDirectoryFiles(directoryPath.trim());
       
-      if (mockFiles.length > 0) {
+      if (realFiles.length > 0) {
         const newFiles: FileInfo[] = [];
         
-        mockFiles.forEach((fileData: any) => {
+        realFiles.forEach((fileData: any) => {
           const fileType = classifyFile(fileData.name, fileData.content);
           const encoding = isEBCDIC(fileData.content) ? 'EBCDIC' : 'ASCII';
           
@@ -401,32 +396,45 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
           return [...prev, ...filteredNewFiles];
         });
         
-        alert(`${newFiles.length}개의 파일을 불러왔습니다.`);
+        alert(t('aiTransform.pathAdded', { path: directoryPath.trim(), count: newFiles.length.toString() }));
       } else {
-        alert('해당 경로에서 지원되는 파일을 찾을 수 없습니다.');
+        alert(t('aiTransform.noSupportedFiles', { path: directoryPath.trim() }));
       }
     } catch (error) {
       console.error('Directory scan error:', error);
-      alert(`디렉토리 스캔 중 오류가 발생했습니다: ${error}`);
+      alert(t('aiTransform.directoryLoadError', { error: String(error) }));
     } finally {
       setIsLoadingDirectory(false);
     }
   };
   
-  const loadMockDirectoryFiles = async (directoryPath: string): Promise<any[]> => {
-    // Try to load actual files from server or return mock data
-    if (directoryPath === '/data/assets/SRC.CLLIB') {
-      try {
-        // Try to fetch actual CL files
-        const response = await fetch('/data/cl-files.json');
-        if (response.ok) {
-          const clData = await response.json();
-          return clData.files || [];
-        }
-      } catch (error) {
-        console.log('Could not load actual files, using mock data');
+  const loadRealDirectoryFiles = async (directoryPath: string): Promise<any[]> => {
+    // Load actual files from server via Python Flask API
+    try {
+      const response = await fetch('http://localhost:3003/scan-directory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path: directoryPath })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.files || [];
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to scan directory');
       }
+    } catch (error) {
+      console.error('Error loading directory files:', error);
+      throw error;
     }
+  };
+
+  const loadMockDirectoryFiles = async (directoryPath: string): Promise<any[]> => {
+    // DEPRECATED: This function should not be used - use loadRealDirectoryFiles instead
+    // Keeping for backward compatibility only
     
     // Mock implementation - return sample files based on directory path
     const sampleFiles: { [key: string]: any[] } = {
@@ -515,8 +523,52 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     return [];
   };
 
-  const handlePredefinedPath = (path: string) => {
-    setDirectoryPath(path);
+  const handlePredefinedPath = async (path: string) => {
+    // Load files from the predefined path and add them to existing files
+    try {
+      setIsLoadingDirectory(true);
+      
+      const realFiles = await loadRealDirectoryFiles(path);
+      
+      if (realFiles.length > 0) {
+        const newFiles: FileInfo[] = [];
+        
+        realFiles.forEach((fileData: any) => {
+          const newFile: FileInfo = {
+            name: fileData.name,
+            type: fileData.type as FileInfo['type'],
+            size: fileData.size,
+            originalEncoding: fileData.encoding as 'EBCDIC' | 'ASCII',
+            converted: false,
+            content: fileData.content,
+          };
+          
+          newFiles.push(newFile);
+        });
+        
+        // Add all new files to existing files (avoid duplicates)
+        setFiles(prev => {
+          const existingNames = new Set(prev.map(f => f.name));
+          const filteredNewFiles = newFiles.filter(f => !existingNames.has(f.name));
+          return [...prev, ...filteredNewFiles];
+        });
+        
+        // Also append to directory path for visual feedback with semicolon separator
+        setDirectoryPath(prev => {
+          if (prev.trim() === '') {
+            return path;
+          } else {
+            return prev + '; ' + path;
+          }
+        });
+        
+        // Remove popup feedback - just silently add files
+      }
+    } catch (error) {
+      console.error('Error loading predefined path:', error);
+    } finally {
+      setIsLoadingDirectory(false);
+    }
   };
   
   const generateCallTree = (rootProgram: string, visited: Set<string> = new Set()): CallTreeNode => {
@@ -536,12 +588,12 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     const newVisited = new Set(visited);
     newVisited.add(rootProgram);
     
-    // Find calls made by this program
-    const clProgram = analysisResult?.clPrograms.find(cl => cl.name === rootProgram);
+    // Find calls made by this program (can be CL or COBOL)
+    const program = analysisResult?.clPrograms.find(prog => prog.name === rootProgram);
     const children: CallTreeNode[] = [];
     
-    if (clProgram) {
-      clProgram.calls.forEach(calledProgram => {
+    if (program) {
+      program.calls.forEach(calledProgram => {
         const childNode = generateCallTree(calledProgram, newVisited);
         children.push(childNode);
       });
@@ -549,23 +601,215 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     
     return {
       name: rootProgram,
-      type: clProgram ? 'CL' : 'COBOL',
+      type: program ? program.type : 'COBOL',
       isRepeated: false,
       isNotFound,
       children
     };
   };
   
-  const handleCLProgramSelect = (clProgram: string) => {
+  const handleCLProgramSelect = async (clProgram: string) => {
     setSelectedCLProgram(clProgram);
-    const tree = generateCallTree(clProgram);
-    setCallTree(tree);
+    
+    console.log(`🔍 Analyzing call tree for selected program: ${clProgram}`);
+    
+    try {
+      // Initialize COBOL Call Tree Analyzer
+      const analyzer = new CobolCallTreeAnalyzer();
+      
+      // Find the selected program file
+      const selectedFile = files.find(file => {
+        const fileName = file.name.toUpperCase();
+        const programName = clProgram.toUpperCase();
+        
+        // Direct match
+        if (fileName === programName) return true;
+        
+        // Match with common extensions
+        if (fileName === `${programName}.cob` || 
+            fileName === `${programName}.cobol` ||
+            fileName === `${programName}.cl` ||
+            fileName === `${programName}.cle`) return true;
+        
+        // Match without extension
+        const fileNameWithoutExt = fileName.replace(/\.(cob|cobol|cl|cle)$/i, '');
+        if (fileNameWithoutExt === programName) return true;
+        
+        return false;
+      });
+      
+      if (!selectedFile || !selectedFile.content) {
+        console.warn(`Selected program ${clProgram} not found or has no content`);
+        setCallTree({
+          name: clProgram,
+          type: 'COBOL',
+          isRepeated: false,
+          isNotFound: true,
+          children: [],
+          calls: []
+        });
+        return;
+      }
+      
+      // Add the selected program first
+      analyzer.addProgram(selectedFile.name, selectedFile.content, selectedFile.type as 'COBOL' | 'CL');
+      console.log(`📥 Added root program: ${selectedFile.name}`);
+      
+      // Extract CALL statements from the selected program to get related programs
+      const selectedAnalyzer = new CobolCallTreeAnalyzer();
+      selectedAnalyzer.addProgram(selectedFile.name, selectedFile.content, selectedFile.type as 'COBOL' | 'CL');
+      const preliminaryResult = selectedAnalyzer.analyzeCallTree();
+      
+      // Get all programs called by the selected program (recursively)
+      const calledPrograms = new Set<string>();
+      const processedPrograms = new Set<string>();
+      
+      const findCalledProgramsRecursively = (currentProgram: string, depth: number = 0) => {
+        if (depth > 5 || processedPrograms.has(currentProgram)) return; // Prevent infinite recursion
+        processedPrograms.add(currentProgram);
+        
+        // Find the program file
+        const programFile = files.find(file => {
+          const fileName = file.name.toUpperCase();
+          const programName = currentProgram.toUpperCase().replace(/\.[A-Z0-9]+$/i, '');
+          
+          if (fileName === programName) return true;
+          if (fileName === `${programName}.cob` || fileName === `${programName}.cobol` ||
+              fileName === `${programName}.cl` || fileName === `${programName}.cle`) return true;
+          
+          const fileNameWithoutExt = fileName.replace(/\.(cob|cobol|cl|cle)$/i, '');
+          if (fileNameWithoutExt === programName) return true;
+          
+          return false;
+        });
+        
+        if (programFile && programFile.content) {
+          // Analyze this program's calls
+          const tempAnalyzer = new CobolCallTreeAnalyzer();
+          tempAnalyzer.addProgram(programFile.name, programFile.content, programFile.type as 'COBOL' | 'CL');
+          const tempResult = tempAnalyzer.analyzeCallTree();
+          
+          tempResult.allCalls.forEach(call => {
+            const callee = call.calleeProgram.toUpperCase();
+            calledPrograms.add(callee);
+            findCalledProgramsRecursively(callee, depth + 1);
+          });
+        }
+      };
+      
+      // Start with programs called directly by the selected program
+      preliminaryResult.allCalls.forEach(call => {
+        const callee = call.calleeProgram.toUpperCase();
+        calledPrograms.add(callee);
+        findCalledProgramsRecursively(callee, 1);
+      });
+      
+      console.log(`🔍 Found ${calledPrograms.size} programs called by ${clProgram} (recursive):`, Array.from(calledPrograms));
+      
+      // Only load the called programs (not all 777 files)
+      let loadedCount = 1; // Already loaded the root program
+      calledPrograms.forEach(programName => {
+        const programFile = files.find(file => {
+          const fileName = file.name.toUpperCase();
+          const cleanProgramName = programName.replace(/\.[A-Z0-9]+$/i, ''); // Remove library name
+          
+          // Direct match
+          if (fileName === cleanProgramName) return true;
+          
+          // Match with common extensions
+          if (fileName === `${cleanProgramName}.cob` || 
+              fileName === `${cleanProgramName}.cobol` ||
+              fileName === `${cleanProgramName}.cl` ||
+              fileName === `${cleanProgramName}.cle`) return true;
+          
+          // Match without extension
+          const fileNameWithoutExt = fileName.replace(/\.(cob|cobol|cl|cle)$/i, '');
+          if (fileNameWithoutExt === cleanProgramName) return true;
+          
+          return false;
+        });
+        
+        if (programFile && programFile.content) {
+          analyzer.addProgram(programFile.name, programFile.content, programFile.type as 'COBOL' | 'CL');
+          console.log(`  ✅ Added called program: ${programFile.name}`);
+          loadedCount++;
+        } else {
+          console.log(`  ❌ Called program not found: ${programName}`);
+        }
+      });
+      
+      console.log(`📥 Loaded ${loadedCount} related programs (not all ${files.filter(f => f.type === 'COBOL' || f.type === 'CL').length})`);
+      
+      // Perform call tree analysis
+      const result = analyzer.analyzeCallTree();
+      
+      console.log(`📊 Analysis complete: ${result.allCalls.length} calls, ${result.missingPrograms.length} missing`);
+      
+      // Find the root node for our selected program
+      const normalizedProgram = clProgram.toUpperCase().replace(/\.(cob|cobol|cl|cle)$/i, '');
+      let targetNode = result.rootNodes.find((node: any) => 
+        node.name.toUpperCase() === normalizedProgram ||
+        node.name.toUpperCase() === clProgram.toUpperCase()
+      );
+      
+      if (targetNode) {
+        console.log('🔍 Root node found for', clProgram, ':', targetNode);
+        console.log('🔍 Root node children:', targetNode.children);
+        const tree = convertToCallTreeNode(targetNode);
+        setCallTree(tree);
+        console.log(`✅ Call tree set for ${clProgram}`);
+      } else {
+        // If not a root node, create a simple tree showing what this program calls
+        const calls = result.allCalls.filter((call: any) => 
+          call.callerProgram.toUpperCase() === normalizedProgram ||
+          call.callerProgram.toUpperCase() === clProgram.toUpperCase()
+        );
+        
+        setCallTree({
+          name: clProgram,
+          type: selectedFile.type === 'CL' ? 'CL' : 'COBOL',
+          isRepeated: false,
+          isNotFound: false,
+          children: calls.map(call => ({
+            name: call.calleeProgram,
+            type: 'COBOL',
+            isRepeated: false,
+            isNotFound: result.missingPrograms.includes(call.calleeProgram),
+            children: [],
+            calls: []
+          })),
+          calls: []
+        });
+        console.log(`✅ Created simple call tree for ${clProgram} with ${calls.length} calls`);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error analyzing call tree for ${clProgram}:`, error);
+      setCallTree(null);
+    }
+  };
+
+  // Convert from CobolCallTreeAnalyzer result to CallTreeNode format
+  const convertToCallTreeNode = (node: any): CallTreeNode => {
+    console.log(`🔍 Converting node: ${node.name}, isFound: ${node.isFound}, type: ${node.type}`);
+    return {
+      name: node.name,
+      type: node.type,
+      isRepeated: node.cyclic || false,
+      isNotFound: !node.isFound,
+      children: node.children.map((child: any) => convertToCallTreeNode(child)),
+      calls: node.calls?.map((call: any) => call.calleeProgram) || [],
+      cyclic: node.cyclic
+    };
   };
   
-  const renderCallTreeNode = (node: CallTreeNode, prefix: string = '', isLast: boolean = true, level: number = 0): React.JSX.Element[] => {
+  const renderCallTreeNode = (node: CallTreeNode, prefix: string = '', isLast: boolean = true, level: number = 0, parentPath: string = ''): React.JSX.Element[] => {
     const elements: React.JSX.Element[] = [];
     const connector = isLast ? '└── ' : '├── ';
     const displayName = `${node.name}${node.isRepeated ? ' (R)' : ''}${node.isNotFound ? ' (NOF)' : ''}`;
+    
+    // Create a unique key using parent path and node position
+    const uniqueKey = `${parentPath}/${node.name}-${level}-${prefix.length}`;
     
     const typeColor = {
       CL: 'text-purple-600 dark:text-purple-400',
@@ -574,7 +818,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     }[node.type] || 'text-gray-600 dark:text-gray-400';
     
     elements.push(
-      <div key={`${node.name}-${level}`} className="font-mono text-sm">
+      <div key={uniqueKey} className="font-mono text-sm">
         <span className="text-gray-400 dark:text-gray-500">{prefix}{connector}</span>
         <span className={`${typeColor} ${node.isNotFound ? 'bg-red-100 dark:bg-red-900' : ''} ${node.isRepeated ? 'bg-yellow-100 dark:bg-yellow-900' : ''} px-1 rounded`}>
           {displayName}
@@ -586,7 +830,8 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
       const newPrefix = prefix + (isLast ? '    ' : '│   ');
       node.children.forEach((child, index) => {
         const isChildLast = index === node.children.length - 1;
-        elements.push(...renderCallTreeNode(child, newPrefix, isChildLast, level + 1));
+        const childPath = `${parentPath}/${node.name}`;
+        elements.push(...renderCallTreeNode(child, newPrefix, isChildLast, level + 1, childPath));
       });
     }
     
@@ -595,7 +840,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
 
   const handleConvertSelected = async () => {
     if (selectedFiles.length === 0) {
-      alert('분석할 파일을 선택해주세요.');
+      alert(t('aiTransform.selectFiles'));
       return;
     }
 
@@ -603,88 +848,49 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     setIsProcessing(true);
     setShowNeuralNetwork(true);
     console.log('Neural network animation started');
+    
+    // Skip global Call Tree analysis to prevent UI freezing
+    // Call Tree analysis is now performed dynamically when a specific program is selected
+    console.log('Skipping global Call Tree analysis for performance - will analyze per program when selected');
+    
+    // Simulate processing time for animation without heavy computation
+    setTimeout(() => {
+      // Create empty call tree result to avoid breaking existing code
+      const emptyCallTreeResult = {
+        rootNodes: [],
+        allCalls: [],
+        missingPrograms: [],
+        cyclicReferences: [],
+        printCallTree: () => 'Call Tree will be generated when a specific program is selected'
+      };
+      
+      console.log('Analysis simulation completed - no global Call Tree generated');
+      
+      // Store empty result for compatibility
+      (window as any).callTreeResult = emptyCallTreeResult;
+      
+      // Trigger completion
+      handleAnalysisComplete();
+    }, 1500);
   };
   
   const handleAnalysisComplete = async () => {
     console.log('Analysis complete, closing neural network animation');
     setShowNeuralNetwork(false);
     
-    // Detailed CL analysis results based on selected files
+    // Get the stored call tree result
+    const callTreeResult = (window as any).callTreeResult;
+    if (!callTreeResult) {
+      console.error('No call tree result available');
+      setIsProcessing(false);
+      return;
+    }
+    
+    // Detailed analysis results based on selected files
     const selectedFileTypes = files.filter(f => selectedFiles.includes(f.name));
     const clFiles = selectedFileTypes.filter(f => f.type === 'CL');
     const cobolFiles = selectedFileTypes.filter(f => f.type === 'COBOL');
     const copybookFiles = selectedFileTypes.filter(f => f.type === 'COPYBOOK');
-    
-    // Extract actual program calls from CL files
-    const clPrograms = clFiles.map(clFile => {
-      const calls: string[] = [];
-      const libraries: string[] = [];
-      
-      if (clFile.content) {
-        // Extract CALL statements
-        const callMatches = clFile.content.match(/CALL\s+PGM-([A-Z0-9]+)/g);
-        if (callMatches) {
-          callMatches.forEach(match => {
-            const program = match.replace(/CALL\s+PGM-/, '');
-            if (!calls.includes(program)) {
-              calls.push(program);
-            }
-          });
-        }
-        
-        // Extract libraries
-        const libMatches = clFile.content.match(/LIBL-([A-Z0-9]+)/g);
-        if (libMatches) {
-          libMatches.forEach(match => {
-            const lib = match.replace(/LIBL-/, '');
-            if (!libraries.includes(lib)) {
-              libraries.push(lib);
-            }
-          });
-        }
-      }
-      
-      return {
-        name: clFile.name,
-        type: 'CL' as const,
-        calls,
-        libraries
-      };
-    });
-    
-    // Create set of all available programs
-    const allPrograms = new Set<string>();
-    [...clFiles, ...cobolFiles, ...copybookFiles].forEach(file => {
-      allPrograms.add(file.name);
-    });
-    
-    const mockAnalysisResult: AnalysisResult = {
-      summary: {
-        totalFiles: selectedFiles.length,
-        byType: {
-          'CL': clFiles.length,
-          'COBOL': cobolFiles.length,
-          'COPYBOOK': copybookFiles.length,
-          'SMED': selectedFileTypes.filter(f => f.type === 'SMED').length,
-          'UNKNOWN': selectedFileTypes.filter(f => f.type === 'UNKNOWN').length,
-        },
-        dependencies: {
-          totalCalls: clPrograms.reduce((sum, cl) => sum + cl.calls.length, 0),
-          missingPrograms: clPrograms.reduce((sum, cl) => 
-            sum + cl.calls.filter(call => !allPrograms.has(call)).length, 0),
-          circularDependencies: 0 // Will be calculated in call tree
-        }
-      },
-      clPrograms,
-      allPrograms,
-      detailedResults: selectedFileTypes.map(file => ({
-        fileName: file.name,
-        fileType: file.type,
-        size: file.size,
-        encoding: file.originalEncoding,
-        hasJapaneseChars: file.content?.includes('プログラム') || file.content?.includes('データ') || false
-      }))
-    };
     
     // Convert selected files
     const updatedFiles = files.map(file => {
@@ -702,13 +908,57 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
       return file;
     });
     
+    // Create programs with empty calls info (calls will be analyzed dynamically per program)
+    const allProgramsWithCalls = [...clFiles, ...cobolFiles].map(file => {      
+      return {
+        name: file.name,
+        type: (file.type === 'CL' ? 'CL' : 'COBOL') as 'CL' | 'COBOL',
+        calls: [], // Will be populated dynamically when program is selected
+        libraries: [] as string[]
+      };
+    });
+    
+    // Create set of all available programs
+    const allPrograms = new Set<string>();
+    [...clFiles, ...cobolFiles, ...copybookFiles].forEach(file => {
+      allPrograms.add(file.name);
+    });
+    
+    const analysisResult: AnalysisResult = {
+      summary: {
+        totalFiles: selectedFiles.length,
+        byType: {
+          'CL': clFiles.length,
+          'COBOL': cobolFiles.length,
+          'COPYBOOK': copybookFiles.length,
+          'SMED': selectedFileTypes.filter(f => f.type === 'SMED').length,
+          'UNKNOWN': selectedFileTypes.filter(f => f.type === 'UNKNOWN').length,
+        },
+        dependencies: {
+          totalCalls: 0, // Will be calculated dynamically when programs are selected
+          missingPrograms: 0, // Will be calculated dynamically when programs are selected  
+          circularDependencies: 0 // Will be calculated dynamically when programs are selected
+        }
+      },
+      clPrograms: allProgramsWithCalls,
+      allPrograms,
+      detailedResults: selectedFileTypes.map(file => ({
+        fileName: file.name,
+        fileType: file.type,
+        size: file.size,
+        encoding: file.originalEncoding,
+        hasJapaneseChars: file.content?.includes('プログラム') || file.content?.includes('データ') || false
+      }))
+    };
+
     setFiles(updatedFiles);
-    setAnalysisResult(mockAnalysisResult);
+    setAnalysisResult(analysisResult);
     setIsProcessing(false);
     setSelectedFiles([]);
     setSelectedCLProgram(null);
     setCallTree(null);
-    console.log('Analysis result set:', mockAnalysisResult);
+    console.log('Analysis result set:', analysisResult);
+    console.log('Global Call Tree analysis skipped - Call Tree will be generated dynamically when specific programs are selected');
   };
 
   const exportToExcel = () => {
@@ -768,17 +1018,17 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     <div className="h-full p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          AI Transform
+          {t('aiTransform.title')}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Intelligent file classification and analysis
+          {t('aiTransform.subtitle')}
         </p>
       </div>
 
       {/* File Upload Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          File Upload & Classification
+          {t('aiTransform.fileUploadTitle')}
         </h3>
         
         {/* Drag and Drop Area */}
@@ -795,10 +1045,13 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
           <div className="text-center">
             <DocumentArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              {isDragOver ? '드롭하여 업로드' : '파일 또는 폴더를 드래그하거나 선택하세요'}
+              {isDragOver ? t('aiTransform.dragDropHover') : t('aiTransform.dragDropText')}
             </h4>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              COBOL, COPYBOOK, CL, SMED 파일을 지원합니다
+            <p className="text-gray-500 dark:text-gray-400 mb-2">
+              {t('aiTransform.supportedFiles')}
+            </p>
+            <p className="text-sm text-blue-600 dark:text-blue-400 mb-4">
+              {t('aiTransform.multipleFolderHint')}
             </p>
             
             <div className="space-y-4">
@@ -811,36 +1064,46 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                   accept=".cob,.cobol,.cpy,.copy,.cl,.cle,.smed,.txt"
                   className="hidden"
                 />
-                <input
-                  type="file"
-                  ref={directoryInputRef}
-                  onChange={handleDirectoryUpload}
-                  {...({ webkitdirectory: 'true' } as any)}
-                  multiple
-                  className="hidden"
-                />
                 
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   <DocumentArrowUpIcon className="w-4 h-4 mr-2" />
-                  파일 선택
+                  {t('aiTransform.selectFiles')}
                 </button>
                 
                 <button
-                  onClick={() => directoryInputRef.current?.click()}
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.webkitdirectory = true;
+                    input.onchange = (e) => {
+                      const files = (e.target as HTMLInputElement).files;
+                      if (files && files.length > 0) {
+                        // Get folder name from first file path
+                        const folderName = files[0].webkitRelativePath.split('/')[0];
+                        console.log(`Adding folder: ${folderName} with ${files.length} files`);
+                        
+                        processFiles(files);
+                        
+                        // Show success message in console and potentially update UI state
+                        console.log(`フォルダ "${folderName}" から ${files.length} 個のファイルを追加しました。複数のフォルダを選択する場合は、このボタンを再度クリックしてください。`);
+                      }
+                    };
+                    input.click();
+                  }}
                   className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                 >
                   <FolderOpenIcon className="w-4 h-4 mr-2" />
-                  폴더 선택
+                  {t('aiTransform.selectFolder')}
                 </button>
               </div>
               
               {/* Directory Path Input */}
               <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  또는 서버 디렉토리 경로를 직접 입력하세요:
+                  {t('aiTransform.serverPathInput')}
                 </p>
                 
                 <div className="flex gap-2 mb-3">
@@ -848,7 +1111,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                     type="text"
                     value={directoryPath}
                     onChange={(e) => setDirectoryPath(e.target.value)}
-                    placeholder="예: /data/assets/SRC1.COBLIB"
+                    placeholder={t('aiTransform.pathPlaceholder')}
                     className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button
@@ -861,13 +1124,13 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                     ) : (
                       <MagnifyingGlassIcon className="w-4 h-4 mr-2" />
                     )}
-                    {isLoadingDirectory ? '스캔 중...' : '스캔'}
+                    {isLoadingDirectory ? t('aiTransform.scanning') : t('aiTransform.scan')}
                   </button>
                 </div>
                 
                 {/* Predefined Directory Shortcuts */}
                 <div className="flex flex-wrap gap-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">빠른 선택:</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">{t('aiTransform.quickSelect')}</span>
                   {[
                     '/data/assets/SRC1.COBLIB',
                     '/data/assets/SRC1.CPYLIB', 
@@ -879,9 +1142,17 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                     <button
                       key={path}
                       onClick={() => handlePredefinedPath(path)}
-                      className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                      disabled={isLoadingDirectory}
+                      className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors"
                     >
-                      {path.split('/').pop()}
+                      {isLoadingDirectory ? (
+                        <span className="flex items-center">
+                          <ArrowPathIcon className="w-3 h-3 mr-1 animate-spin" />
+                          {t('aiTransform.loading')}
+                        </span>
+                      ) : (
+                        path.split('/').pop()
+                      )}
                     </button>
                   ))}
                 </div>
@@ -892,7 +1163,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
           {isDragOver && (
             <div className="absolute inset-0 bg-blue-500 bg-opacity-10 rounded-lg flex items-center justify-center">
               <div className="text-blue-600 font-semibold text-lg">
-                파일을 놓아주세요
+                {t('aiTransform.dropFiles')}
               </div>
             </div>
           )}
@@ -901,7 +1172,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
         <div className="flex gap-4 mb-4">
           {files.length > 0 && (
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              총 {files.length}개 파일이 업로드되었습니다.
+              {t('aiTransform.totalFiles', { count: files.length.toString() })}
             </div>
           )}
           
@@ -917,7 +1188,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                 ) : (
                   <MagnifyingGlassIcon className="w-4 h-4 mr-2" />
                 )}
-                {isProcessing ? '분석 중...' : '분석하기'}
+                {isProcessing ? t('aiTransform.analyzing') : t('aiTransform.analyze')}
               </button>
               
               <button
@@ -925,7 +1196,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                 className="flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors"
               >
                 <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
-                Export to Excel
+                {t('aiTransform.exportExcel')}
               </button>
               
               {analysisResult && (
@@ -1120,42 +1391,51 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
           
           {/* CL Programs List and Call Tree */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* CL Programs List */}
+            {/* Programs List */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                📜 CL 프로그램 목록
+                📜 프로그램 목록 (CL & COBOL)
               </h4>
               
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {analysisResult.clPrograms.length > 0 ? (
-                  analysisResult.clPrograms.map((clProgram, index) => (
+                  analysisResult.clPrograms.map((program, index) => (
                     <div 
                       key={index} 
-                      onClick={() => handleCLProgramSelect(clProgram.name)}
+                      onClick={() => handleCLProgramSelect(program.name)}
                       className={`p-3 rounded-lg cursor-pointer transition-all ${
-                        selectedCLProgram === clProgram.name 
+                        selectedCLProgram === program.name 
                           ? 'bg-purple-100 dark:bg-purple-900/50 border-2 border-purple-300 dark:border-purple-600'
                           : 'bg-gray-50 dark:bg-gray-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 border-2 border-transparent'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-gray-900 dark:text-white">
-                            {clProgram.name}
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-900 dark:text-white">
+                              {program.name}
+                            </span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                              program.type === 'CL' 
+                                ? 'bg-purple-200 text-purple-800 dark:bg-purple-800 dark:text-purple-200'
+                                : 'bg-blue-200 text-blue-800 dark:bg-blue-800 dark:text-blue-200'
+                            }`}>
+                              {program.type}
+                            </span>
                           </div>
                           <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {clProgram.calls.length}개 호출, {clProgram.libraries.length}개 라이브러리
+                            {program.calls.length}개 호출{program.type === 'CL' && program.libraries.length > 0 ? `, ${program.libraries.length}개 라이브러리` : ''}
                           </div>
                         </div>
                         <div className="text-purple-500">
-                          {selectedCLProgram === clProgram.name ? '▼' : '▶'}
+                          {selectedCLProgram === program.name ? '▼' : '▶'}
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    CL 파일이 없습니다
+                    CALL 문이 있는 프로그램이 없습니다
                   </div>
                 )}
               </div>
@@ -1180,7 +1460,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                   </div>
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    CL 프로그램을 선택하면 호출 트리가 표시됩니다
+                    프로그램을 선택하면 호출 트리가 표시됩니다
                   </div>
                 )}
               </div>
