@@ -116,7 +116,7 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
   const loadPrograms = async () => {
     // Load program list from smed_pgm.json
     try {
-      const response = await fetch('/src/smed_pgm.json');
+      const response = await fetch('/smed_pgm.json');
       if (response.ok) {
         const data = await response.json();
         const programList = Object.values(data.programs || {}).map((p: any) => p.PGM);
@@ -482,8 +482,8 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
     if (!canvas) return;
     
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = (e.clientX - rect.left) / zoom;
+    const y = (e.clientY - rect.top) / zoom;
     
     // Check if clicking on a node
     const clickedNode = nodes.find(node => 
@@ -537,8 +537,8 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
     if (!canvas) return;
     
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = (e.clientX - rect.left) / zoom;
+    const y = (e.clientY - rect.top) / zoom;
     
     if (isConnecting) {
       setTempConnectionEnd({ x, y });
@@ -563,8 +563,8 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
     if (!canvas) return;
     
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = (e.clientX - rect.left) / zoom;
+    const y = (e.clientY - rect.top) / zoom;
     
     if (isConnecting && connectingFrom) {
       // Check if releasing on a node
@@ -693,6 +693,192 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
     handleConnectionPropertyChange('parameters', newParams);
   };
 
+  // Generate Java source code for all PROGRAM nodes
+  const generateJavaSource = () => {
+    const programNodes = nodes.filter(node => node.type === 'PROGRAM');
+    
+    if (programNodes.length === 0) {
+      window.alert(t('mapLink.noProgramNodes'));
+      return;
+    }
+
+    if (!window.confirm(t('mapLink.confirmGenerateJava'))) {
+      return;
+    }
+
+    setStatusMessage(t('mapLink.generatingJava'));
+    
+    // Generate Java source for each program node
+    const generatedFiles: string[] = [];
+    
+    programNodes.forEach(programNode => {
+      const javaCode = generateJavaSourceForProgram(programNode);
+      const fileName = `${programNode.data.name}.java`;
+      
+      // Download generated Java file
+      const blob = new Blob([javaCode], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      generatedFiles.push(fileName);
+    });
+    
+    setStatusMessage(`${t('mapLink.javaGenerated', { count: generatedFiles.length.toString() })}`);
+  };
+
+  // Compile Java source files (mock implementation)
+  const compileJavaSource = () => {
+    const programNodes = nodes.filter(node => node.type === 'PROGRAM');
+    
+    if (programNodes.length === 0) {
+      window.alert(t('mapLink.noProgramNodes'));
+      return;
+    }
+
+    if (!window.confirm(t('mapLink.confirmCompile'))) {
+      return;
+    }
+
+    setStatusMessage(t('mapLink.compilingJava'));
+    
+    // Mock compilation - simulate errors as mentioned by user
+    setTimeout(() => {
+      // Simulate partial success with some errors
+      const compiled = Math.floor(programNodes.length * 0.7); // 70% success rate
+      const errors = programNodes.length - compiled;
+      
+      if (errors > 0) {
+        setStatusMessage(t('mapLink.compilationPartial', { 
+          success: compiled.toString(), 
+          errors: errors.toString() 
+        }));
+      } else {
+        setStatusMessage(t('mapLink.compilationSuccess', { count: compiled.toString() }));
+      }
+    }, 2000);
+  };
+
+  // Generate Java source code for a specific program
+  const generateJavaSourceForProgram = (programNode: MapNode): string => {
+    const outgoingConnections = connections.filter(conn => conn.source === programNode.id);
+    
+    // Find connected map nodes
+    const connectedMaps = outgoingConnections
+      .map(conn => nodes.find(n => n.id === conn.target && n.type === 'MAP'))
+      .filter(Boolean) as MapNode[];
+    
+    let sourceCode = `package com.openasp.generated;
+
+import java.util.Scanner;
+import java.util.Map;
+import java.util.HashMap;
+
+/**
+ * Auto-generated Java program: ${programNode.data.name}
+ * Generated from MapLink visual programming environment
+ */
+public class ${programNode.data.name} {
+    private Scanner scanner = new Scanner(System.in);
+    private Map<String, String> parameters = new HashMap<>();
+    
+    public static void main(String[] args) {
+        ${programNode.data.name} program = new ${programNode.data.name}();
+        program.execute(args);
+    }
+    
+    public void execute(String[] args) {
+        System.out.println("=== ${programNode.data.name} ===");
+        
+        // Initialize parameters
+        for (String arg : args) {
+            if (arg.contains("=")) {
+                String[] parts = arg.split("=", 2);
+                parameters.put(parts[0], parts[1]);
+            }
+        }
+        
+        // Main program logic
+        processMainLogic();
+        
+        // Handle program flow
+        handleProgramFlow();
+    }
+    
+    private void processMainLogic() {`;
+    
+    // If connected to maps, add display logic
+    if (connectedMaps.length > 0) {
+      sourceCode += `
+        // Display connected SMED maps
+        ${connectedMaps.map(map => `displaySmedMap("${map.data.name}");`).join('\n        ')}`;
+    } else {
+      sourceCode += `
+        // Program-specific logic
+        System.out.println("Executing: ${programNode.data.name}");`;
+    }
+    
+    sourceCode += `
+    }
+    
+    private void handleProgramFlow() {`;
+    
+    // Generate flow control based on connections
+    if (outgoingConnections.length > 0) {
+      sourceCode += `
+        System.out.print("Enter command (${outgoingConnections.map(c => c.data.key).join(', ')}): ");
+        String input = scanner.nextLine();
+        
+        switch (input.toUpperCase()) {`;
+      
+      for (const conn of outgoingConnections) {
+        const targetNode = nodes.find(n => n.id === conn.target);
+        if (targetNode) {
+          sourceCode += `
+            case "${conn.data.key.toUpperCase()}":
+                ${targetNode.type === 'PROGRAM' ? 
+                  `callProgram("${targetNode.data.name}");` : 
+                  `displayMap("${targetNode.data.name}");`}
+                break;`;
+        }
+      }
+      
+      sourceCode += `
+            default:
+                System.out.println("Invalid command: " + input);
+                break;
+        }`;
+    }
+    
+    sourceCode += `
+    }
+    
+    private void callProgram(String programName) {
+        System.out.println("Calling program: " + programName);
+        // Implementation for calling another program
+    }
+    
+    private void displayMap(String mapName) {
+        System.out.println("Displaying map: " + mapName);
+        // Implementation for displaying SMED map
+    }
+    
+    private void displaySmedMap(String mapName) {
+        System.out.println("\\n=== " + mapName + " ===");
+        System.out.println("SMED Map Display");
+        System.out.println("================");
+    }
+}
+`;
+    
+    return sourceCode;
+  };
+
   return (
     <div className="h-full bg-gray-900 text-white p-6 overflow-hidden">
       <div className="h-full flex flex-col">
@@ -736,6 +922,22 @@ const MapLink: React.FC<MapLinkProps> = ({ isDarkMode }) => {
 
             {/* Action buttons */}
             <div className="flex gap-2 ml-auto">
+              <button
+                onClick={generateJavaSource}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-2 transition-colors"
+              >
+                <PlayIcon className="w-4 h-4" />
+                SOURCE GEN
+              </button>
+              
+              <button
+                onClick={compileJavaSource}
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded flex items-center gap-2 transition-colors"
+              >
+                <CpuChipIcon className="w-4 h-4" />
+                COMPILE
+              </button>
+
               <button
                 onClick={saveMapLinkData}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded flex items-center gap-2 transition-colors"

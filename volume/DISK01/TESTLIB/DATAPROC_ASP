@@ -1,0 +1,25 @@
+// DATAPROC_ASP - Fujitsu ASP Data Processing CL
+// Data processing workflow
+
+// Initialize processing
+MSG "Starting data processing workflow"
+
+// Create work files
+CRTFILE FILE(TESTLIB/WORKDATA) RECLEN(256) RECTYPE(VB) VOL(DISK01)
+CRTFILE FILE(TESTLIB/TEMPWORK) RECLEN(80) RECTYPE(FB) VOL(DISK01)
+
+// Process data in stages
+CALL PGM(EmployeeFileProcessor) PARM("STAGE1" "PROC")
+MSG "Stage 1 processing completed"
+
+CALL PGM(EmployeeFileProcessor) PARM("STAGE2" "PROC")
+MSG "Stage 2 processing completed"
+
+CALL PGM(EmployeeFileProcessor) PARM("STAGE3" "PROC")
+MSG "Stage 3 processing completed"
+
+// Clean up temporary files
+DLTFILE FILE(TESTLIB/TEMPWORK) VOL(DISK01)
+
+// Final message
+MSG "Data processing workflow completed successfully"

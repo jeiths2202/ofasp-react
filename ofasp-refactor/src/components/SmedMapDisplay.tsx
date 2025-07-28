@@ -14,10 +14,12 @@ interface SmedField {
 interface SmedMapDisplayProps {
   fields: SmedField[];
   onSubmit?: (fieldValues: Record<string, string>) => void;
+  onClose?: () => void;
+  onKeyEvent?: (key: string, fieldValues: Record<string, string>) => Promise<any>;
   mapName?: string;
 }
 
-const SmedMapDisplay: React.FC<SmedMapDisplayProps> = ({ fields, onSubmit, mapName }) => {
+const SmedMapDisplay: React.FC<SmedMapDisplayProps> = ({ fields, onSubmit, onClose, onKeyEvent, mapName }) => {
   const [grid, setGrid] = useState<string[][]>([]);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -103,7 +105,45 @@ const SmedMapDisplay: React.FC<SmedMapDisplayProps> = ({ fields, onSubmit, mapNa
   }, [fields, fieldValues]);
 
   // Handle keyboard input
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
+    // Handle function keys (F1-F12)
+    if (e.key.startsWith('F') && e.key.length >= 2) {
+      e.preventDefault();
+      
+      // If onKeyEvent is provided, send the key event to the application
+      if (onKeyEvent) {
+        try {
+          const response = await onKeyEvent(e.key, fieldValues);
+          
+          // Handle response from application
+          if (response && response.action) {
+            switch (response.action) {
+              case 'close':
+                if (onClose) onClose();
+                break;
+              case 'submit':
+                if (onSubmit) onSubmit(fieldValues);
+                break;
+              case 'update_fields':
+                if (response.fieldValues) {
+                  setFieldValues(response.fieldValues);
+                }
+                break;
+              // Add more actions as needed
+            }
+          }
+        } catch (error) {
+          console.error('Error handling key event:', error);
+        }
+      } else {
+        // Fallback behavior if no onKeyEvent handler
+        if (e.key === 'F3' && onClose) {
+          onClose();
+        }
+      }
+      return;
+    }
+    
     if (!focusedField) return;
     
     const field = fields.find(f => f.name === focusedField);
@@ -240,7 +280,8 @@ const SmedMapDisplay: React.FC<SmedMapDisplayProps> = ({ fields, onSubmit, mapNa
       </div>
       <div className="status-bar">
         Row: {cursorPosition.row + 1} Col: {cursorPosition.col + 1} | 
-        {focusedField ? ` Field: ${focusedField}` : ' Ready'}
+        {focusedField ? ` Field: ${focusedField}` : ' Ready'} | 
+        F3=Exit, Enter=Submit
       </div>
     </div>
   );

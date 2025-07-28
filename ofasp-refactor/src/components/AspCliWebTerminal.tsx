@@ -346,7 +346,20 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode }) => 
               
               if (parseResponse.ok) {
                 const mapData = await parseResponse.json();
-                setSmedMapData(mapData);
+                
+                // Extract program name from CALL command
+                let programName = 'unknown';
+                const callMatch = command.trim().toUpperCase().match(/CALL\s+PGM-([^,\s]+)/);
+                if (callMatch) {
+                  programName = callMatch[1];
+                }
+                
+                // Add program info to map data
+                setSmedMapData({
+                  ...mapData,
+                  program_name: programName,
+                  session_id: `session_${Date.now()}`
+                });
                 setShowSmedMap(true);
                 // Don't show the output text, just show the map
                 setIsExecuting(false);
@@ -1173,6 +1186,55 @@ HELP を入力して使用可能なコマンドを確認してください。`;
             <SmedMapDisplay
               fields={smedMapData.fields}
               mapName={smedMapData.map_name}
+              onClose={() => {
+                setShowSmedMap(false);
+                setSmedMapData(null);
+                // Focus back to terminal input
+                if (inputRef.current) {
+                  inputRef.current.focus();
+                }
+              }}
+              onKeyEvent={async (key: string, fieldValues: Record<string, string>) => {
+                // Send key event to Java program
+                try {
+                  const response = await fetch('http://localhost:8000/api/smed/key-event', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      program_name: smedMapData.program_name || 'unknown',
+                      session_id: smedMapData.session_id || 'default',
+                      key: key,
+                      field_values: fieldValues
+                    }),
+                  });
+
+                  if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Log the key event
+                    const keyEventEntry: CommandHistory = {
+                      command: `SMED Key Event: ${key}`,
+                      output: `Key ${key} sent to program`,
+                      timestamp: new Date(),
+                      success: true
+                    };
+                    setCommandHistory(prev => [...prev, keyEventEntry]);
+                    
+                    return result; // Return the action response to SmedMapDisplay
+                  }
+                } catch (error) {
+                  console.error('Error sending key event:', error);
+                  
+                  // For testing without backend, handle F3 locally
+                  if (key === 'F3') {
+                    return { action: 'close' };
+                  }
+                }
+                
+                return null;
+              }}
               onSubmit={async (fieldValues) => {
                 // Submit field values back to the Java program
                 console.log('SMED field values submitted:', fieldValues);

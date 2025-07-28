@@ -1,0 +1,16 @@
+// FILEUTIL_ASP - Fujitsu ASP File Utility CL
+// File management operations
+
+// Start message
+MSG "Starting file utility operations"
+
+// Create test files
+CRTFILE FILE(TESTLIB/UTIL001) RECLEN(80) RECTYPE(FB) VOL(DISK01)
+CRTFILE FILE(TESTLIB/UTIL002) RECLEN(132) RECTYPE(VB) VOL(DISK01)
+
+// Call file processor
+CALL PGM(EmployeeFileProcessor) PARM("UTIL001" "INIT")
+CALL PGM(EmployeeFileProcessor) PARM("UTIL002" "INIT")
+
+// Completion message
+MSG "File utility operations completed"

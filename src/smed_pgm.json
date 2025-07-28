@@ -77,6 +77,31 @@
       "TYPE": "JAVA",
       "PGM": "com.openasp.system.LogoutProgram",
       "DESCRIPTION": "ログアウト処理プログラム"
+    },
+    "MAIN001": {
+      "TYPE": "JAVA",
+      "PGM": "com.openasp.sample.PGM000",
+      "DESCRIPTION": "メインメニュー制御プログラム"
+    },
+    "MENU001": {
+      "TYPE": "JAVA", 
+      "PGM": "com.openasp.sample.PGM001",
+      "DESCRIPTION": "社員照会プログラム"
+    },
+    "MENU003": {
+      "TYPE": "JAVA",
+      "PGM": "com.openasp.sample.PGM002", 
+      "DESCRIPTION": "社員追加プログラム"
+    },
+    "MENU004": {
+      "TYPE": "JAVA",
+      "PGM": "com.openasp.sample.PGM003",
+      "DESCRIPTION": "社員追加確認プログラム"
+    },
+    "MENU005": {
+      "TYPE": "JAVA",
+      "PGM": "com.openasp.sample.PGM004",
+      "DESCRIPTION": "社員更新検索プログラム"
     }
   },
   "type_settings": {
@@ -111,6 +136,7 @@
     "com.openasp.nohin": "?? ?? ?????",
     "com.openasp.user": "??? ?? ?????",
     "com.openasp.system": "??? ?? ?????",
+    "com.openasp.sample": "サンプル業務プログラム群 (PGM000-PGM004)",
     "com.openasp.launcher": "???? ??"
   }
 }

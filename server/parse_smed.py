@@ -17,8 +17,19 @@ def parse_smed_file(file_path):
     ? ??? ?? ?? ? ??? ?? ??
     """
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read()
+        # First try to read as SJIS encoding (Japanese Shift-JIS)
+        try:
+            with open(file_path, 'rb') as f:
+                raw_bytes = f.read()
+            
+            # Try SJIS decoding first
+            content = raw_bytes.decode('shift_jis', errors='replace')
+            logger.info(f"Successfully decoded SMED file as Shift-JIS: {file_path}")
+        except Exception as sjis_error:
+            logger.warning(f"SJIS decoding failed, trying UTF-8: {sjis_error}")
+            # Fallback to UTF-8
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
         
         logger.info(f"Parsing SMED file: {file_path}")
         logger.debug(f"File content preview: {content[:200]}...")

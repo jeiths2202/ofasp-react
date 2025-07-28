@@ -1,0 +1,22 @@
+[2025-07-27 14:57:16] [JOB_SUBMITTED] Job FINALTEST submitted successfully
+[2025-07-27 15:01:04] [JOB_STARTED] Job FINALTEST started execution
+[2025-07-27 15:01:04] [JOB_INFO] Executing CL program: EMPREAD_CL
+[2025-07-27 15:01:04] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-TESTPGM.TESTLIB,VOL-DISK01
+[INFO] Calling program: TESTPGM
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB TESTPGM
+[ERROR] Java execution failed: 'utf-8' codec can't decode byte 0x83 in position 25: invalid start byte
+[WARN] Command returned PGMEC=999
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 1/1
+
+[2025-07-27 15:01:04] [JOB_ERROR] CL program execution failed: 1 instructions failed
+[2025-07-27 15:01:04] [JOB_ERROR] Job FINALTEST failed

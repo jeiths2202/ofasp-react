@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './map_layout.css';
+// SJIS encoding utilities are handled by the API server
 
 interface FieldData {
   row: number;
@@ -48,6 +49,96 @@ const MapLayout: React.FC = () => {
   });
   const [loginAttempting, setLoginAttempting] = useState<boolean>(false);
   const firstInputRef = useRef<HTMLInputElement>(null);
+
+  // Parse SMED content from text format to map data structure
+  const parseSmedContent = (content: string, mapName: string): SmedMapData => {
+    console.log(`[INFO] Parsing SMED content for ${mapName}`);
+    
+    const lines = content.split('\n');
+    const fields: SmedField[] = [];
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // Skip empty lines and comments
+      if (!trimmedLine || trimmedLine.startsWith('#') || trimmedLine.startsWith('//')) {
+        continue;
+      }
+      
+      // Skip MAPNAME line
+      if (trimmedLine.startsWith('MAPNAME')) {
+        continue;
+      }
+      
+      // Parse ITEM field definitions
+      if (trimmedLine.startsWith('ITEM')) {
+        const field = parseItemField(trimmedLine);
+        if (field) {
+          fields.push(field);
+        }
+      }
+    }
+    
+    console.log(`[INFO] Parsed ${fields.length} fields from SMED content`);
+    return { fields };
+  };
+
+  // Parse individual ITEM field line
+  const parseItemField = (line: string): SmedField | null => {
+    try {
+      // Extract field name
+      const nameMatch = line.match(/ITEM\s+(\w+)/);
+      const name = nameMatch ? nameMatch[1] : 'unknown';
+      
+      // Extract TYPE
+      const typeMatch = line.match(/TYPE=([A-Z])/);
+      const typeCode = typeMatch ? typeMatch[1] : 'I';
+      const type = typeCode === 'T' ? 'text' : 'input';
+      
+      // Extract POS=(row,col)
+      const posMatch = line.match(/POS=\((\d+),(\d+)\)/);
+      const row = posMatch ? parseInt(posMatch[1]) : 0;
+      const col = posMatch ? parseInt(posMatch[2]) : 0;
+      
+      // Extract PROMPT="text"
+      const promptMatch = line.match(/PROMPT="([^"]*)"/);
+      const prompt = promptMatch ? promptMatch[1] : '';
+      
+      // Extract COLOR=#RRGGBB
+      const colorMatch = line.match(/COLOR=(#[0-9A-Fa-f]{6})/);
+      const color = colorMatch ? colorMatch[1] : '#00FF00';
+      
+      // Extract LEN=number
+      const lenMatch = line.match(/LEN=(\d+)/);
+      let length = lenMatch ? parseInt(lenMatch[1]) : 0;
+      
+      // If no explicit length and has prompt, use prompt length
+      if (length === 0 && prompt) {
+        length = prompt.length;
+      }
+      
+      // Default length for input fields
+      if (length === 0 && type === 'input') {
+        length = 10;
+      }
+      
+      const field: SmedField = {
+        name,
+        type,
+        position: { row, col },
+        length,
+        prompt,
+        color
+      };
+      
+      console.log(`[DEBUG] Parsed field: ${name} at (${row},${col}) - "${prompt}"`);
+      return field;
+      
+    } catch (error) {
+      console.error(`[ERROR] Failed to parse field line: ${line}`, error);
+      return null;
+    }
+  };
 
   // Check if character is full-width
   const isFullWidthChar = (char: string): boolean => {
@@ -147,14 +238,15 @@ const MapLayout: React.FC = () => {
   };
 
   // Load SMED MAP data from Flask API
-  const loadSmedMap = async (mapName: string = 'logo', retryCount: number = 0) => {
+  const loadSmedMap = async (mapName: string = 'mainmenu', retryCount: number = 0) => {
     const maxRetries = 3;
     try {
       console.log(`[INFO] Loading SMED map: ${mapName} (attempt ${retryCount + 1}/${maxRetries + 1})`);
       setLoading(true);
       setError('');
       
-      const apiUrl = `http://localhost:8000/api/smed/${mapName}`;
+      // Use volume/library structure for SMED file access
+      const apiUrl = `http://localhost:8000/api/smed/content/DISK01/TESTLIB/${mapName.toUpperCase()}`;
       console.log(`[DEBUG] API URL: ${apiUrl}`);
       
       // Add timeout and retry logic
@@ -164,7 +256,7 @@ const MapLayout: React.FC = () => {
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
         signal: controller.signal
       });
@@ -176,8 +268,13 @@ const MapLayout: React.FC = () => {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      const mapData: SmedMapData = await response.json();
-      console.log(`[INFO] Received map data:`, mapData);
+      // Get SMED content as text and parse it
+      const smedContent = await response.text();
+      console.log(`[INFO] Received SMED content:`, smedContent.substring(0, 200));
+      
+      // Parse SMED content into map data structure
+      const mapData = parseSmedContent(smedContent, mapName);
+      console.log(`[INFO] Parsed map data:`, mapData);
       
       const screenFields = convertSmedToScreenData(mapData);
       console.log(`[INFO] Converted to screen data:`, screenFields);

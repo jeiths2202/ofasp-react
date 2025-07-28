@@ -25,7 +25,7 @@ MEMORY_THRESHOLD = float(os.getenv('ASPMGR_MEMORY_THRESHOLD', '80.0'))
 DISK_THRESHOLD = float(os.getenv('ASPMGR_DISK_THRESHOLD', '90.0'))
 
 app = Flask(__name__)
-CORS(app, origins=['http://localhost:3005', 'http://localhost:5000'])
+CORS(app, origins=['http://localhost:3005', 'http://localhost:5000', 'http://localhost:3007'])
 
 # Global data cache
 system_data = {

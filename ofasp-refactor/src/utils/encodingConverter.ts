@@ -120,13 +120,21 @@ class EncodingConverter {
     };
   }
 
+  // Cache for loaded code page tables
+  private static codePageCache = new Map<string, { singleByte: Uint8Array; doubleByte: Uint16Array }>();
+
   private async loadCodePageTable(filePath: string): Promise<{ singleByte: Uint8Array; doubleByte: Uint16Array }> {
+    // Check cache first
+    if (EncodingConverter.codePageCache.has(filePath)) {
+      return EncodingConverter.codePageCache.get(filePath)!;
+    }
+
     // Load code page table from file
     const singleByte = new Uint8Array(BYTE_RANGES.SINGLE_BYTE_ARRAY_SIZE);
     const doubleByte = new Uint16Array(BYTE_RANGES.DOUBLE_BYTE_ARRAY_SIZE); // Changed to Uint16Array to handle values > 255
     
     try {
-      console.log(`Loading code page table from: ${filePath}`);
+      // console.log(`Loading code page table from: ${filePath}`);
       const response = await fetch(filePath);
       
       if (!response.ok) {
@@ -145,13 +153,13 @@ class EncodingConverter {
         
         if (trimmed === '[Double byte mapping table]') {
           isDoubleByte = true;
-          console.log(`Found double byte mapping section`);
+          // console.log(`Found double byte mapping section`);
           continue;
         }
         
         if (trimmed === '[Single byte mapping table]') {
           isDoubleByte = false;
-          console.log(`Found single byte mapping section`);
+          // console.log(`Found single byte mapping section`);
           continue;
         }
         
@@ -167,9 +175,9 @@ class EncodingConverter {
               doubleByteCount++;
               // Debug specific mapping
               if (from === 0x4040) {
-                console.log(`Found 0x4040 mapping: from=0x${from.toString(16).toUpperCase()}, to=0x${to.toString(16).toUpperCase()}`);
-                console.log(`Setting doubleByte[${from}] = ${to}`);
-                console.log(`Verification: doubleByte[${from}] = ${doubleByte[from]}`);
+                // console.log(`Found 0x4040 mapping: from=0x${from.toString(16).toUpperCase()}, to=0x${to.toString(16).toUpperCase()}`);
+                // console.log(`Setting doubleByte[${from}] = ${to}`);
+                // console.log(`Verification: doubleByte[${from}] = ${doubleByte[from]}`);
               }
             }
           } else {
@@ -178,22 +186,27 @@ class EncodingConverter {
               singleByteCount++;
               // Debug single byte mapping that might conflict
               if (from === 0x40) {
-                console.log(`Found single byte 0x40 mapping: 0x${to.toString(16).toUpperCase()}`);
-                console.log(`Setting singleByte[${from}] = ${to}`);
+                // console.log(`Found single byte 0x40 mapping: 0x${to.toString(16).toUpperCase()}`);
+                // console.log(`Setting singleByte[${from}] = ${to}`);
               }
             }
           }
         }
       }
       
-      console.log(`Loaded ${singleByteCount} single byte mappings and ${doubleByteCount} double byte mappings`);
+      // console.log(`Loaded ${singleByteCount} single byte mappings and ${doubleByteCount} double byte mappings`);
       
       // Debug: Check 0x4040 mapping after loading
       if (doubleByte[0x4040] !== 0) {
-        console.log(`After loading, doubleByte[0x4040] = ${doubleByte[0x4040]} (0x${doubleByte[0x4040].toString(16).toUpperCase()})`);
+        // console.log(`After loading, doubleByte[0x4040] = ${doubleByte[0x4040]} (0x${doubleByte[0x4040].toString(16).toUpperCase()})`);
       }
       
-      return { singleByte, doubleByte };
+      const result = { singleByte, doubleByte };
+      
+      // Cache the result
+      EncodingConverter.codePageCache.set(filePath, result);
+      
+      return result;
     } catch (error) {
       console.error(`Failed to load code page table from ${filePath}:`, error);
       throw new Error(`Failed to load code page table: ${filePath}`);

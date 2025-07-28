@@ -207,6 +207,83 @@ class ConversionAPI:
                 self.logger.error(traceback.format_exc())
                 return self._create_error_response(f"Conversion failed: {str(e)}", 500)
         
+        @self.app.route('/api/v1/convert/sjis-to-unicode', methods=['POST'])
+        def convert_sjis_to_unicode():
+            """Convert Shift-JIS encoded bytes to Unicode string"""
+            try:
+                # Parse request data
+                data = request.get_json()
+                if not data:
+                    return self._create_error_response("No JSON data provided")
+                
+                # Validate API key (optional for internal services)
+                if not self._validate_api_key(data):
+                    return self._create_error_response("Invalid API key", 401)
+                
+                # Extract parameters
+                input_bytes = data.get('input_bytes')  # Base64 encoded bytes
+                encoding = data.get('encoding', 'shift_jis')
+                
+                # Validate required parameters
+                if not input_bytes:
+                    return self._create_error_response("input_bytes is required")
+                
+                # Decode base64 input
+                import base64
+                try:
+                    raw_bytes = base64.b64decode(input_bytes)
+                except Exception as e:
+                    return self._create_error_response(f"Invalid base64 input: {str(e)}")
+                
+                # Supported Japanese encodings in priority order
+                japanese_encodings = ['cp932', 'shift_jis', 'shift_jisx0213', 'euc-jp']
+                
+                result_text = None
+                used_encoding = None
+                
+                # Try each encoding
+                for enc in japanese_encodings:
+                    try:
+                        decoded_text = raw_bytes.decode(enc, errors='strict')
+                        # Check if decoding was successful (no replacement chars)
+                        if '�' not in decoded_text:
+                            result_text = decoded_text
+                            used_encoding = enc
+                            break
+                    except (UnicodeDecodeError, UnicodeError):
+                        continue
+                
+                # If strict decoding failed, try with error handling
+                if result_text is None:
+                    for enc in japanese_encodings:
+                        try:
+                            decoded_text = raw_bytes.decode(enc, errors='replace')
+                            result_text = decoded_text
+                            used_encoding = enc + '_with_replacement'
+                            break
+                        except:
+                            continue
+                
+                if result_text is None:
+                    return self._create_error_response("Unable to decode input with any Japanese encoding")
+                
+                # Create response
+                response_data = {
+                    'unicode_text': result_text,
+                    'used_encoding': used_encoding,
+                    'input_size': len(raw_bytes),
+                    'output_size': len(result_text),
+                    'success': True
+                }
+                
+                self.logger.info(f"SJIS to Unicode conversion completed using {used_encoding}: {len(result_text)} characters")
+                return self._create_success_response(response_data, "SJIS to Unicode conversion completed")
+                
+            except Exception as e:
+                self.logger.error(f"Error in SJIS to Unicode conversion: {str(e)}")
+                self.logger.error(traceback.format_exc())
+                return self._create_error_response(f"Conversion failed: {str(e)}", 500)
+        
         @self.app.route('/api/v1/info', methods=['GET'])
         def get_info():
             """Get service information"""
@@ -219,6 +296,96 @@ class ConversionAPI:
                 'default_encoding': config.conversion_config['default_encoding'],
                 'default_record_length': config.conversion_config['default_record_length']
             })
+
+        @self.app.route('/scan-directory', methods=['POST'])
+        def scan_directory():
+            """Scan directory for COBOL, CL, COPYBOOK, and SMED files"""
+            import os
+            import glob
+            
+            try:
+                data = request.get_json()
+                if not data or 'path' not in data:
+                    return self._create_error_response('Directory path is required')
+                
+                directory_path = data['path']
+                
+                # Validate directory exists
+                if not os.path.exists(directory_path):
+                    return self._create_error_response(f'Directory does not exist: {directory_path}', 404)
+                
+                if not os.path.isdir(directory_path):
+                    return self._create_error_response(f'Path is not a directory: {directory_path}')
+                
+                # Scan for supported file types
+                supported_extensions = ['*.cob', '*.cobol', '*.cpy', '*.copy', '*.cl', '*.cle', '*.smed', '*.txt']
+                files = []
+                
+                for extension in supported_extensions:
+                    pattern = os.path.join(directory_path, '**', extension)
+                    matches = glob.glob(pattern, recursive=True)
+                    files.extend(matches)
+                
+                # Also scan files without extensions (common for CL files)
+                all_files = glob.glob(os.path.join(directory_path, '**', '*'), recursive=True)
+                for file_path in all_files:
+                    if os.path.isfile(file_path) and '.' not in os.path.basename(file_path):
+                        files.append(file_path)
+                
+                # Remove duplicates and sort
+                files = sorted(list(set(files)))
+                
+                # Read file contents and classify
+                result_files = []
+                for file_path in files:
+                    try:
+                        # Get file info
+                        file_stat = os.stat(file_path)
+                        file_name = os.path.basename(file_path)
+                        
+                        # Read file content (limit to first 10KB for classification)
+                        with open(file_path, 'rb') as f:
+                            raw_content = f.read(10240)  # First 10KB
+                        
+                        # Try to decode as UTF-8 first, then as SHIFT_JIS
+                        try:
+                            content = raw_content.decode('utf-8')
+                            encoding = 'ASCII'
+                        except UnicodeDecodeError:
+                            try:
+                                content = raw_content.decode('shift_jis')
+                                encoding = 'EBCDIC'
+                            except UnicodeDecodeError:
+                                # Skip binary files
+                                continue
+                        
+                        # Classify file type based on content and extension
+                        file_type = self._classify_file_type(file_name, content)
+                        
+                        result_files.append({
+                            'name': file_name,
+                            'path': file_path,
+                            'type': file_type,
+                            'size': file_stat.st_size,
+                            'encoding': encoding,
+                            'content': content[:1000] if len(content) > 1000 else content  # Limit content preview
+                        })
+                        
+                    except Exception as e:
+                        # Log error but continue processing other files
+                        self.logger.warning(f"Error processing file {file_path}: {str(e)}")
+                        continue
+                
+                return jsonify({
+                    'success': True,
+                    'directory': directory_path,
+                    'total_files': len(result_files),
+                    'files': result_files
+                })
+                
+            except Exception as e:
+                self.logger.error(f"Failed to scan directory: {str(e)}")
+                return self._create_error_response(f'Failed to scan directory: {str(e)}', 500)
         
         @self.app.errorhandler(404)
         def not_found(error):
@@ -230,6 +397,29 @@ class ConversionAPI:
             """Handle 500 errors"""
             self.logger.error(f"Internal server error: {str(error)}")
             return self._create_error_response("Internal server error", 500)
+    
+    def _classify_file_type(self, filename: str, content: str) -> str:
+        """Classify file type based on filename and content"""
+        ext = filename.lower().split('.')[-1] if '.' in filename else ''
+        upper_content = content.upper()
+        
+        # COBOL files
+        if ext in ['cob', 'cobol'] or 'IDENTIFICATION DIVISION' in upper_content:
+            return 'COBOL'
+        
+        # COPYBOOK files
+        if ext in ['cpy', 'copy'] or 'COPY ' in upper_content or '01 ' in upper_content:
+            return 'COPYBOOK'
+        
+        # CL files
+        if ext in ['cl', 'cle'] or 'PGM (' in upper_content or 'CALL PGM-' in upper_content or 'DEFLIBR' in upper_content:
+            return 'CL'
+        
+        # SMED files
+        if ext == 'smed' or 'SMED' in upper_content:
+            return 'SMED'
+        
+        return 'UNKNOWN'
     
     def run(self):
         """Run the Flask application"""

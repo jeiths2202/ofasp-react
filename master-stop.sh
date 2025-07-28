@@ -65,18 +65,23 @@ force_kill_by_pattern "fork-ts-checker" "TypeScript Checkers"
 force_kill_by_pattern "flask.*3003" "Python Flask Services"
 force_kill_by_pattern "python.*api.run" "Python API Services"
 force_kill_by_pattern "python.*api_server" "Python API Servers"
+force_kill_by_pattern "python.*aspmgr_web" "System API Servers"
 
 echo -e "\n${YELLOW}Force killing processes by port...${NC}"
 
 # Force kill by each port
 force_kill_by_port "3000" "SMED Map Viewer"
 force_kill_by_port "3003" "Python Service"
+force_kill_by_port "3004" "System API Server"
 force_kill_by_port "3005" "OpenASP Refactor"
 force_kill_by_port "3007" "ASP Manager"
 force_kill_by_port "8000" "API Server"
 
-# Cleanup configuration files
-echo -e "\n${YELLOW}Cleaning up configuration files...${NC}"
+# Cleanup configuration files and old jobs
+echo -e "\n${YELLOW}Cleaning up configuration files and database...${NC}"
+cd /home/aspuser/app/server/system-cmds
+python -c "from functions.job_database import cleanup_old_jobs; print(f'Cleaned up {cleanup_old_jobs()} old jobs')" 2>/dev/null || true
+
 rm -f /home/aspuser/app/.running_services
 rm -f /home/aspuser/app/pids/*.pid 2>/dev/null || true
 

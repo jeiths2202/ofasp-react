@@ -1,0 +1,42 @@
+// LONGRUN_ASP - Fujitsu ASP Long Running Job CL
+// Long running process for testing (3+ minutes)
+
+// Start message
+MSG "Starting long running ASP job - will run for 3+ minutes"
+
+// Process employee data in batches
+MSG "Processing employee data batch 1 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP001" "SCAN")
+
+MSG "Processing employee data batch 2 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP002" "SCAN")
+
+MSG "Processing employee data batch 3 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP003" "SCAN")
+
+MSG "Processing employee data batch 4 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP004" "SCAN")
+
+MSG "Processing employee data batch 5 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP005" "SCAN")
+
+// Wait and continue processing
+MSG "Midpoint processing - continuing with remaining batches"
+
+MSG "Processing employee data batch 6 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP006" "SCAN")
+
+MSG "Processing employee data batch 7 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP007" "SCAN")
+
+MSG "Processing employee data batch 8 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP008" "SCAN")
+
+MSG "Processing employee data batch 9 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP009" "SCAN")
+
+MSG "Processing employee data batch 10 of 10"
+CALL PGM(EmployeeFileProcessor) PARM("EMP010" "SCAN")
+
+// Final completion
+MSG "Long running ASP job completed successfully after processing all batches"

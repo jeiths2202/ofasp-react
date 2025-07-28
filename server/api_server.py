@@ -16,10 +16,10 @@ import ctypes
 import psutil
 import shutil
 from pathlib import Path
+from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import logging
-from datetime import datetime
 from collections import deque
 import uuid
 from io import StringIO
@@ -48,6 +48,40 @@ java_manager = None
 
 # Log storage (keep last 1000 logs)
 execution_logs = deque(maxlen=1000)
+
+def convert_sjis_to_unicode(raw_bytes):
+    """
+    Convert Shift-JIS encoded bytes to Unicode string
+    Uses simple SJIS decoding like ASP Terminal (working method)
+    """
+    logger.info(f"SJIS Conversion DEBUG: Using simple SJIS decoding (ASP Terminal method)")
+    print(f"CONSOLE DEBUG: SJIS conversion using simple method", flush=True)
+    
+    try:
+        # Use the same method as ASP Terminal's /api/smed/parse endpoint
+        # This method works correctly for displaying Japanese text
+        content = raw_bytes.decode('shift_jis', errors='replace')
+        
+        logger.info(f"SJIS Conversion DEBUG: Simple conversion result length: {len(content)}")
+        
+        # Log sample for debugging
+        openasp_pos = content.find('OpenASP')
+        if openasp_pos >= 0:
+            sample_text = content[openasp_pos:openasp_pos+20]
+            logger.info(f"SJIS Conversion DEBUG: Sample text: {repr(sample_text)}")
+            jp_chars = sample_text[8:18] if len(sample_text) > 8 else sample_text[8:]
+            logger.info(f"SJIS Conversion DEBUG: Japanese chars Unicode: {[ord(c) for c in jp_chars]}")
+        
+        return content
+        
+    except Exception as e:
+        logger.warning(f"Simple SJIS conversion failed: {e}")
+        # Final fallback
+        try:
+            return raw_bytes.decode('utf-8', errors='replace')
+        except Exception as e2:
+            logger.error(f"All conversion methods failed: {e2}")
+            return str(raw_bytes)  # Return raw bytes as string if all else fails
 
 class MultiTypeExecutor:
     """?? ???? ?? ???"""
@@ -699,9 +733,128 @@ def get_smed_files():
         logger.error(f"SMEDファイル一覧取得エラー: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/smed/save', methods=['POST'])
+def save_smed_file():
+    """Save SMED file to volume/library directory and update catalog"""
+    try:
+        data = request.get_json()
+        filename = data.get('filename')
+        content = data.get('content')
+        volume = data.get('volume')
+        library = data.get('library')
+        
+        if not filename or not content:
+            return jsonify({'error': 'Filename and content are required'}), 400
+        
+        if not volume or not library:
+            return jsonify({'error': 'Volume and library are required'}), 400
+        
+        # Security check: prevent path traversal
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        # Use filename as-is (NEVER add .smed extension)
+        smed_filename = filename
+        logger.info(f"SAVE DEBUG: Original filename: {filename}")
+        logger.info(f"SAVE DEBUG: Final filename: {smed_filename}")
+        
+        # Create directory structure based on volume/library
+        volume_dir = os.path.join(VOLUME_ROOT, volume, library)
+        os.makedirs(volume_dir, exist_ok=True)
+        
+        file_path = os.path.join(volume_dir, smed_filename)
+        logger.info(f"SAVE DEBUG: Full file path: {file_path}")
+        
+        # Determine encoding based on file type
+        if smed_filename.endswith('.java'):
+            encoding = 'utf-8'
+            logger.info(f"SAVE DEBUG: Writing Java file with UTF-8 encoding")
+        else:
+            encoding = 'shift_jis'
+            logger.info(f"SAVE DEBUG: Writing SMED file with SJIS encoding")
+        
+        with open(file_path, 'w', encoding=encoding, errors='replace') as f:
+            f.write(content)
+        logger.info(f"SAVE DEBUG: File written successfully with {encoding} encoding")
+        
+        # Verify file was saved with correct encoding
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                verify_content = f.read()
+            logger.info(f"SAVE DEBUG: File verification successful - {encoding} encoding confirmed")
+            logger.info(f"SAVE DEBUG: Saved content length: {len(verify_content)}")
+        except Exception as e:
+            logger.error(f"SAVE DEBUG: File verification failed: {e}")
+        
+        # Update catalog.json
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        
+        if os.path.exists(catalog_path):
+            with open(catalog_path, 'r', encoding='utf-8') as f:
+                catalog = json.load(f)
+            
+            # Ensure volume and library exist in catalog
+            if volume not in catalog:
+                catalog[volume] = {}
+            if library not in catalog[volume]:
+                catalog[volume][library] = {}
+            
+            # Add or update entry based on file type
+            if filename.endswith('.java'):
+                # Java program file
+                program_name = filename[:-5]  # Remove '.java'
+                logger.info(f"SAVE DEBUG: Updating catalog for Java program: {program_name}")
+                catalog[volume][library][program_name] = {
+                    "TYPE": "PGM",
+                    "PGMTYPE": "JAVA",
+                    "PGMNAME": f"com.openasp.sample.{program_name}",
+                    "CLASSFILE": f"com/openasp/sample/{program_name}.class",
+                    "DESCRIPTION": f"Java program: {program_name}",
+                    "VERSION": "1.0",
+                    "CREATED": datetime.now().isoformat() + "Z",
+                    "UPDATED": datetime.now().isoformat() + "Z"
+                }
+                logger.info(f"SAVE DEBUG: Catalog entry created for Java program: {program_name}")
+            else:
+                # SMED map file
+                logger.info(f"SAVE DEBUG: Updating catalog with MAPFILE: {filename}")
+                catalog[volume][library][filename] = {
+                    "TYPE": "MAP",
+                    "MAPTYPE": "SMED",
+                    "MAPFILE": filename,  # Use filename without extension to match our convention
+                    "DESCRIPTION": f"SMED map: {filename}",
+                    "ROWS": 24,
+                    "COLS": 80,
+                    "CREATED": datetime.now().isoformat() + "Z",
+                    "UPDATED": datetime.now().isoformat() + "Z"
+                }
+                logger.info(f"SAVE DEBUG: Catalog entry created with MAPFILE: {catalog[volume][library][filename]['MAPFILE']}")
+            
+            # Save updated catalog
+            with open(catalog_path, 'w', encoding='utf-8') as f:
+                json.dump(catalog, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"SMED file saved: {file_path}")
+        logger.info(f"Catalog updated for {volume}/{library}/{filename}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'SMED file saved as {filename}',
+            'filename': filename,
+            'volume': volume,
+            'library': library,
+            'path': file_path
+        })
+        
+    except Exception as e:
+        logger.error(f"SMED file save error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/smed/content/<filename>', methods=['GET'])
 def get_smed_content(filename):
-    """SMEDファイル内容取得"""
+    """SMEDファイル内容取得 (single filename)"""
+    logger.info(f"ENDPOINT DEBUG: get_smed_content called with filename: {filename}")
+    print(f"CONSOLE DEBUG: Single filename endpoint called: {filename}", flush=True)
     try:
         if not SMED_DIR or not os.path.exists(SMED_DIR):
             return jsonify({'error': 'SMED directory not found'}), 404
@@ -715,25 +868,104 @@ def get_smed_content(filename):
         if not os.path.exists(file_path):
             return jsonify({'error': 'File not found'}), 404
         
-        # ファイル内容を読み取り（Shift_JISエンコーディングを試行）
+        # ファイル内容を読み取り（Shift_JIS → Unicode変換）
         try:
-            with open(file_path, 'r', encoding='shift_jis') as f:
-                content = f.read()
-        except UnicodeDecodeError:
-            # Shift_JISで読めない場合はUTF-8を試行
+            # バイナリで読み込んでSJIS変換
+            with open(file_path, 'rb') as f:
+                raw_content = f.read()
+            
+            # SJIS → Unicode 変換
+            content = convert_sjis_to_unicode(raw_content)
+            
+        except Exception as e:
+            logger.error(f"SJIS conversion failed for {filename}: {e}")
+            # フォールバック: 標準Python エンコーディング
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, 'r', encoding='shift_jis', errors='replace') as f:
                     content = f.read()
-            except UnicodeDecodeError:
-                # それでも読めない場合はバイナリで読んで適当にデコード
-                with open(file_path, 'rb') as f:
-                    raw_content = f.read()
-                    content = raw_content.decode('shift_jis', errors='replace')
+            except Exception:
+                with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                    content = f.read()
         
         return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
         
     except Exception as e:
         logger.error(f"SMEDファイル内容取得エラー: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/smed/content/<volume>/<library>/<mapname>', methods=['GET'])
+def get_smed_content_from_volume(volume, library, mapname):
+    """볼륨/라이브러리 구조의 SMEDファイル内容取得"""
+    logger.info(f"ENDPOINT DEBUG: get_smed_content_from_volume called with {volume}/{library}/{mapname}")
+    print(f"CONSOLE DEBUG: Volume/library endpoint called: {volume}/{library}/{mapname}", flush=True)
+    try:
+        # VOLUME_ROOT 기본 경로 확인
+        if not VOLUME_ROOT or not os.path.exists(VOLUME_ROOT):
+            return jsonify({'error': 'Volume root directory not found'}), 404
+        
+        # 보안 체크: 패스 트래버설 공격 방지
+        if '..' in volume or '..' in library or '..' in mapname:
+            return jsonify({'error': 'Invalid path components'}), 400
+        
+        # 파일 경로 구성
+        file_path = os.path.join(VOLUME_ROOT, volume, library, mapname)
+        
+        if not os.path.exists(file_path):
+            logger.warning(f"SMED file not found: {file_path}")
+            return jsonify({'error': f'File not found: {volume}/{library}/{mapname}'}), 404
+        
+        # File hex analysis shows Japanese text is SJIS encoded (83 81 = メ, etc.)
+        try:
+            logger.info(f"SMED File DEBUG: Reading file with SJIS encoding: {file_path}")
+            print(f"CONSOLE DEBUG: Using SJIS encoding for: {file_path}", flush=True)
+            
+            # Use SJIS encoding (hex analysis shows 83 81 83 43 83 93... = メインン...)
+            with open(file_path, 'r', encoding='shift_jis', errors='replace') as f:
+                content = f.read()
+            
+            logger.info(f"SMED File DEBUG: SJIS read completed, length: {len(content)}")
+            
+            # Verify if we got proper Japanese characters
+            if 'OpenASP' in content:
+                title2_line = next((line for line in content.split('\n') if 'TITLE2' in line and 'OpenASP' in line), None)
+                if title2_line:
+                    openasp_pos = title2_line.find('OpenASP')
+                    if openasp_pos >= 0:
+                        japanese_part = title2_line[openasp_pos+8:openasp_pos+18].strip()
+                        unicode_points = [ord(c) for c in japanese_part[:5]]  # First 5 chars
+                        logger.info(f"SMED File DEBUG: Japanese part Unicode: {unicode_points}")
+                        
+                        # Check if we got proper Japanese characters (Katakana range: 12448-12543)
+                        if any(12448 <= point <= 12543 for point in unicode_points):
+                            logger.info("SMED File DEBUG: Proper Japanese characters detected with SJIS")
+                        else:
+                            logger.warning(f"SMED File DEBUG: Check Unicode range: {unicode_points}")
+            
+        except Exception as fallback_e:
+            logger.warning(f"SJIS read failed, trying UTF-8 fallback: {fallback_e}")
+            # Fallback to UTF-8
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                    content = f.read()
+            except Exception:
+                # Last resort - read as binary and decode
+                with open(file_path, 'rb') as f:
+                    raw_content = f.read()
+                content = raw_content.decode('shift_jis', errors='replace')
+        
+        logger.info(f"Successfully loaded SMED content from {volume}/{library}/{mapname}")
+        
+        # DEBUG: Check final content before returning
+        logger.info(f"FINAL RESPONSE DEBUG: Content length: {len(content)}")
+        content_sample = content[content.find('OpenASP'):content.find('OpenASP')+20] if 'OpenASP' in content else 'OpenASP not found'
+        logger.info(f"FINAL RESPONSE DEBUG: Content sample: {repr(content_sample)}")
+        logger.info(f"FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: {content_sample.encode('utf-8').hex()}")
+        print(f"CONSOLE DEBUG: Final response content type: {type(content)}, length: {len(content)}", flush=True)
+        
+        return content, 200, {'Content-Type': 'text/plain; charset=utf-8'}
+        
+    except Exception as e:
+        logger.error(f"볼륨 SMED파일 내용 취득 에러: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/system/info', methods=['GET'])
@@ -877,15 +1109,27 @@ def parse_smed_map():
             lib_name = 'TESTLIB'  # Default library
             map_name = map_file
         
-        # Add .smed extension if not present
-        if not map_name.endswith('.smed'):
-            map_name += '.smed'
+        # Try to find SMED file with or without extension
+        map_path = None
+        base_path = os.path.join(VOLUME_ROOT, 'DISK01', lib_name)
         
-        # Construct full path
-        map_path = os.path.join(VOLUME_ROOT, 'DISK01', lib_name, map_name)
+        # First try with original name (may already have .smed extension)
+        potential_path = os.path.join(base_path, map_name)
+        if os.path.exists(potential_path):
+            map_path = potential_path
+        else:
+            # Try without extension first (user preference)
+            potential_path_no_ext = os.path.join(base_path, map_name)
+            if os.path.exists(potential_path_no_ext):
+                map_path = potential_path_no_ext
+            # If not found, try adding .smed extension
+            elif not map_name.endswith('.smed'):
+                potential_path_with_ext = os.path.join(base_path, map_name + '.smed')
+                if os.path.exists(potential_path_with_ext):
+                    map_path = potential_path_with_ext
         
-        if not os.path.exists(map_path):
-            return jsonify({'error': f'Map file not found: {map_path}'}), 404
+        if not map_path:
+            return jsonify({'error': f'Map file not found. Tried: {base_path}/{map_name} and {base_path}/{map_name}.smed'}), 404
         
         # Parse SMED file - handle corrupted SJIS gracefully
         try:
@@ -996,6 +1240,289 @@ def parse_smed_map():
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/smed/key-event', methods=['POST'])
+def handle_smed_key_event():
+    """Handle SMED key event from web interface"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        program_name = data.get('program_name', 'unknown')
+        session_id = data.get('session_id', 'default')
+        key = data.get('key', '')
+        field_values = data.get('field_values', {})
+        
+        logger.info(f"SMED key event: program={program_name}, key={key}, session={session_id}")
+        
+        # Handle function keys based on program logic
+        # For now, implement default behavior
+        response = {
+            'success': True,
+            'action': None,
+            'message': f'Key {key} processed'
+        }
+        
+        # Default function key behaviors
+        if key == 'F3':
+            # F3 typically means exit/cancel
+            response['action'] = 'close'
+            response['message'] = 'Exit requested'
+            logger.info(f"Program {program_name} requested exit via F3")
+        elif key == 'F1':
+            # F1 typically means help
+            response['action'] = 'help'
+            response['message'] = 'Help requested'
+        elif key == 'F12':
+            # F12 also typically means cancel/return
+            response['action'] = 'close'
+            response['message'] = 'Cancel requested'
+        elif key in ['F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11']:
+            # Other function keys - program specific
+            response['action'] = 'continue'
+            response['message'] = f'Function key {key} handled by program'
+        
+        # Log the key event
+        add_log('INFO', f'SMED/{program_name}', f'Key event: {key}', {
+            'session_id': session_id,
+            'key': key,
+            'field_values': field_values,
+            'action': response['action']
+        })
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        logger.error(f"Failed to handle SMED key event: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/catalog/maps', methods=['GET'])
+def get_catalog_maps():
+    """Get all MAP type resources from catalog.json"""
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        
+        if not os.path.exists(catalog_path):
+            return jsonify({'error': 'Catalog file not found'}), 404
+        
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        maps = []
+        
+        # Iterate through volumes and libraries to find MAP resources
+        for volume_name, volume_data in catalog.items():
+            for library_name, library_data in volume_data.items():
+                for resource_name, resource_data in library_data.items():
+                    if resource_data.get('TYPE') == 'MAP':
+                        maps.append({
+                            'volume': volume_name,
+                            'library': library_name,
+                            'name': resource_name,
+                            'maptype': resource_data.get('MAPTYPE', 'UNKNOWN'),
+                            'mapfile': resource_data.get('MAPFILE', resource_name),
+                            'description': resource_data.get('DESCRIPTION', ''),
+                            'rows': resource_data.get('ROWS', 24),
+                            'cols': resource_data.get('COLS', 80)
+                        })
+        
+        return jsonify({
+            'success': True,
+            'maps': maps,
+            'count': len(maps)
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get catalog maps: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/catalog/volumes', methods=['GET'])
+def get_catalog_volumes():
+    """Get all volumes from catalog.json"""
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        
+        if not os.path.exists(catalog_path):
+            return jsonify({'error': 'Catalog file not found'}), 404
+        
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        volumes = list(catalog.keys())
+        
+        return jsonify({
+            'success': True,
+            'volumes': volumes
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get catalog volumes: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/catalog/libraries/<volume_name>', methods=['GET'])
+def get_catalog_libraries(volume_name):
+    """Get all libraries for a specific volume"""
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        
+        if not os.path.exists(catalog_path):
+            return jsonify({'error': 'Catalog file not found'}), 404
+        
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        if volume_name not in catalog:
+            return jsonify({'error': f'Volume {volume_name} not found'}), 404
+        
+        libraries = list(catalog[volume_name].keys())
+        
+        return jsonify({
+            'success': True,
+            'libraries': libraries
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get catalog libraries: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/compile', methods=['POST'])
+def compile_java():
+    """Compile Java source file"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        filename = data.get('filename')
+        volume = data.get('volume', 'DISK01')
+        library = data.get('library', 'TESTLIB')
+        
+        if not filename:
+            return jsonify({'error': 'Filename parameter required'}), 400
+        
+        # Security check: prevent path traversal
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        # Construct file path
+        java_file_path = os.path.join(VOLUME_ROOT, volume, library, filename)
+        
+        if not os.path.exists(java_file_path):
+            return jsonify({'error': f'Java file not found: {filename}'}), 404
+        
+        # Get directory for compilation
+        compile_dir = os.path.join(VOLUME_ROOT, volume, library)
+        
+        logger.info(f"Compiling Java file: {java_file_path}")
+        
+        try:
+            # Java compilation command
+            cmd = ['javac', '-d', compile_dir, java_file_path]
+            
+            logger.info(f"Executing javac command: {' '.join(cmd)}")
+            
+            # Run javac with timeout
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                cwd=compile_dir
+            )
+            
+            if result.returncode == 0:
+                # Compilation successful
+                class_name = filename.replace('.java', '.class')
+                
+                # Check for package structure in the Java file
+                package_path = ""
+                try:
+                    with open(java_file_path, 'r', encoding='utf-8') as f:
+                        first_lines = f.read(1000)  # Read first 1000 chars to find package declaration
+                        for line in first_lines.split('\n'):
+                            line = line.strip()
+                            if line.startswith('package ') and line.endswith(';'):
+                                package_name = line[8:-1].strip()  # Remove 'package ' and ';'
+                                package_path = package_name.replace('.', '/')
+                                break
+                except Exception as e:
+                    logger.warning(f"Could not read Java file to detect package: {e}")
+                
+                # Determine class file path based on package structure
+                if package_path:
+                    class_file_path = os.path.join(compile_dir, package_path, class_name)
+                else:
+                    class_file_path = os.path.join(compile_dir, class_name)
+                
+                logger.info(f"Looking for class file at: {class_file_path}")
+                
+                # Check if class file was created
+                if os.path.exists(class_file_path):
+                    logger.info(f"Java compilation successful: {filename} -> {class_name}")
+                    add_log('INFO', 'JAVA_COMPILE', f'Successfully compiled: {filename}', {
+                        'java_file': filename,
+                        'class_file': class_name,
+                        'volume': volume,
+                        'library': library
+                    })
+                    
+                    return jsonify({
+                        'success': True,
+                        'message': f'Successfully compiled {filename}',
+                        'filename': filename,
+                        'class_file': class_name,
+                        'volume': volume,
+                        'library': library
+                    })
+                else:
+                    logger.warning(f"Class file not found after compilation: {class_file_path}")
+                    return jsonify({
+                        'success': False,
+                        'error': f'Class file not created: {class_name}'
+                    }), 500
+            else:
+                # Compilation failed
+                error_output = result.stderr.strip() if result.stderr else 'Unknown compilation error'
+                logger.error(f"Java compilation failed for {filename}: {error_output}")
+                add_log('ERROR', 'JAVA_COMPILE', f'Compilation failed: {filename}', {
+                    'java_file': filename,
+                    'error': error_output,
+                    'volume': volume,
+                    'library': library
+                })
+                
+                return jsonify({
+                    'success': False,
+                    'error': f'Compilation failed: {error_output}',
+                    'filename': filename
+                }), 400
+                
+        except subprocess.TimeoutExpired:
+            logger.error(f"Java compilation timeout for {filename}")
+            return jsonify({
+                'success': False,
+                'error': f'Compilation timeout for {filename}'
+            }), 500
+        except FileNotFoundError:
+            logger.error("javac command not found - Java compiler not installed")
+            return jsonify({
+                'success': False,
+                'error': 'Java compiler (javac) not found. Please install Java Development Kit (JDK)'
+            }), 500
+        except Exception as e:
+            logger.error(f"Java compilation error for {filename}: {str(e)}")
+            return jsonify({
+                'success': False,
+                'error': f'Compilation error: {str(e)}'
+            }), 500
+    
+    except Exception as e:
+        logger.error(f"Java compilation API error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/asp-command', methods=['POST'])
 def asp_command():

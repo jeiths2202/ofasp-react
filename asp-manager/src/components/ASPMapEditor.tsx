@@ -8,6 +8,7 @@ import {
   PlayIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
+import { getText, getLanguage, setLanguage } from '../i18n/languages';
 
 interface Field {
   id: string;
@@ -45,7 +46,11 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [mapDataOutput, setMapDataOutput] = useState('');
   const [smedFiles, setSmedFiles] = useState<string[]>([]);
-  const [statusMessage, setStatusMessage] = useState('드래그 앤 드롭으로 필드를 추가하고, 클릭으로 선택하여 속성을 편집하세요.');
+  const [catalogMaps, setCatalogMaps] = useState<any[]>([]);
+  const [statusMessage, setStatusMessage] = useState(getText('mapEditor.statusMessage'));
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveFilename, setSaveFilename] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState(getLanguage());
   
   const screenPanelRef = useRef<HTMLDivElement>(null);
   const [fieldProperties, setFieldProperties] = useState({
@@ -75,6 +80,14 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
 
   const loadSmedFiles = async () => {
     try {
+      // Load catalog maps
+      const catalogResponse = await fetch('http://localhost:8000/api/catalog/maps');
+      if (catalogResponse.ok) {
+        const catalogData = await catalogResponse.json();
+        setCatalogMaps(catalogData.maps || []);
+      }
+      
+      // Load existing SMED files
       const response = await fetch('http://localhost:8000/api/smed/files');
       if (response.ok) {
         const data = await response.json();
@@ -88,10 +101,10 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
   };
 
   const fieldTypes = [
-    { type: 'text', label: '📝 Text Field', icon: DocumentTextIcon },
-    { type: 'input', label: '📥 Input Field', icon: PlusIcon },
-    { type: 'output', label: '📤 Output Field', icon: DocumentTextIcon },
-    { type: 'button', label: '🔘 Button Field', icon: PlayIcon }
+    { type: 'text', label: `📝 ${getText('mapEditor.fieldTypes.text')}`, icon: DocumentTextIcon },
+    { type: 'input', label: `📥 ${getText('mapEditor.fieldTypes.input')}`, icon: PlusIcon },
+    { type: 'output', label: `📤 ${getText('mapEditor.fieldTypes.output')}`, icon: DocumentTextIcon },
+    { type: 'button', label: `🔘 ${getText('mapEditor.fieldTypes.button')}`, icon: PlayIcon }
   ];
 
   const getDefaultValue = (type: string) => {
@@ -301,7 +314,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     setFieldCounter(counter);
   };
 
-  const exportSmedFile = () => {
+  const generateSmedContent = () => {
     const lines = ['MAPNAME GENERATEDMAP', ''];
     let groupCount = 0;
 
@@ -322,18 +335,48 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
       lines.push(itemLine);
     });
 
-    const smedContent = lines.join('\n');
-    const blob = new Blob([smedContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'generated_map.smed';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    setStatusMessage('SMED 파일이 다운로드되었습니다.');
+    return lines.join('\n');
+  };
+
+  const showSaveDialog = () => {
+    setSaveDialogOpen(true);
+    setSaveFilename('');
+  };
+
+  const saveSmedFile = async () => {
+    if (!saveFilename.trim()) {
+      setStatusMessage('파일명을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const smedContent = generateSmedContent();
+      
+      const response = await fetch('http://localhost:8000/api/smed/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filename: saveFilename.trim(),
+          content: smedContent
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setStatusMessage(getText('mapEditor.messages.smedSaved') + ` (${result.filename})`);
+        setSaveDialogOpen(false);
+        setSaveFilename('');
+        loadSmedFiles(); // Refresh file list
+      } else {
+        const error = await response.json();
+        setStatusMessage(`저장 실패: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      setStatusMessage('저장 중 오류가 발생했습니다.');
+    }
   };
 
   const showPreview = () => {
@@ -344,13 +387,37 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
     setIsPreviewOpen(false);
   };
 
+  const handleLanguageChange = (newLang: string) => {
+    setLanguage(newLang);
+    setCurrentLanguage(newLang);
+    setStatusMessage(getText('mapEditor.statusMessage'));
+    // Force re-render by updating a state
+    setFieldCounter(prev => prev);
+  };
+
   return (
     <div className="h-full bg-gray-900 text-white p-6 overflow-hidden">
       <div className="max-w-7xl mx-auto h-full flex flex-col">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white mb-2">ASP SMED Map Editor</h1>
-          <p className="text-gray-400">드래그 앤 드롭으로 필드를 추가하고 SMED 맵을 편집하세요</p>
+        <div className="mb-6 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold text-white mb-2">ASP SMED Map Editor</h1>
+            <p className="text-gray-400">{getText('mapEditor.statusMessage')}</p>
+          </div>
+          
+          {/* Language Selector */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-400">Language:</label>
+            <select
+              value={currentLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+            >
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+              <option value="ja">日本語</option>
+            </select>
+          </div>
         </div>
 
         {/* Toolbar */}
@@ -377,7 +444,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded flex items-center gap-2 transition-colors"
               >
                 <EyeIcon className="w-4 h-4" />
-                미리보기
+                {getText('mapEditor.buttons.preview')}
               </button>
               
               <select
@@ -385,18 +452,35 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                 onChange={(e) => e.target.value && loadSmedFile(e.target.value)}
                 value=""
               >
-                <option value="">SMED 불러오기</option>
-                {smedFiles.map(file => (
-                  <option key={file} value={file}>{file}</option>
-                ))}
+                <option value="">{getText('mapEditor.buttons.loadSmed')}</option>
+                
+                {/* Catalog Maps */}
+                {catalogMaps.length > 0 && (
+                  <optgroup label="Catalog Maps">
+                    {catalogMaps.map(map => (
+                      <option key={map.path} value={map.mapfile}>
+                        {map.path} ({map.description || map.name})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                
+                {/* SMED Files */}
+                {smedFiles.length > 0 && (
+                  <optgroup label="SMED Files">
+                    {smedFiles.map(file => (
+                      <option key={file} value={file}>{file}</option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
               
               <button
-                onClick={exportSmedFile}
+                onClick={showSaveDialog}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-2 transition-colors"
               >
-                <CloudArrowDownIcon className="w-4 h-4" />
-                SMED 내보내기
+                <CloudArrowUpIcon className="w-4 h-4" />
+                {getText('mapEditor.buttons.saveSmed')}
               </button>
               
               <button
@@ -404,7 +488,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded flex items-center gap-2 transition-colors"
               >
                 <TrashIcon className="w-4 h-4" />
-                전체삭제
+                {getText('mapEditor.buttons.clear')}
               </button>
             </div>
           </div>
@@ -477,7 +561,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
 
           {/* Properties Panel */}
           <div className="w-80 bg-gray-800 rounded-lg p-4">
-            <h3 className="text-lg font-semibold mb-4">필드 속성</h3>
+            <h3 className="text-lg font-semibold mb-4">{getText('mapEditor.properties.title')}</h3>
             
             <div className="space-y-4">
               <div>
@@ -491,7 +575,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">필드명</label>
+                <label className="block text-sm font-medium mb-1">{getText('mapEditor.properties.name')}</label>
                 <input
                   type="text"
                   value={fieldProperties.name}
@@ -526,7 +610,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">기본값</label>
+                <label className="block text-sm font-medium mb-1">{getText('mapEditor.properties.value')}</label>
                 <input
                   type="text"
                   value={fieldProperties.value}
@@ -536,7 +620,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">속성</label>
+                <label className="block text-sm font-medium mb-1">{getText('mapEditor.properties.attributes')}</label>
                 <select
                   value={fieldProperties.attributes}
                   onChange={(e) => handleFieldPropertyChange('attributes', e.target.value)}
@@ -552,7 +636,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm font-medium mb-1">배경색</label>
+                  <label className="block text-sm font-medium mb-1">{getText('mapEditor.properties.backgroundColor')}</label>
                   <input
                     type="color"
                     value={fieldProperties.backgroundColor}
@@ -561,7 +645,7 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">텍스트색</label>
+                  <label className="block text-sm font-medium mb-1">{getText('mapEditor.properties.textColor')}</label>
                   <input
                     type="color"
                     value={fieldProperties.textColor}
@@ -588,17 +672,66 @@ const ASPMapEditor: React.FC<ASPMapEditorProps> = ({ isDarkMode }) => {
         </div>
       </div>
 
+      {/* Save Dialog */}
+      {saveDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-96">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">SMED 파일 저장</h3>
+              <button
+                onClick={() => setSaveDialogOpen(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">파일명</label>
+                <input
+                  type="text"
+                  value={saveFilename}
+                  onChange={(e) => setSaveFilename(e.target.value)}
+                  placeholder="예: MyMap"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  onKeyPress={(e) => e.key === 'Enter' && saveSmedFile()}
+                />
+                <p className="text-sm text-gray-400 mt-1">
+                  .smed 확장자는 자동으로 추가됩니다
+                </p>
+              </div>
+              
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={saveSmedFile}
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => setSaveDialogOpen(false)}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Preview Modal */}
       {isPreviewOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">SMED 화면 미리보기</h3>
+              <h3 className="text-xl font-bold">{getText('mapEditor.preview.title')}</h3>
               <button
                 onClick={closePreview}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors"
               >
-                닫기
+                {getText('mapEditor.preview.close')}
               </button>
             </div>
             

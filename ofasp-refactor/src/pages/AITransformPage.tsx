@@ -1026,6 +1026,57 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
     console.log('Analysis results reset');
   };
 
+  const handleReAnalyze = async () => {
+    if (!analysisResult || selectedFiles.length === 0) {
+      alert(t('aiTransform.selectFiles'));
+      return;
+    }
+    
+    console.log('Re-analyzing selected files:', selectedFiles);
+    setIsProcessing(true);
+    setShowNeuralNetwork(true);
+    
+    // Re-analyze only selected files
+    setTimeout(() => {
+      // Create empty call tree result (similar to initial analysis)
+      const emptyCallTreeResult = {
+        rootNodes: [],
+        allCalls: [],
+        missingPrograms: [],
+        cyclicReferences: [],
+        printCallTree: () => 'Call Tree will be re-generated when a specific program is selected'
+      };
+      
+      console.log('Re-analysis simulation completed');
+      (window as any).callTreeResult = emptyCallTreeResult;
+      
+      // Re-convert selected files
+      const updatedFiles = files.map(file => {
+        if (selectedFiles.includes(file.name)) {
+          const convertedContent = file.originalEncoding === 'EBCDIC' 
+            ? ebcdicToAscii(file.content || '')
+            : file.content;
+          
+          return {
+            ...file,
+            converted: true,
+            convertedContent
+          };
+        }
+        return file;
+      });
+      
+      setFiles(updatedFiles);
+      setIsProcessing(false);
+      setSelectedFiles([]);
+      setSelectedCLProgram(null);
+      setCallTree(null);
+      setShowNeuralNetwork(false);
+      
+      console.log('Re-analysis completed for selected files');
+    }, 1000); // Shorter time for re-analysis
+  };
+
   const fileTypeColors = {
     COBOL: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     COPYBOOK: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
@@ -1345,6 +1396,21 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                 )}
                 {isProcessing ? t('aiTransform.analyzing') : t('aiTransform.analyze')}
               </button>
+
+              {analysisResult && (
+                <button
+                  onClick={handleReAnalyze}
+                  disabled={selectedFiles.length === 0 || isProcessing}
+                  className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+                >
+                  {isProcessing ? (
+                    <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <ArrowPathIcon className="w-4 h-4 mr-2" />
+                  )}
+                  {t('aiTransform.reAnalyze')}
+                </button>
+              )}
               
               <button
                 onClick={exportToExcel}
@@ -1360,7 +1426,7 @@ const AITransformPage: React.FC<AITransformPageProps> = ({ isDarkMode }) => {
                   className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                 >
                   <ArrowPathIcon className="w-4 h-4 mr-2" />
-                  분석정보 초기화
+                  {t('aiTransform.resetAnalysis')}
                 </button>
               )}
             </>

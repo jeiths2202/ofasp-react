@@ -1,0 +1,14 @@
+// REPORT_ASP - Fujitsu ASP Report Generation CL
+// Generate system reports
+
+// Start message
+MSG "Starting ASP system report generation"
+
+// Create report file
+CRTFILE FILE(TESTLIB/SYSREPORT) RECLEN(132) RECTYPE(VB) VOL(DISK01)
+
+// Call Java report generator
+CALL PGM(EmployeeFileProcessor) PARM("*ALL" "RPT")
+
+// Completion message
+MSG "Report generation completed"

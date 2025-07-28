@@ -1,0 +1,21 @@
+// CLEANUP_ASP - Fujitsu ASP System Cleanup CL
+// Clean up temporary files and old data
+
+// Start cleanup
+MSG "Starting ASP system cleanup process"
+
+// Delete temporary files
+DLTFILE FILE(TESTLIB/TEMP*) VOL(DISK01)
+
+// Clean up old job logs (files older than 7 days)
+MSG "Cleaning up old job logs"
+
+// Compress large datasets
+MSG "Compressing large datasets"
+
+// Clean up work library
+DLTLIB LIB(WORKLIB) VOL(DISK01)
+CRTLIB LIB(WORKLIB) VOL(DISK01) DESCRIPTION("Work library")
+
+// Completion message
+MSG "System cleanup completed successfully"

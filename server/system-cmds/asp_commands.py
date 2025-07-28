@@ -26,7 +26,7 @@ VOLUME_ROOT = "/home/aspuser/app/volume"
 CONFIG_ROOT = "/home/aspuser/app/config"
 PROFILE_DIR = os.path.join(CONFIG_ROOT, "profiles")
 SYSVAL_FILE = os.path.join(CONFIG_ROOT, "system_values.json")
-CATALOG_FILE = os.path.join(CONFIG_ROOT, "catalog.json")
+CATALOG_FILE = "/home/aspuser/app/asp-manager/public/config/catalog.json"
 JOB_LOG_DIR = os.path.join(VOLUME_ROOT, "JOBLOG")
 
 # Initialize configuration directories
@@ -305,37 +305,6 @@ def WRKOBJ(command):
     if lib:
         print(f"Library filter: {lib}")
 
-def DSPFD(command):
-    # Example: DSPFD FILE(SALES/REPORT),VOL-DISK01
-    main_part, *others = command.replace('DSPFD ', '').split(',')
-    file_lib, file_name = main_part.replace('FILE(', '').replace(')', '').split('/')
-    params = dict(item.split('-') for item in others if '-' in item)
-    vol = params.get('VOL')
-
-    if not vol:
-        print("[ERROR] VOL parameter is missing.")
-        return
-
-    file_path = os.path.join(VOLUME_ROOT, vol, file_lib, file_name)
-
-    if not os.path.isfile(file_path):
-        print(f"[ERROR] File '{file_name}'does not exist in volume '{vol}'in library '{file_lib}'.")
-        return
-
-    size = os.path.getsize(file_path)
-    modified = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
-    created = datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
-    is_empty = size == 0
-
-    print(f"[INFO] File definition information:")
-    print(f"  [PATH] File path        : {file_path}")
-    print(f"  [NAME] File name        : {file_name}")
-    print(f"  [SIZE] File size        : {size} Byte")
-    print(f"  [CREATE] Created date   : {created}")
-    print(f"  [MODIFY] Last modified  : {modified}")
-    print(f"  [EMPTY] File is empty   : {'Yes' if is_empty else 'No'}")
-
-
 def RCVMSG(command):
     params = dict(item.split('-', 1) for item in command.replace('RCVMSG ', '').split(','))
     user = params.get('USER')
@@ -534,608 +503,52 @@ def WRKVOL(command=None):
 
 def CALL(command):
     """
-    Enhanced CALL command following Fujitsu ASP manual format
-    Format: CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]
+    CALL command - delegated to functions.call module
+    
+    Enhanced implementation with multi-language support, SMED integration,
+    and comprehensive parameter parsing.
     """
-    try:
-        # Parse command parameters with improved handling
-        command_part = command.replace('CALL ', '', 1)
-        params = {}
-        
-        # Handle PARA parameter with parentheses
-        if "PARA-(" in command_part:
-            # Split on PARA to handle parameters in parentheses
-            main_part, para_part = command_part.split("PARA-(", 1)
-            # Find matching closing parenthesis
-            paren_count = 1
-            para_end = 0
-            for i, char in enumerate(para_part):
-                if char == '(':
-                    paren_count += 1
-                elif char == ')':
-                    paren_count -= 1
-                    if paren_count == 0:
-                        para_end = i
-                        break
-            
-            if para_end > 0:
-                para_value = para_part[:para_end]
-                params['PARA'] = para_value
-                # Remove PARA part from command
-                remaining = para_part[para_end + 1:]
-                if remaining.startswith(','):
-                    remaining = remaining[1:]
-                command_part = main_part.rstrip(',')
-                if remaining:
-                    command_part += ',' + remaining
-        
-        # Parse remaining parameters
-        for item in command_part.split(','):
-            if '-' in item:
-                key, value = item.split('-', 1)
-                params[key.strip()] = value.strip()
-        
-        pgm_spec = params.get('PGM')
-        vol = params.get('VOL')
-        para = params.get('PARA', '')
-        
-        if not pgm_spec:
-            print("[ERROR] PGM parameter is required.")
-            print("[USAGE] CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]")
-            return
-        
-        # Parse program[.library] format
-        if '.' in pgm_spec:
-            prog, lib = pgm_spec.split('.', 1)
-        else:
-            prog = pgm_spec
-            lib = None
-        
-        # If library not specified, search in library list or use default
-        if not lib:
-            if vol:
-                # Search for program in all libraries of the volume
-                lib = _find_program_library(vol, prog)
-                if not lib:
-                    print(f"[ERROR] Program '{prog}' not found in any library in volume '{vol}'")
-                    print("[INFO] Available libraries can be checked with WRKLIB command")
-                    return
-            else:
-                print("[ERROR] Library must be specified when VOL parameter is not provided")
-                print("[USAGE] CALL PGM-<program>.<library> or CALL PGM-<program>,VOL-<volume>")
-                return
-        
-        # Get program information from catalog
-        program_info = get_object_info(vol, lib, prog)
-        if not program_info or program_info.get('TYPE') != 'PGM':
-            print(f"[ERROR] Program '{prog}' not found in catalog or is not a program object.")
-            print(f"[INFO] Check catalog.json for volume '{vol}', library '{lib}'")
-            return
-        
-        # Determine execution method based on program type
-        pgm_type = program_info.get('PGMTYPE', 'COBOL')
-        
-        print(f"[INFO] Calling program: {prog}")
-        if lib:
-            print(f"[INFO] Library: {lib}")
-        print(f"[INFO] Program type: {pgm_type}")
-        if vol:
-            print(f"[INFO] Volume: {vol}")
-        if para:
-            print(f"[INFO] Parameters: {para}")
-        
-        # Reset @PGMEC before program execution
-        reset_pgmec()
-        
-        success = False
-        if pgm_type == 'JAVA':
-            success = _call_java_program(vol, lib, prog, program_info, para)
-        elif pgm_type == 'COBOL':
-            success = _call_cobol_program(vol, lib, prog, program_info, para)
-        elif pgm_type == 'SHELL':
-            success = _call_shell_program(vol, lib, prog, program_info, para)
-        elif pgm_type == 'PYTHON':
-            success = _call_python_program(vol, lib, prog, program_info, para)
-        else:
-            print(f"[ERROR] Unsupported program type: {pgm_type}")
-            print(f"[INFO] Supported types: JAVA, COBOL, SHELL, PYTHON")
-            set_pgmec(999)  # System error
-            return False
-        
-        # Display final program execution status
-        pgmec = get_pgmec()
-        if success and pgmec == 0:
-            print(f"[INFO] Program '{prog}' completed successfully (@PGMEC={pgmec})")
-        else:
-            print(f"[WARNING] Program '{prog}' completed with return code @PGMEC={pgmec}")
-        
-        return success
-            
-    except Exception as e:
-        import traceback
-        print(f"[ERROR] CALL command failed: {e}")
-        print(f"[DEBUG] Full traceback:")
-        traceback.print_exc()
-        return
-
-def _find_program_library(volume, program):
-    """Find which library contains the specified program"""
-    catalog = get_catalog_info()
-    volume_data = catalog.get(volume, {})
-    
-    for library, objects in volume_data.items():
-        if program in objects and objects[program].get('TYPE') == 'PGM':
-            return library
-    
-    return None
-
-def _call_java_program(volume, library, program, program_info, parameters):
-    """Execute Java program with SMED map integration"""
-    try:
-        # Construct Java program path
-        jar_file = program_info.get('JARFILE', f"{program}.jar")
-        prog_class = program_info.get('PGMNAME', program)
-        
-        # Check if JAR file exists
-        jar_path = os.path.join(VOLUME_ROOT, volume, library, jar_file)
-        if not os.path.isfile(jar_path):
-            print(f"[ERROR] JAR file not found: {jar_path}")
-            return False
-        
-        # Prepare comprehensive input data for Java program
-        input_data = {
-            "program": program,
-            "library": library,
-            "volume": volume,
-            "user": "admin",  # TODO: Get from session
-            "parameters": _parse_parameters(parameters) if parameters else {},
-            "timestamp": datetime.now().isoformat(),
-            "session": {
-                "id": f"ASP_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{program}",
-                "type": "CALL",
-                "terminal": "ASP_TERMINAL",
-                "encoding": "UTF-8"
-            },
-            "system": {
-                "asp_version": "1.0",
-                "java_version": "openjdk-11",
-                "platform": "Linux",
-                "catalog_version": "2.0"
-            },
-            "environment": {
-                "volume_root": VOLUME_ROOT,
-                "config_root": CONFIG_ROOT,
-                "job_log_dir": JOB_LOG_DIR,
-                "current_pgmec": get_pgmec()
-            }
-        }
-        
-        print(f"[INFO] Executing Java program: {prog_class}")
-        print(f"[INFO] JAR file: {jar_file}")
-        
-        # Execute Java program
-        cmd = ['java', '-jar', jar_path]
-        input_json = json.dumps(input_data, ensure_ascii=False)
-        
-        result = subprocess.run(
-            cmd,
-            input=input_json,
-            capture_output=True,
-            text=True,
-            timeout=60,
-            cwd=os.path.dirname(jar_path)
-        )
-        
-        # Set @PGMEC based on Java program exit code
-        set_pgmec(result.returncode)
-        
-        if result.returncode != 0:
-            print(f"[ERROR] Java program execution failed (exit code: {result.returncode})")
-            if result.stderr:
-                print(f"[ERROR] {result.stderr}")
-            return False
-        
-        # Process Java program output
-        if result.stdout:
-            return _process_java_output(result.stdout, volume, library, program)
-        else:
-            print("[INFO] Java program completed with no output")
-            return True
-            
-    except subprocess.TimeoutExpired:
-        print("[ERROR] Java program execution timeout (60 seconds)")
-        return False
-    except Exception as e:
-        print(f"[ERROR] Java program execution error: {e}")
-        return False
-
-def _call_cobol_program(volume, library, program, program_info, parameters):
-    """Execute COBOL program (placeholder for future implementation)"""
-    print(f"[INFO] COBOL program execution not yet implemented")
-    print(f"[INFO] Program: {library}/{program}")
-    if parameters:
-        print(f"[INFO] Parameters: {parameters}")
-    return True
-
-def _call_shell_program(volume, library, program, program_info, parameters):
-    """Execute Shell script program"""
-    try:
-        # Construct shell script path
-        script_file = program_info.get('PGMNAME', f"{program}.sh")
-        script_path = os.path.join(VOLUME_ROOT, volume, library, script_file)
-        
-        if not os.path.isfile(script_path):
-            print(f"[ERROR] Shell script not found: {script_path}")
-            return False
-        
-        # Prepare environment variables
-        env = os.environ.copy()
-        env['ASP_PROGRAM'] = program
-        env['ASP_LIBRARY'] = library
-        env['ASP_VOLUME'] = volume
-        if parameters:
-            env['ASP_PARAMETERS'] = parameters
-        
-        print(f"[INFO] Executing shell script: {script_file}")
-        
-        # Execute shell script
-        cmd = ['bash', script_path]
-        if parameters:
-            # Split parameters and pass as arguments
-            args = _parse_parameters(parameters)
-            for key, value in args.items():
-                cmd.extend([f"--{key}", str(value)])
-        
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=60,
-            env=env,
-            cwd=os.path.dirname(script_path)
-        )
-        
-        if result.returncode != 0:
-            print(f"[ERROR] Shell script execution failed (exit code: {result.returncode})")
-            if result.stderr:
-                print(f"[ERROR] {result.stderr}")
-            return False
-        
-        if result.stdout:
-            print("[OUTPUT]")
-            print(result.stdout)
-        
-        print("[INFO] Shell script completed successfully")
-        return True
-        
-    except subprocess.TimeoutExpired:
-        print("[ERROR] Shell script execution timeout (60 seconds)")
-        return False
-    except Exception as e:
-        print(f"[ERROR] Shell script execution error: {e}")
-        return False
-
-def _call_python_program(volume, library, program, program_info, parameters):
-    """Execute Python program"""
-    try:
-        # Construct Python script path
-        script_file = program_info.get('PGMNAME', f"{program}.py")
-        script_path = os.path.join(VOLUME_ROOT, volume, library, script_file)
-        
-        if not os.path.isfile(script_path):
-            print(f"[ERROR] Python script not found: {script_path}")
-            return False
-        
-        print(f"[INFO] Executing Python script: {script_file}")
-        
-        # Execute Python script
-        cmd = ['python3', script_path]
-        if parameters:
-            cmd.append(parameters)
-        
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=60,
-            cwd=os.path.dirname(script_path)
-        )
-        
-        if result.returncode != 0:
-            print(f"[ERROR] Python script execution failed (exit code: {result.returncode})")
-            if result.stderr:
-                print(f"[ERROR] {result.stderr}")
-            return False
-        
-        if result.stdout:
-            print("[OUTPUT]")
-            print(result.stdout)
-        
-        print("[INFO] Python script completed successfully")
-        return True
-        
-    except subprocess.TimeoutExpired:
-        print("[ERROR] Python script execution timeout (60 seconds)")
-        return False
-    except Exception as e:
-        print(f"[ERROR] Python script execution error: {e}")
-        return False
-
-def _parse_parameters(param_string):
-    """Parse parameter string into key-value pairs"""
-    params = {}
-    if not param_string:
-        return params
-    
-    # Handle different parameter formats
-    # Format 1: key1=value1,key2=value2
-    # Format 2: value1,value2,value3 (positional)
-    
-    if '=' in param_string:
-        # Key-value format
-        for item in param_string.split(','):
-            if '=' in item:
-                key, value = item.split('=', 1)
-                params[key.strip()] = value.strip()
-    else:
-        # Positional format
-        values = param_string.split(',')
-        for i, value in enumerate(values):
-            params[f"arg{i+1}"] = value.strip()
-    
-    return params
-
-def _process_java_output(output, volume, library, program):
-    """Process Java program output and handle SMED map display"""
-    try:
-        # Try to parse as JSON
-        try:
-            output_data = json.loads(output)
-        except json.JSONDecodeError:
-            # If not JSON, treat as plain text output
-            print("[OUTPUT]")
-            print(output)
-            return True
-        
-        # Handle different types of Java program responses
-        action = output_data.get('action', 'display_text')
-        
-        # Check if Java program specified a custom return code
-        program_return_code = output_data.get('return_code')
-        if program_return_code is not None:
-            set_pgmec(program_return_code)
-        
-        if action == 'display_text':
-            # Simple text output
-            message = output_data.get('message', output_data.get('output', ''))
-            if message:
-                print("[OUTPUT]")
-                print(message)
-            return True
-            
-        elif action == 'display_map':
-            # SMED map display request
-            map_file = output_data.get('map_file')
-            if map_file:
-                return _display_smed_map(map_file, output_data, volume, library, program)
-            else:
-                print("[ERROR] Java program requested map display but no map_file specified")
-                set_pgmec(825)  # Missing parameter error
-                return False
-                
-        elif action == 'error':
-            # Error response from Java program
-            error_msg = output_data.get('message', 'Unknown error from Java program')
-            error_code = output_data.get('error_code', 999)
-            print(f"[ERROR] Java program error: {error_msg}")
-            set_pgmec(error_code)
-            return False
-            
-        elif action == 'continue':
-            # Program wants to continue execution (for interactive programs)
-            print("[INFO] Java program is continuing execution...")
-            return _handle_program_continuation(output_data, volume, library, program)
-            
-        else:
-            # Unknown action
-            print(f"[WARNING] Unknown action from Java program: {action}")
-            print("[OUTPUT]")
-            print(output)
-            return True
-            
-    except Exception as e:
-        print(f"[ERROR] Error processing Java program output: {e}")
-        print("[OUTPUT] Raw output:")
-        print(output)
-        set_pgmec(999)  # System error
-        return False
-
-def _display_smed_map(map_file, output_data, volume, library, program):
-    """Handle SMED map display request with interactive CLI input"""
-    print(f"[INFO] SMED map display requested: {map_file}")
-    print(f"[INFO] Program: {program}")
-    
-    # Construct full map file path for reference
-    if not os.path.isabs(map_file):
-        # Handle relative paths like "TESTLIB/MAINMENU" (without .smed extension)
-        if '/' in map_file:
-            lib_name, map_name = map_file.split('/', 1)
-            # Add .smed extension if not present
-            if not map_name.endswith('.smed'):
-                map_name += '.smed'
-            full_map_path = os.path.join(VOLUME_ROOT, volume, lib_name, map_name)
-        else:
-            # Add .smed extension if not present
-            if not map_file.endswith('.smed'):
-                map_file += '.smed'
-            full_map_path = os.path.join(VOLUME_ROOT, volume, library, map_file)
-    else:
-        full_map_path = map_file
-    
-    # Display basic information for CLI users
-    fields = output_data.get('fields', {})
-    messages = output_data.get('messages', [])
-    next_action = output_data.get('next_action', 'wait_input')
-    
-    if messages:
-        print("\n[MESSAGES]")
-        for msg in messages:
-            print(f"  {msg}")
-    
-    # Interactive field input for CLI users
-    if fields and next_action == 'wait_input':
-        print(f"\n=== Interactive Input - Map: {map_file.replace('.smed', '')} ===")
-        print(f"[INFO] Enter values for the following fields (Press Enter to keep current values):")
-        
-        updated_fields = {}
-        for field_name, current_value in fields.items():
-            try:
-                # Display current value
-                display_value = current_value if current_value else "(empty)"
-                user_input = input(f"{field_name} [{display_value}]: ").strip()
-                
-                # Keep current value if user just pressed Enter
-                if user_input == "":
-                    updated_fields[field_name] = current_value
-                else:
-                    updated_fields[field_name] = user_input
-                    
-            except KeyboardInterrupt:
-                print("\n[INFO] Input cancelled by user")
-                return False
-            except EOFError:
-                print("\n[INFO] End of input detected")
-                break
-        
-        # Display updated field values
-        print(f"\n[UPDATED FIELD DATA] - Map: {map_file.replace('.smed', '')}")
-        for field_name, field_value in updated_fields.items():
-            print(f"  {field_name}: {field_value}")
-        
-        # For interactive sessions, we would typically call the Java program again 
-        # with the updated field data, but for now we'll just display the results
-        print(f"\n[INFO] Field input completed")
-        print(f"[NOTE] Updated field values have been captured")
-        print(f"[NOTE] In full implementation, these values would be sent back to the Java program")
-        
-        return True
-    elif fields:
-        # Non-interactive display
-        print(f"\n[FIELD DATA] - Map: {map_file.replace('.smed', '')}")
-        for field_name, field_value in fields.items():
-            print(f"  {field_name}: {field_value}")
-    
-    print(f"\n[INFO] Map file path: {full_map_path}")
-    print(f"[INFO] Next action: {next_action}")
-    
-    # Show web terminal option for full SMED experience
-    if next_action == 'wait_input':
-        print(f"[NOTE] For full interactive SMED experience, use the ASP Web Terminal at:")
-        print(f"[NOTE]   http://localhost:3000/asp-terminal")
-        print(f"[NOTE] Web terminal provides:")
-        print(f"[NOTE]   - Visual field positioning and validation")
-        print(f"[NOTE]   - Color-coded display and cursor navigation")
-        print(f"[NOTE]   - F-key functions and mouse interaction")
-    
-    return True
-
-
-def _handle_program_continuation(output_data, volume, library, program):
-    """Handle continued execution of Java programs (for interactive sessions)"""
-    print(f"[INFO] Handling program continuation for: {program}")
-    
-    # This will be expanded in Phase 4 for interactive session management
-    continuation_type = output_data.get('continuation_type', 'simple')
-    message = output_data.get('message', 'Program is continuing...')
-    
-    print(f"[INFO] Continuation type: {continuation_type}")
-    print(f"[INFO] {message}")
-    
-    if continuation_type == 'wait_input':
-        print("[TODO] Wait for user input and continue program")
-    elif continuation_type == 'background':
-        print("[TODO] Continue program in background")
-    elif continuation_type == 'schedule':
-        schedule_time = output_data.get('schedule_time')
-        print(f"[TODO] Schedule program continuation at: {schedule_time}")
-    
-    return True
+    from functions.call import CALL as call_impl
+    return call_impl(command)
 
 def DSPFD(command):
-    # Example: DSPFD FILE(SALES/REPORT),VOL-DISK01
-    main_part, *others = command.replace('DSPFD ', '').split(',')
-    file_lib, file_name = main_part.replace('FILE(', '').replace(')', '').split('/')
-    params = dict(item.split('-') for item in others if '-' in item)
-    vol = params.get('VOL')
-
-    if not vol:
-        print("[ERROR] VOL parameter is missing.")
-        return
-
-    file_path = os.path.join(VOLUME_ROOT, vol, file_lib, file_name)
-
-    if not os.path.isfile(file_path):
-        print(f"[ERROR] File '{file_name}'does not exist in volume '{vol}'in library '{file_lib}'.")
-        return
-
-    size = os.path.getsize(file_path)
-    modified = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
-    created = datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d %H:%M:%S')
-    is_empty = size == 0
-
-    print(f"[INFO] File definition information:")
-    print(f"  [PATH] File path        : {file_path}")
-    print(f"  [NAME] File name        : {file_name}")
-    print(f"  [SIZE] File size        : {size} Byte")
-    print(f"  [CREATE] Created date   : {created}")
-    print(f"  [MODIFY] Last modified  : {modified}")
-    print(f"  [EMPTY] File is empty   : {'Yes' if is_empty else 'No'}")
+    """
+    DSPFD command - delegated to functions.dspfd module
+    
+    Enhanced implementation with catalog integration and detailed
+    file information display.
+    """
+    from functions.dspfd import DSPFD as dspfd_impl
+    return dspfd_impl(command)
 
 def DLTFILE(command):
-    # Example: DLTFILE FILE(ACCTLIB/CUSTMAST),VOL-DISK01
-    main_part, *others = command.replace('DLTFILE ', '').split(',')
-    file_lib, file_name = main_part.replace('FILE(', '').replace(')', '').split('/')
-    params = dict(item.split('-') for item in others if '-' in item)
-    vol = params.get('VOL')
-
-    if not vol:
-        print("[ERROR] VOL parameter is missing.")
-        return
+    """
+    DLTFILE command - delegated to functions.dltfile module
+    
+    Enhanced implementation with better validation, error handling,
+    and comprehensive catalog cleanup.
+    """
+    from functions.dltfile import DLTFILE as dltfile_impl
+    return dltfile_impl(command)
 def DLTLIB(command):
-    # Example: DLTLIB LIB-ACCTLIB,VOL-DISK01
-    params = dict(item.split('-') for item in command.replace('DLTLIB ', '').split(','))
-    lib = params.get('LIB')
-    vol = params.get('VOL')
-
-    if not lib or not vol:
-        print("[ERROR] LIB or VOL parameter is missing.")
-        return
-
-    path = os.path.join(VOLUME_ROOT, vol, lib)
-
-    if not os.path.exists(path):
-        print(f"[ERROR] Library '{lib}'does not exist in volume '{vol}'.")
-        return
-
-    try:
-        shutil.rmtree(path)
-        print(f"[INFO] Library '{lib}'in volume '{vol}'has been deleted.")
-    except Exception as e:
-        print(f"[ERROR] 삭제 failed: {e}")
+    """
+    DLTLIB command - delegated to functions.dltlib module
+    
+    Enhanced implementation with better validation, error handling,
+    and library usage statistics.
+    """
+    from functions.dltlib import DLTLIB as dltlib_impl
+    return dltlib_impl(command)
 
 def CRTLIB(command):
-    # Example: CRTLIB LIB-ACCTLIB,VOL-DISK01
-    params = dict(item.split('-') for item in command.replace('CRTLIB ', '').split(','))
-    lib = params.get('LIB')
-    vol = params.get('VOL')
-
-    if not lib or not vol:
-        print("[ERROR] LIB or VOL parameter is missing.")
-        return
-
-    path = os.path.join(VOLUME_ROOT, vol, lib)
-    os.makedirs(path, exist_ok=True)
-    print(f"[INFO] Library '{lib}' in volume '{vol}' has been created: {path}")
+    """
+    CRTLIB command - delegated to functions.crtlib module
+    
+    Enhanced implementation with better validation and error handling
+    for library creation.
+    """
+    from functions.crtlib import CRTLIB as crtlib_impl
+    return crtlib_impl(command)
 
 def CRTPGM(command):
     # Example: CRTPGM PGM(TESTLIB/PAYROLL01),VOL-DISK01,PGMTYPE-COBOL,VERSION-2.1,DESC-'Monthly payroll calculation'
@@ -1264,56 +677,14 @@ def CRTMAP(command):
         print(f"       RESPONSIVE: {map_attrs.get('RESPONSIVE', False)}")
 
 def CRTFILE(command):
-    # Example: CRTFILE FILE(ACCTLIB/CUSTMAST),VOL-DISK01,RECTYPE-FB,RECLEN-80
-    main_part, *others = command.replace('CRTFILE ', '').split(',')
-    file_lib, file_name = main_part.replace('FILE(', '').replace(')', '').split('/')
-    params = dict(item.split('-') for item in others if '-' in item)
-    vol = params.get('VOL')
-
-    if not vol:
-        print("[ERROR] VOL parameter is missing.")
-        return
-
-    lib_path = os.path.join(VOLUME_ROOT, vol, file_lib)
-    file_path = os.path.join(lib_path, file_name)
-
-    if not os.path.exists(lib_path):
-        print(f"[ERROR] Library '{file_lib}' does not exist. Please run CRTLIB command first.")
-        return
-
-    # Create empty dataset file
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write("")  # Create empty dataset
-
-    # Parse dataset attributes
-    reclen = params.get('RECLEN', '80')
-    rectype = params.get('RECTYPE', 'FB')
-    encoding = params.get('ENCODING', 'utf-8')
-    description = params.get('DESC', f'{file_name} dataset')
+    """
+    CRTFILE command - delegated to functions.crtfile module
     
-    try:
-        reclen = int(reclen)
-    except:
-        reclen = 80
-    
-    # Update catalog with new hierarchical structure
-    update_catalog_info(
-        volume=vol, 
-        library=file_lib, 
-        object_name=file_name,
-        object_type="DATASET",
-        RECTYPE=rectype, 
-        RECLEN=reclen,
-        ENCODING=encoding,
-        DESCRIPTION=description
-    )
-    
-    print(f"[INFO] Dataset '{file_name}' in library '{file_lib}' has been created: {file_path}")
-    print(f"[INFO] Dataset registered in catalog.json:")
-    print(f"       TYPE: DATASET")
-    print(f"       RECTYPE: {rectype}")
-    print(f"       RECLEN: {reclen}")
-    print(f"       ENCODING: {encoding}")
+    Enhanced implementation with better validation and error handling
+    for dataset creation and catalog management.
+    """
+    from functions.crtfile import CRTFILE as crtfile_impl
+    return crtfile_impl(command)
     
 def WRKLIB(command=None):
     print(f"[INFO] All libraries in '{VOLUME_ROOT}':")
@@ -1350,150 +721,18 @@ def WRKSPLF(command=None):
 
 def EDTFILE(command):
     """
-    Fujitsu ASP EDTFILE command implementation
-    Format: EDTFILE FILE(LIB/FILENAME),VOL-VOLUME[,MODE=DISPLAY|EDIT]
+    EDTFILE command - delegated to functions.edtfile module
+    
+    Enhanced implementation with full interactive editing capabilities
+    based on Fujitsu ASP EDTFILE manual specifications.
     """
-    main_part, *others = command.replace('EDTFILE ', '').split(',')
-    
-    # Parse FILE(LIB/FILENAME) parameter
-    if not main_part.startswith('FILE(') or not main_part.endswith(')'):
-        print("[ERROR] parameter check faile ex: FILE(LIB/FILENAME)")
-        return
-    
-    file_spec = main_part[5:-1]  # Remove FILE( and )
-    if '/' not in file_spec:
-        print("[ERROR] File does not exist ex: LIB/FILENAME")
-        return
-    
-    lib, filename = file_spec.split('/', 1)
-    
-    # Parse additional parameters
-    params = {}
-    for param in others:
-        if '=' in param:
-            key, value = param.split('=', 1)
-            params[key.strip()] = value.strip()
-        elif '-' in param:
-            key, value = param.split('-', 1)
-            params[key.strip()] = value.strip()
-    
-    volume = params.get('VOL')
-    mode = params.get('MODE', 'DISPLAY').upper()
-    
-    if not volume:
-        print("[ERROR] VOL parameter is missing.")
-        return
-    
-    if mode not in ['DISPLAY', 'EDIT']:
-        print("[ERROR] MODE only supports DISPLAY or EDIT.")
-        return
-    
-    # Construct file path
-    file_path = os.path.join(VOLUME_ROOT, volume, lib, filename)
-    
-    if not os.path.isfile(file_path):
-        print(f"[ERROR] File '{filename}'does not exist in volume '{volume}'in library '{lib}'.")
-        return
-    
-    # Get file format info from catalog
-    file_info = get_file_info(volume, f"{lib}/{filename}")
-    reclen = file_info.get('RECLEN', 80)
-    rectype = file_info.get('RECTYPE', 'FB')
-    encoding = file_info.get('ENCODING', 'utf-8')
-    
-    print(f"[INFO] EDTFILE - File: {lib}/{filename}, Volume: {volume}, Mode: {mode}")
-    print(f"[INFO] Record length: {reclen}, Record type: {rectype}")
-    
-    # Launch the editor
-    if mode == 'DISPLAY':
-        _edtfile_display_mode(file_path, reclen, rectype, encoding)
-    elif mode == 'EDIT':
-        _edtfile_edit_mode(file_path, reclen, rectype, encoding)
+    from functions.edtfile import EDTFILE as edtfile_impl
+    return edtfile_impl(command)
 
-def _edtfile_display_mode(file_path, reclen, rectype, encoding='utf-8'):
-    """Display mode for EDTFILE - view file contents with curses browser"""
-    try:
-        with open(file_path, 'rb') as f:
-            file_content = f.read()
-        
-        # Parse records based on record type
-        records = []
-        raw_records = []  # Store raw binary data for hex display
-        pos = 0
-        record_num = 1
-        
-        while pos < len(file_content):
-            if rectype == 'FB':  # Fixed Block
-                record_data = file_content[pos:pos+reclen]
-                if len(record_data) == 0:
-                    break
-                # Store raw data for hex display
-                raw_records.append(record_data)
-                
-                # For Python terminal, preserve SJIS bytes as-is (no Unicode conversion)
-                # Use latin-1 to preserve byte values exactly
-                record_str = record_data.decode('latin-1')
-                records.append((record_num, record_str))
-                pos += reclen
-                record_num += 1
-            elif rectype == 'VB':  # Variable Block with RDW
-                if pos + 4 > len(file_content):
-                    break
-                # Read RDW (Record Descriptor Word)
-                rdw = file_content[pos:pos+4]
-                rec_length = int.from_bytes(rdw[:2], 'big')
-                if rec_length < 4 or pos + rec_length > len(file_content):
-                    break
-                
-                record_data = file_content[pos:pos+rec_length]
-                data_part = record_data[4:]  # Skip RDW
-                raw_records.append(record_data)
-                
-                # For Python terminal, preserve SJIS bytes as-is (no Unicode conversion)
-                record_str = data_part.decode('latin-1')
-                
-                records.append((record_num, record_str))
-                pos += rec_length
-                record_num += 1
-            else:  # LB (Line Block)
-                # Variable length records - find line breaks
-                end_pos = file_content.find(b'\n', pos)
-                if end_pos == -1:
-                    record_data = file_content[pos:]
-                    pos = len(file_content)
-                else:
-                    record_data = file_content[pos:end_pos]
-                    pos = end_pos + 1
-                
-                if len(record_data) == 0:
-                    break
-                
-                raw_records.append(record_data)
-                # For Python terminal, preserve SJIS bytes as-is (no Unicode conversion)
-                record_str = record_data.decode('latin-1')
-                records.append((record_num, record_str))
-                record_num += 1
-        
-        if not records:
-            print("[INFO] File is empty.")
-            return
-        
-        # Launch curses-based record browser
-        _launch_curses_browser(file_path, records, raw_records, rectype, reclen, encoding)
-        
-    except Exception as e:
-        import traceback
-        print(f"[ERROR] File processing error: {e}")
-        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
-        return
+# EDTFILE helper functions moved to functions.edtfile module
 
-def _edtfile_edit_mode(file_path, reclen, rectype, encoding='utf-8'):
-    """Edit mode for EDTFILE - interactive editing"""
-    print(f"[INFO] Edit mode is currently under development.")
-    print(f"[INFO] Please use DISPLAY mode.")
-    _edtfile_display_mode(file_path, reclen, rectype, encoding)
 
-def _display_records_paged(records, file_path):
+def CTTFILE(command):
     """Display records with pagination control"""
     page_size = 20
     current_page = 0
@@ -2606,3 +1845,235 @@ NOTES:
     }
     
     return help_dict.get(command)
+
+def CHGLIBL(command_line):
+    """
+    CHGLIBL - Change Library List
+    Updates the library list for common part, object-specific part, or file-specific part.
+    
+    Syntax: CHGLIBL [LIBL=lib1,lib2,...] [OBJL=lib1,lib2,...] [FILEL=lib1,lib2,...]
+                    [MODE={@ADD|@DLT}] [POSITION={@TOP|@BOTTOM|number}] [ERRMODE={@YES|@NO}]
+    """
+    try:
+        print(f"[DEBUG] CHGLIBL command: {command_line}")
+        
+        # Parse parameters from command line
+        parts = command_line.split(maxsplit=1)
+        if len(parts) < 2:
+            print("[ERROR] CHGLIBL: Parameters required")
+            set_pgmec(820)
+            return False
+        
+        param_string = parts[1]
+        params = _parse_parameters(param_string)
+        
+        # Get current context (initialize if not exists)
+        context = _get_library_context()
+        
+        # Extract parameters with defaults
+        mode = params.get('MODE', '@ADD').upper()
+        position = params.get('POSITION', '@BOTTOM').upper()
+        errmode = params.get('ERRMODE', '@NO').upper()
+        
+        # Validate MODE parameter
+        if mode not in ['@ADD', '@DLT']:
+            print(f"[ERROR] CHGLIBL: Invalid MODE '{mode}'. Valid values: @ADD, @DLT")
+            set_pgmec(820)
+            return False
+        
+        # Validate ERRMODE parameter
+        if errmode not in ['@YES', '@NO']:
+            print(f"[ERROR] CHGLIBL: Invalid ERRMODE '{errmode}'. Valid values: @YES, @NO")
+            set_pgmec(820)
+            return False
+        
+        # Process library list parameters
+        success = True
+        
+        # Process LIBL (Common Library List)
+        if 'LIBL' in params:
+            libl_value = params['LIBL']
+            if libl_value == '@NONE':
+                # Clear the library list
+                context['LIBL'] = []
+                print("[INFO] CHGLIBL: Common library list cleared")
+            else:
+                success &= _process_library_list(
+                    context, 'LIBL', libl_value, mode, position, errmode, max_libs=24
+                )
+        
+        # Process OBJL (Object-specific Library List)
+        if 'OBJL' in params:
+            objl_value = params['OBJL']
+            if objl_value == '@NONE':
+                # Clear the object library list
+                context['OBJL'] = []
+                print("[INFO] CHGLIBL: Object library list cleared")
+            else:
+                success &= _process_library_list(
+                    context, 'OBJL', objl_value, mode, position, errmode, max_libs=16
+                )
+        
+        # Process FILEL (File-specific Library List)
+        if 'FILEL' in params:
+            filel_value = params['FILEL']
+            if filel_value == '@NONE':
+                # Clear the file library list
+                context['FILEL'] = []
+                print("[INFO] CHGLIBL: File library list cleared")
+            else:
+                success &= _process_library_list(
+                    context, 'FILEL', filel_value, mode, position, errmode, max_libs=16
+                )
+        
+        # Save updated context
+        if success:
+            _save_library_context(context)
+            print("[INFO] CHGLIBL: Library list updated successfully")
+            reset_pgmec()
+        else:
+            print("[ERROR] CHGLIBL: Failed to update library list")
+            set_pgmec(999)
+        
+        return success
+        
+    except Exception as e:
+        print(f"[ERROR] CHGLIBL execution error: {e}")
+        set_pgmec(999)
+        return False
+
+def _get_library_context():
+    """Get current library context from profile or initialize default"""
+    try:
+        context_file = os.path.join(PROFILE_DIR, "library_context.json")
+        if os.path.exists(context_file):
+            with open(context_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"[DEBUG] Could not load library context: {e}")
+    
+    # Return default context
+    return {
+        'LIBL': [],   # Common library list
+        'OBJL': [],   # Object-specific library list  
+        'FILEL': []   # File-specific library list
+    }
+
+def _save_library_context(context):
+    """Save library context to profile file"""
+    try:
+        context_file = os.path.join(PROFILE_DIR, "library_context.json")
+        with open(context_file, 'w', encoding='utf-8') as f:
+            json.dump(context, f, indent=2)
+        return True
+    except Exception as e:
+        print(f"[ERROR] Could not save library context: {e}")
+        return False
+
+def _process_library_list(context, list_type, libraries_str, mode, position, errmode, max_libs):
+    """Process library list changes for LIBL, OBJL, or FILEL"""
+    try:
+        # Parse library names
+        library_names = [lib.strip() for lib in libraries_str.split(',') if lib.strip()]
+        
+        # Get current list
+        current_list = context.get(list_type, [])
+        
+        if mode == '@ADD':
+            return _add_libraries_to_list(
+                current_list, library_names, position, errmode, max_libs, list_type
+            )
+        elif mode == '@DLT':
+            return _remove_libraries_from_list(
+                current_list, library_names, errmode, list_type
+            )
+        
+        return False
+        
+    except Exception as e:
+        print(f"[ERROR] Error processing {list_type}: {e}")
+        return False
+
+def _add_libraries_to_list(current_list, library_names, position, errmode, max_libs, list_type):
+    """Add libraries to the specified list"""
+    try:
+        # Check if libraries already exist (for @ADD mode)
+        for lib_name in library_names:
+            if lib_name in current_list:
+                print(f"[ERROR] CHGLIBL: Library '{lib_name}' already exists in {list_type}")
+                set_pgmec(520)  # S0520 error - library already exists
+                return False
+        
+        # Validate library existence if ERRMODE=@YES
+        if errmode == '@YES':
+            catalog = get_catalog_info()
+            for lib_name in library_names:
+                lib_found = False
+                for volume in catalog.values():
+                    if lib_name in volume:
+                        lib_found = True
+                        break
+                if not lib_found:
+                    print(f"[ERROR] CHGLIBL: Library '{lib_name}' not found")
+                    set_pgmec(999)
+                    return False
+        
+        # Check maximum library limit
+        if len(current_list) + len(library_names) > max_libs:
+            print(f"[ERROR] CHGLIBL: Maximum {max_libs} libraries allowed for {list_type}")
+            set_pgmec(999)
+            return False
+        
+        # Add libraries based on position
+        if position == '@TOP':
+            # Add at the beginning in reverse order to maintain specified order
+            for lib_name in reversed(library_names):
+                current_list.insert(0, lib_name)
+        elif position == '@BOTTOM':
+            # Add at the end
+            current_list.extend(library_names)
+        elif position.isdigit():
+            # Insert at specific position
+            insert_pos = int(position)
+            if insert_pos < 0 or insert_pos > len(current_list):
+                print(f"[ERROR] CHGLIBL: Invalid position {insert_pos}")
+                set_pgmec(820)
+                return False
+            # Insert libraries in order
+            for i, lib_name in enumerate(library_names):
+                current_list.insert(insert_pos + i, lib_name)
+        else:
+            print(f"[ERROR] CHGLIBL: Invalid POSITION '{position}'")
+            set_pgmec(820)
+            return False
+        
+        print(f"[INFO] CHGLIBL: Added {len(library_names)} libraries to {list_type}")
+        for lib_name in library_names:
+            print(f"[INFO] CHGLIBL: + {lib_name}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"[ERROR] Error adding libraries to {list_type}: {e}")
+        return False
+
+def _remove_libraries_from_list(current_list, library_names, errmode, list_type):
+    """Remove libraries from the specified list"""
+    try:
+        removed_count = 0
+        
+        for lib_name in library_names:
+            if lib_name in current_list:
+                current_list.remove(lib_name)
+                removed_count += 1
+                print(f"[INFO] CHGLIBL: - {lib_name}")
+            else:
+                # For @DLT mode, non-existent libraries are ignored (as per spec)
+                print(f"[DEBUG] CHGLIBL: Library '{lib_name}' not in {list_type} (ignored)")
+        
+        print(f"[INFO] CHGLIBL: Removed {removed_count} libraries from {list_type}")
+        return True
+        
+    except Exception as e:
+        print(f"[ERROR] Error removing libraries from {list_type}: {e}")
+        return False

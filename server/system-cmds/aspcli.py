@@ -17,8 +17,9 @@ from asp_commands import (
     CRTPGM, CRTMAP, CHGLIBL
 )
 
-# Import SMBJOB function
-from functions.smbjob import SMBJOB
+# Import SBMJOB and REFJOB functions
+from functions.sbmjob import SBMJOB
+from functions.refjob import REFJOB
 
 VOLUME_ROOT = "/home/aspuser/app/volume"
 BACKUP_DIR = os.path.join(VOLUME_ROOT, "/home/aspuser/app/volume/BACKUP")
@@ -55,7 +56,8 @@ if __name__ == "__main__":
         "CRTPGM": CRTPGM,
         "CRTMAP": CRTMAP,
         "CHGLIBL": CHGLIBL,
-        "SMBJOB": SMBJOB,
+        "SBMJOB": SBMJOB,
+        "REFJOB": REFJOB,
     }
 
     if args.command in command_map:

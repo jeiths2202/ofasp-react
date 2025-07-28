@@ -1,0 +1,35 @@
+PGM
+// FILEWRITE_ASP - Fujitsu ASP File Write Sample
+// ファイルにデータを書き込むサンプル
+
+// 変数宣言
+VAR &MSG,CHAR,80
+VAR &COUNT,DEC,3
+VAR &DATE,CHAR,8
+
+// ファイル作成
+CRTFILE FILE(TESTLIB/LOGFILE) RECLEN(80) RECTYPE(FB) VOL(DISK01)
+
+// メッセージ設定
+&MSG := 'ファイル書き込みテストを開始します'
+MSG &MSG
+
+// ファイルオープン
+OPNFILE FILE(TESTLIB/LOGFILE) MODE(*OUTPUT)
+
+// データ書き込み
+&MSG := 'Record 001: テストデータ１件目'
+WRTFILE FILE(TESTLIB/LOGFILE) DATA(&MSG)
+
+&MSG := 'Record 002: テストデータ２件目'
+WRTFILE FILE(TESTLIB/LOGFILE) DATA(&MSG)
+
+&MSG := 'Record 003: テストデータ３件目'
+WRTFILE FILE(TESTLIB/LOGFILE) DATA(&MSG)
+
+// ファイルクローズ
+CLSFILE FILE(TESTLIB/LOGFILE)
+
+MSG 'ファイル書き込みが完了しました'
+
+END

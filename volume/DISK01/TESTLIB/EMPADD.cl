@@ -1,0 +1,24 @@
+PGM PARM(&EMPID &NAME &DEPT)
+  DCL VAR(&EMPID) TYPE(*CHAR) LEN(8)
+  DCL VAR(&NAME) TYPE(*CHAR) LEN(20)
+  DCL VAR(&DEPT) TYPE(*CHAR) LEN(20)
+  DCL VAR(&MSG) TYPE(*CHAR) LEN(100)
+  
+  MONMSG MSGID(CPF0000) EXEC(GOTO CMDLBL(ERROR))
+  
+  /* Employee add CL command processor */
+  CHGVAR VAR(&MSG) VALUE('Adding employee: ' *CAT &EMPID *CAT ' - ' *CAT &NAME)
+  SNDPGMMSG MSG(&MSG)
+  
+  /* Call Java program to add to EMPLOYEE.FB */
+  CALL PGM(EMPFILEJAVA) PARM(&EMPID 'ADD' &NAME &DEPT)
+  
+  SNDPGMMSG MSG('Employee added successfully')
+  RETURN
+  
+  ERROR:
+    CHGVAR VAR(&MSG) VALUE('Error adding employee: ' *CAT &EMPID)
+    SNDPGMMSG MSG(&MSG)
+    MONMSG MSGID(CPF0000)
+  
+ENDPGM

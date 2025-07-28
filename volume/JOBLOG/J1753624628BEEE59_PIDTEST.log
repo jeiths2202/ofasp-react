@@ -1,0 +1,6 @@
+[2025-07-27 13:57:08] [JOB_SUBMITTED] Job PIDTEST submitted successfully
+[2025-07-27 14:58:53] [JOB_STARTED] Job PIDTEST started execution
+[2025-07-27 14:58:53] [JOB_EXEC] Executing: java -cp /home/aspuser/app/volume/DISK01/TESTLIB TESTPGM
+[2025-07-27 14:58:53] [JOB_INFO] Process started with PID: 94917
+[2025-07-27 14:58:54] [JOB_ERROR] Command execution error: 'utf-8' codec can't decode byte 0x83 in position 25: invalid start byte
+[2025-07-27 14:58:54] [JOB_ERROR] Job PIDTEST failed

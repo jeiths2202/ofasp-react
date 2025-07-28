@@ -1,0 +1,15 @@
+{
+  "LIBL": [
+    "'TESTLIB MODE=@ADD POSITION=@TOP'",
+    "'NONEXISTENT MODE=@ADD ERRMODE=@YES'",
+    "TESTLIB"
+  ],
+  "OBJL": [
+    "'TESTLIB MODE=@ADD'",
+    "TESTLIB"
+  ],
+  "FILEL": [
+    "'TESTLIB MODE=@ADD ERRMODE=@YES'",
+    "TESTLIB"
+  ]
+}

@@ -231,6 +231,7 @@
     "statusFilter": "Status",
     "resetAllFilters": "🔄 Reset All Filters", 
     "filesShowing": "{showing} / {total} files",
+    "reAnalyze": "Re-analyze",
     "nameAsc": "Name ↑",
     "nameDesc": "Name ↓", 
     "typeAsc": "Type ↑",
