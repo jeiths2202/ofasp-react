@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ofasp-react/static/css/main.8457ba96.css",
+    "main.js": "/ofasp-react/static/js/main.39ee14be.js",
+    "static/js/453.08167c7a.chunk.js": "/ofasp-react/static/js/453.08167c7a.chunk.js",
+    "index.html": "/ofasp-react/index.html",
+    "main.8457ba96.css.map": "/ofasp-react/static/css/main.8457ba96.css.map",
+    "main.39ee14be.js.map": "/ofasp-react/static/js/main.39ee14be.js.map",
+    "453.08167c7a.chunk.js.map": "/ofasp-react/static/js/453.08167c7a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8457ba96.css",
+    "static/js/main.39ee14be.js"
+  ]
+}
