@@ -2,6 +2,7 @@
   "name": "openasp-system",
   "version": "0.5.1",
   "description": "OpenASP(Open Advanced System Products) System",
+  "homepage": "https://jeiths2202.github.io/ofasp-react",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
