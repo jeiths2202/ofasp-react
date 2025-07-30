@@ -1,0 +1,17 @@
+// BACKUP_ASP - Fujitsu ASP Backup CL Program
+// Backup libraries and datasets
+
+// Display start message
+MSG "Starting backup process for ASP system"
+
+// Save TESTLIB library
+SAVLIB LIB(TESTLIB) VOL(DISK01) TO(BACKUP) DESCRIPTION("Daily backup")
+
+// Save important datasets
+CRTFILE FILE(BACKUP/BACKUP_LOG) RECLEN(132) RECTYPE(VB) VOL(BACKUP)
+
+// Log backup completion
+MSG "Backup process completed successfully"
+
+// Display backup status
+WRKVOL VOL(BACKUP)

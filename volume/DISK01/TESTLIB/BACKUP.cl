@@ -1,0 +1,28 @@
+PGM PARM(&TARGET)
+  DCL VAR(&TARGET) TYPE(*CHAR) LEN(50)
+  DCL VAR(&MSG) TYPE(*CHAR) LEN(100)
+  DCL VAR(&TIMESTAMP) TYPE(*CHAR) LEN(20)
+  
+  MONMSG MSGID(CPF0000) EXEC(GOTO CMDLBL(ERROR))
+  
+  /* Database backup CL procedure */
+  RTVSYSVAL SYSVAL(QDATETIME) RTNVAR(&TIMESTAMP)
+  CHGVAR VAR(&MSG) VALUE('Starting backup to: ' *CAT &TARGET *CAT ' at ' *CAT &TIMESTAMP)
+  SNDPGMMSG MSG(&MSG)
+  
+  /* Create backup target */
+  CRTLIB LIB(BACKUP) TEXT('Backup library')
+  MONMSG MSGID(CPF2111) /* Library already exists */
+  
+  /* Copy EMPLOYEE.FB */
+  CPYF FROMFILE(TESTLIB/EMPLOYEE) TOFILE(BACKUP/EMPLOYEE) CRTFILE(*YES)
+  
+  SNDPGMMSG MSG('Backup completed successfully')
+  RETURN
+  
+  ERROR:
+    CHGVAR VAR(&MSG) VALUE('Error during backup operation')
+    SNDPGMMSG MSG(&MSG)
+    MONMSG MSGID(CPF0000)
+  
+ENDPGM

@@ -1,0 +1,68 @@
+PGM
+// REPORT_WRITE - レポート出力CL
+// レポートファイルへの書き込み処理
+
+// 変数宣言
+VAR &LINE,CHAR,132
+VAR &TITLE,CHAR,50
+VAR &DATE,CHAR,10
+VAR &TIME,CHAR,8
+VAR &PAGE,DEC,3
+
+// レポートファイル作成
+CRTFILE FILE(TESTLIB/REPORT01) RECLEN(132) RECTYPE(VB) VOL(DISK01)
+
+// ファイルオープン
+OPNFILE FILE(TESTLIB/REPORT01) MODE(*OUTPUT)
+
+// ヘッダー出力
+&TITLE := '売上日報レポート'
+&DATE := '2025/01/27'
+&TIME := '10:30:00'
+&PAGE := 1
+
+&LINE := '=' * 132
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+&LINE := '    ' || &TITLE || '    日付: ' || &DATE || '    時刻: ' || &TIME || '    ページ: ' || &PAGE
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+&LINE := '=' * 132
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+// 明細ヘッダー
+&LINE := '商品コード    商品名              数量      単価      金額'
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+&LINE := '-' * 80
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+// 明細データ
+&LINE := 'A001          テスト商品１        100     1,000    100,000'
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+&LINE := 'A002          テスト商品２        200       500    100,000'
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+&LINE := 'A003          テスト商品３         50     2,000    100,000'
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+// 合計行
+&LINE := '-' * 80
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+&LINE := '                              合計              300,000'
+WRTFILE FILE(TESTLIB/REPORT01) DATA(&LINE)
+
+// ファイルクローズ
+CLSFILE FILE(TESTLIB/REPORT01)
+
+// Javaプログラム呼び出し（PDFレポート生成）
+CALL PGM(ReportGenerator) PARM('REPORT01' 'PDF')
+
+MSG 'レポート出力が完了しました'
+
+WHEN ABNORMAL
+    CLSFILE FILE(TESTLIB/REPORT01)
+    RETURN @PGMEC
+END

@@ -1,0 +1,24 @@
+// DATA_INIT - データ初期化CL
+// テスト環境用データ初期化
+
+// 初期化開始
+MSG "テストデータの初期化を開始します"
+
+// 既存ファイル削除
+DLTFILE FILE(TESTLIB/TESTDATA*) VOL(DISK01)
+MSG "既存テストファイルを削除しました"
+
+// 新規ファイル作成
+CRTFILE FILE(TESTLIB/TESTDATA1) RECLEN(80) RECTYPE(FB) VOL(DISK01)
+CRTFILE FILE(TESTLIB/TESTDATA2) RECLEN(120) RECTYPE(FB) VOL(DISK01)
+CRTFILE FILE(TESTLIB/TESTDATA3) RECLEN(256) RECTYPE(VB) VOL(DISK01)
+
+// データ初期化
+CALL PGM(EmployeeFileProcessor) PARM("TESTDATA1" "INIT")
+CALL PGM(EmployeeFileProcessor) PARM("TESTDATA2" "INIT")
+CALL PGM(EmployeeFileProcessor) PARM("TESTDATA3" "INIT")
+
+// 完了メッセージ
+MSG "テストデータの初期化が完了しました"
+
+// End of initialization

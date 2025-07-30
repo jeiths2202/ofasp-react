@@ -1,0 +1,23 @@
+# Claude Code Assistant 컨텍스트 파일
+# 이 파일은 Claude와의 작업 재개 시 참조용입니다.
+
+CURRENT_WORK_STATE=source_conversion_completed
+MAIN_LANGUAGE=Korean
+USER_PREFERENCE=direct_concise_answers
+
+# 주요 작업 디렉토리
+PYTHON_SERVICE_DIR=/home/aspuser/app/ofasp-refactor/python-service
+REACT_APP_DIR=/home/aspuser/app/ofasp-refactor
+
+# 서비스 포트
+PYTHON_PORT=3003
+REACT_PORT=3005
+
+# 테스트 파일
+TEST_FILE=/tmp/sample.ebc
+
+# 최근 해결한 주요 이슈
+SOLVED_ISSUES=sosi_handling,performance_optimization,port_conflicts
+
+# 사용자 요구사항 패턴
+USER_WANTS=korean_responses,minimal_explanations,direct_action

@@ -1,0 +1,22 @@
+// DAILY_BATCH - 日次バッチ処理CL
+// 毎日実行される定型処理
+
+// 開始メッセージ
+MSG "日次バッチ処理を開始します"
+
+// バックアップ処理
+SAVLIB LIB(TESTLIB) VOL(DISK01) TO(BACKUP)
+MSG "ライブラリのバックアップが完了しました"
+
+// データ集計処理
+CALL PGM(EmployeeFileProcessor) PARM("DAILY" "SUMMARY")
+MSG "日次データ集計が完了しました"
+
+// レポート作成
+CRTFILE FILE(TESTLIB/DAILYRPT) RECLEN(132) RECTYPE(VB) VOL(DISK01)
+CALL PGM(EmployeeFileProcessor) PARM("DAILYRPT" "GENERATE")
+
+// 完了メッセージ
+MSG "日次バッチ処理が正常に完了しました"
+
+// End of batch

@@ -1,0 +1,10 @@
+{
+  "DISK01": {
+    "TESTLIB": {
+      "LOGOPGM1": {
+        "PGMYPE": "JAVA",
+        "PGMNAME": com.openasp.menu.MainMenu
+        }
+     }
+  }
+}

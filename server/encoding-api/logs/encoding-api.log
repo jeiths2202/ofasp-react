@@ -1,0 +1,4 @@
+2025-07-24 17:10:22 [http-nio-8080-exec-4] INFO  c.a.e.controller.EncodingController - Received SJIS to UTF8 conversion request: EncodingRequest{inputLength=128, outputLength=384, encoding='shift_jis', layout='null'}
+2025-07-24 17:10:22 [http-nio-8080-exec-4] INFO  c.a.encoding.service.EncodingService - Converting 128 bytes from shift_jis to UTF-8, max output: 384
+2025-07-24 17:10:22 [http-nio-8080-exec-4] INFO  c.a.encoding.service.EncodingService - Conversion successful: 128 -> 128 bytes
+2025-07-24 17:10:22 [http-nio-8080-exec-4] INFO  c.a.e.controller.EncodingController - Conversion successful, output length: 128

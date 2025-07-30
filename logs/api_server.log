@@ -1,0 +1,59 @@
+2025-07-21 18:21:39 [INFO] OpenASP API Server v0.5.1 starting...
+2025-07-21 18:21:39 [INFO] Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
+2025-07-21 18:21:39 [INFO] Fixed configuration loading and error handling
+2025-07-21 18:21:39 [INFO] SMED directory: /home/aspuser/app/public/SMED_FILES
+2025-07-21 18:21:39 [INFO] Account file: /home/aspuser/app/src/account.json
+2025-07-21 18:21:39 [INFO] SMED-PGM file: /home/aspuser/app/src/smed_pgm.json
+2025-07-21 18:21:39 [INFO] MAP-PGM file: /home/aspuser/app/src/map_pgm.json
+2025-07-21 18:21:39 [INFO] JAR file: /home/aspuser/app/server/java_jars/ofasp.jar
+2025-07-21 18:21:39 [INFO] Loaded 4 user accounts
+2025-07-21 18:21:39 [INFO] Loaded SMED-PGM config: 15 valid maps
+2025-07-21 18:21:39 [INFO]   MENU: JAVA -> com.openasp.menu.MenuProgram
+2025-07-21 18:21:39 [INFO]   LOGO: JAVA -> com.openasp.login.LoginProgram
+2025-07-21 18:21:39 [INFO]   PGM1: JAVA -> com.openasp.core.PGM1
+2025-07-21 18:21:39 [INFO]   PGM2: JAVA -> com.openasp.core.PGM2
+2025-07-21 18:21:39 [INFO]   EIGYO001: JAVA -> com.openasp.eigyo.EIGYO001
+2025-07-21 18:21:39 [INFO]   EIGYO002: JAVA -> com.openasp.eigyo.EIGYO002
+2025-07-21 18:21:39 [INFO]   NOHINO001: COBOL -> /home/aspuser/app/server/cobol_modules/NOHIN001.so
+2025-07-21 18:21:39 [INFO]   NOHINO002: SHELL -> /home/aspuser/app/server/shell_modules/NOHIN002.sh
+2025-07-21 18:21:39 [INFO]   ZAIKO001: COBOL -> /home/aspuser/app/server/cobol_modules/ZAIKO001.so
+2025-07-21 18:21:39 [INFO]   BATCH001: SHELL -> /home/aspuser/app/server/shell_modules/BATCH001.sh
+2025-07-21 18:21:39 [INFO]   URIAGE001: JAVA -> com.openasp.uriage.URIAGE001
+2025-07-21 18:21:39 [INFO]   REPORT001: SHELL -> /home/aspuser/app/server/shell_modules/REPORT001.sh
+2025-07-21 18:21:39 [INFO]   USER001: JAVA -> com.openasp.user.UserManagement
+2025-07-21 18:21:39 [INFO]   SYSTEM001: JAVA -> com.openasp.system.SystemInfo
+2025-07-21 18:21:39 [INFO]   LOGOUT: JAVA -> com.openasp.system.LogoutProgram
+2025-07-21 18:21:39 [INFO] ? Configuration loaded successfully
+2025-07-21 18:21:39 [INFO] ?? SMED Files: 3
+2025-07-21 18:21:39 [INFO] ?? User Accounts: 4
+2025-07-21 18:21:39 [INFO] ???  SMED-PGM Maps: 15
+2025-07-21 18:21:39 [INFO] ? Java Available: True
+2025-07-21 18:21:39 [INFO] ?? JAR File: /home/aspuser/app/server/java_jars/ofasp.jar (EXISTS)
+2025-07-21 18:21:39 [INFO] ?? OpenASP SMED API Server ready!
+ * Serving Flask app 'api_server'
+ * Debug mode: off
+2025-07-21 18:21:39 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.20.0.2:8000
+2025-07-21 18:21:39 [INFO] [33mPress CTRL+C to quit[0m
+2025-07-21 18:22:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:22:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:23:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:23:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:24:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:24:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:25:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:25:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:26:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:26:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/catalog/volumes HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/catalog/maps HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/smed/files HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/catalog/volumes HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/catalog/maps HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/smed/files HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/catalog/libraries/DISK01 HTTP/1.1" 200 -
+2025-07-21 18:27:09 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:09] "GET /api/catalog/libraries/DISK01 HTTP/1.1" 200 -
+2025-07-21 18:27:24 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:24] "[33mGET /api/smed/content/DISK01/TESTLIB/MAINMENU HTTP/1.1[0m" 404 -
+2025-07-21 18:27:32 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:32] "GET /api/smed/content/MAINMENU HTTP/1.1" 200 -
+2025-07-21 18:27:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:27:42 [INFO] 172.20.0.1 - - [21/Jul/2025 18:27:42] "[33mGET /api/smed/content/DISK01/TESTLIB/MAINMENU HTTP/1.1[0m" 404 -
+2025-07-21 18:28:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:28:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:29:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:29:39] "GET /api/logs HTTP/1.1" 200 -
+2025-07-21 18:30:39 [INFO] 172.20.0.1 - - [21/Jul/2025 18:30:39] "GET /api/logs HTTP/1.1" 200 -

@@ -1,0 +1,69 @@
+{
+  "project": "OpenASP AX EBCDIC Converter",
+  "version": "1.0.0",
+  "last_updated": "2025-07-19",
+  "claude_assistant": "Claude-3.5-Sonnet",
+  
+  "architecture": {
+    "backend": {
+      "technology": "Python Flask",
+      "port": 3003,
+      "features": ["EBCDIC/ASCII conversion", "SOSI handling", "Batch processing"],
+      "main_files": [
+        "python-service/src/api/app.py",
+        "python-service/src/converters/ebcdic_converter.py",
+        "python-service/config/config.py"
+      ]
+    },
+    "frontend": {
+      "technology": "React + TypeScript",
+      "port": 3005,
+      "features": ["Source conversion", "Dataset conversion", "Batch mode", "Real-time logging"],
+      "main_files": [
+        "src/pages/SourceConversionPage.tsx",
+        "src/pages/DatasetConversionPage.tsx", 
+        "src/utils/pythonConverter.ts",
+        "src/utils/pythonBatchConverter.ts"
+      ]
+    }
+  },
+  
+  "key_achievements": [
+    {
+      "issue": "SOSI 코드 처리 문제",
+      "solution": "위치 유지하며 space 변환 구현",
+      "status": "완료"
+    },
+    {
+      "issue": "웹 인터페이스 성능 문제", 
+      "solution": "배치 변환으로 API 호출 40+ → 4회 감소",
+      "status": "완료"
+    },
+    {
+      "issue": "일본어 문자 인코딩 문제",
+      "solution": "Shift-JIS 디코딩 및 적절한 폴백 구현",
+      "status": "완료"
+    }
+  ],
+  
+  "development_workflow": {
+    "startup_command": "./dev-start.sh",
+    "test_files": ["/tmp/sample.ebc"],
+    "api_endpoints": {
+      "health": "GET /health",
+      "ebcdic_to_ascii": "POST /api/v1/convert/ebcdic-to-ascii",
+      "ascii_to_ebcdic": "POST /api/v1/convert/ascii-to-ebcdic"
+    }
+  },
+  
+  "conversation_context": {
+    "main_language": "Korean",
+    "coding_standards": "CODING_RULES.md (no hardcoding)",
+    "user_requirements": [
+      "Python 기반 변환 서비스",
+      "웹 인터페이스 Python 서비스 연동",
+      "SOSI 코드 올바른 처리",
+      "성능 최적화"
+    ]
+  }
+}

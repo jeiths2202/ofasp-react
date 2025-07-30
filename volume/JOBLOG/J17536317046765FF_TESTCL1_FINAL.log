@@ -1,0 +1,47 @@
+[2025-07-27 15:55:04] [JOB_SUBMITTED] Job TESTCL1_FINAL submitted successfully
+[2025-07-27 15:55:35] [JOB_STARTED] Job TESTCL1_FINAL started execution
+[2025-07-27 15:55:35] [JOB_INFO] Executing CL program: TESTCL1
+[2025-07-27 15:55:35] [JOB_STARTED] Job TESTCL1_FINAL started execution
+[2025-07-27 15:55:35] [JOB_INFO] Executing CL program: TESTCL1
+[2025-07-27 15:55:36] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-HELLOASP.TESTLIB,VOL-DISK01
+[INFO] Calling program: HELLOASP
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB HelloASP
+[INFO] Executing job J17536317046765FF: TESTCL1_FINAL
+[DEBUG] Looking up program info for TESTCL1 in catalog...
+[DEBUG] Program type: CL
+[DEBUG] Program info: {'TYPE': 'PGM', 'PGMTYPE': 'CL', 'PGMNAME': 'TESTCL1', 'SOURCEFILE': 'TESTCL1', 'DESCRIPTION': 'Test CL program that calls HelloASP Java program', 'VERSION': '1.0', 'CREATED': '2025-07-27T15:42:00Z', 'UPDATED': '2025-07-27T15:42:00Z'}
+[DEBUG] Executing CL job...
+
+[2025-07-27 15:55:36] [JOB_INFO] CL program executed successfully
+[2025-07-27 15:55:36] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-HELLOASP.TESTLIB,VOL-DISK01
+[INFO] Calling program: HELLOASP
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB HelloASP
+[INFO] Java program executed
+[INFO] Return code: 0
+[OUTPUT] Hello ASP
+Java program executed successfully from TESTCL1
+Processing completed
+
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 0/1
+
+[2025-07-27 15:55:36] [JOB_INFO] CL program executed successfully
+[2025-07-27 15:55:36] [JOB_COMPLETED] Job TESTCL1_FINAL completed successfully
+[2025-07-27 15:55:36] [JOB_COMPLETED] Job TESTCL1_FINAL completed successfully

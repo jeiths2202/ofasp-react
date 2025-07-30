@@ -1,0 +1,9 @@
+[2025-07-27 15:08:23] [JOB_SUBMITTED] Job JPTEST_NEW submitted successfully
+[2025-07-27 15:54:16] [JOB_STARTED] Job JPTEST_NEW started execution
+[2025-07-27 15:54:16] [JOB_INFO] Executing CL program: TESTJP_ASP
+[2025-07-27 15:54:16] [JOB_ERROR] CL job execution error: 'utf-8' codec can't decode byte 0x93 in position 16: invalid start byte
+[2025-07-27 15:54:16] [JOB_ERROR] Job JPTEST_NEW failed
+[2025-07-27 15:54:16] [JOB_STARTED] Job JPTEST_NEW started execution
+[2025-07-27 15:54:16] [JOB_INFO] Executing CL program: TESTJP_ASP
+[2025-07-27 15:54:16] [JOB_ERROR] CL job execution error: 'utf-8' codec can't decode byte 0x93 in position 16: invalid start byte
+[2025-07-27 15:54:16] [JOB_ERROR] Job JPTEST_NEW failed

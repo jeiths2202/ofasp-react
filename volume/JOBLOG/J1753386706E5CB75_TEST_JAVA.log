@@ -1,0 +1,11 @@
+[2025-07-24 19:51:46] [JOB_STARTED] Job TEST_JAVA started execution
+[2025-07-24 19:51:46] [JOB_SUBMITTED] Job TEST_JAVA submitted successfully
+[2025-07-24 19:51:46] [JOB_EXEC] Executing: java -cp /home/aspuser/app/volume/DISK01/TESTLIB CUINP001 001
+[2025-07-24 19:51:47] [JOB_OUTPUT] [INFO] CUINP001: Customer record written successfully
+[INFO] Customer ID: 001
+[INFO] Customer Code: ABC
+[INFO] Record length: 128 bytes
+[INFO] File: /home/aspuser/app/volume/DISK01/TESTLIB/CUSTOMER.SAM001
+
+[2025-07-24 19:51:47] [JOB_INFO] Return code: 0
+[2025-07-24 19:51:47] [JOB_COMPLETED] Job TEST_JAVA completed successfully

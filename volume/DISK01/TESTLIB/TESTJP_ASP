@@ -1,0 +1,25 @@
+// TESTJP_ASP - 日本語テスト用CL
+// 日本語メッセージを含むFujitsu ASP CLプログラム
+
+// 開始メッセージ
+MSG "日本語CLテストプログラムを開始します"
+
+// ファイル作成
+CRTFILE FILE(TESTLIB/JPNDATA) RECLEN(80) RECTYPE(FB) VOL(DISK01)
+
+// 処理状況表示
+MSG "データファイルを作成しました"
+
+// Javaプログラム呼び出し
+CALL PGM(EmployeeFileProcessor) PARM("JPNDATA" "INIT")
+
+// 処理メッセージ
+MSG "日本語データの初期化が完了しました"
+
+// 別の処理
+CALL PGM(EmployeeFileProcessor) PARM("JPNDATA" "CHECK")
+
+// 完了メッセージ
+MSG "日本語CLテストプログラムが正常に完了しました"
+
+// End of CL

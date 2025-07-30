@@ -1,0 +1,168 @@
+
+> openasp-system@0.5.1 start
+> react-scripts start
+
+(node:101400) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:101400) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view openasp-system in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.20.0.2:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 3:10:   'processSmedMapData' is defined but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 310:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 711:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 3:10:   'processSmedMapData' is defined but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 310:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 711:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 314:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 715:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 314:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 715:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 315:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 716:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 315:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 716:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 3:10:   'processSmedMapData' is defined but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 316:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 717:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 3:10:   'processSmedMapData' is defined but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 316:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 717:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+ERROR in src/map_layout.tsx:186:23
+TS2552: Cannot find name 'parseSmedContent'. Did you mean 'smedContent'?
+    184 |       
+    185 |       // Parse SMED content into map data structure
+  > 186 |       const mapData = parseSmedContent(smedContent, mapName);
+        |                       ^^^^^^^^^^^^^^^^
+    187 |       console.log(`[INFO] Parsed map data:`, mapData);
+    188 |       
+    189 |       const screenFields = convertSmedToScreenData(mapData);
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 3:10:   'processSmedMapData' is defined but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 406:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 807:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 3:10:   'processSmedMapData' is defined but never used                                                                                                                 @typescript-eslint/no-unused-vars
+  Line 406:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 807:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 406:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 807:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 406:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 807:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/map_layout.tsx
+  Line 406:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 807:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/map_layout.tsx
+  Line 406:9:  'executeProgram' is assigned a value but never used                                                                                                            @typescript-eslint/no-unused-vars
+  Line 807:6:  React Hook useEffect has missing dependencies: 'handleFunctionKey', 'handleSpecialKey', and 'loadSmedMap'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.

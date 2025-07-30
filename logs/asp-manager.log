@@ -1,0 +1,244 @@
+
+> asp-manager@0.1.0 start
+> BROWSER=none PORT=3007 DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start
+
+(node:19536) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:19536) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view asp-manager in the browser.
+
+  Local:            http://localhost:3007
+  On Your Network:  http://172.20.0.2:3007
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Terminated
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /api/logs from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/i18n/languages.ts:64:7
+TS2741: Property 'title' is missing in type '{ name: string; type: string; position: string; size: string; value: string; cssClass: string; attributes: string; backgroundColor: string; textColor: string; }' but required in type '{ title: string; name: string; type: string; position: string; size: string; value: string; cssClass: string; attributes: string; backgroundColor: string; textColor: string; }'.
+    62 |         addField: '필드 추가'
+    63 |       },
+  > 64 |       properties: {
+       |       ^^^^^^^^^^
+    65 |         name: '이름',
+    66 |         type: '타입',
+    67 |         position: '위치',
+
+ERROR in src/i18n/languages.ts:105:7
+TS2741: Property 'title' is missing in type '{ name: string; type: string; position: string; size: string; value: string; cssClass: string; attributes: string; backgroundColor: string; textColor: string; }' but required in type '{ title: string; name: string; type: string; position: string; size: string; value: string; cssClass: string; attributes: string; backgroundColor: string; textColor: string; }'.
+    103 |         addField: 'フィールド追加'
+    104 |       },
+  > 105 |       properties: {
+        |       ^^^^^^^^^^
+    106 |         name: '名前',
+    107 |         type: 'タイプ',
+    108 |         position: '位置',
+
+ERROR in src/i18n/languages.ts:146:7
+TS2741: Property 'title' is missing in type '{ name: string; type: string; position: string; size: string; value: string; cssClass: string; attributes: string; backgroundColor: string; textColor: string; }' but required in type '{ title: string; name: string; type: string; position: string; size: string; value: string; cssClass: string; attributes: string; backgroundColor: string; textColor: string; }'.
+    144 |         addField: 'Add Field'
+    145 |       },
+  > 146 |       properties: {
+        |       ^^^^^^^^^^
+    147 |         name: 'Name',
+    148 |         type: 'Type',
+    149 |         position: 'Position',
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/components/ASPMapEditor.tsx:454:26
+TS2304: Cannot find name 'exportSmedFile'.
+    452 |               
+    453 |               <button
+  > 454 |                 onClick={exportSmedFile}
+        |                          ^^^^^^^^^^^^^^
+    455 |                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-2 transition-colors"
+    456 |               >
+    457 |                 <CloudArrowDownIcon className="w-4 h-4" />
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.

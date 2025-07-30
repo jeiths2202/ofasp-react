@@ -1,0 +1,4 @@
+[2025-07-25 20:00:06] [JOB_SUBMITTED] Job LONG001 submitted successfully
+[2025-07-27 14:44:17] [JOB_STARTED] Job LONG001 started execution
+[2025-07-27 14:44:17] [JOB_EXEC] Executing: bash /home/aspuser/app/volume/DISK01/TESTLIB/long_job.sh database test job
+[2025-07-27 14:44:17] [JOB_INFO] Process started with PID: 94366

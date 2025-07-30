@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenASP コマンドマッピング仕様</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .command-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .command-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .command-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: top;
+        }
+
+        .command-table tr:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            transform: translateX(2px);
+            transition: all 0.3s ease;
+        }
+
+        .command-name {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1rem;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .priority-high {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .priority-medium {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .priority-low {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tech-tag {
+            background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .implementation-details {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-header {
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .command-table {
+                font-size: 0.85rem;
+            }
+            
+            .command-table th,
+            .command-table td {
+                padding: 10px 8px;
+            }
+        }
+
+        .complexity-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .complexity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .complexity-simple { background: #27ae60; }
+        .complexity-medium { background: #f39c12; }
+        .complexity-complex { background: #e74c3c; }
+
+        .status-indicator {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status-ready { background: #d4edda; color: #155724; }
+        .status-partial { background: #fff3cd; color: #856404; }
+        .status-research { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OpenASP システムコマンド実装仕様</h1>
+            <p>AS/400 システムコマンドをオープンソース技術で実装するための詳細マッピング</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">710</div>
+                    <div class="stat-label">総コマンド数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">18</div>
+                    <div class="stat-label">機能カテゴリ</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">実装可能率</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-controls">
+                <input type="text" class="search-input" id="searchInput" placeholder="コマンド名、機能、技術で検索...">
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">全カテゴリ</option>
+                    <option value="システム運用">システム運用</option>
+                    <option value="ライブラリ管理">ライブラリ管理</option>
+                    <option value="ファイル管理">ファイル管理</option>
+                    <option value="プログラム開発">プログラム開発</option>
+                    <option value="セキュリティ">セキュリティ</option>
+                </select>
+                <select class="filter-select" id="priorityFilter">
+                    <option value="">全優先度</option>
+                    <option value="高">高優先度</option>
+                    <option value="中">中優先度</option>
+                    <option value="低">低優先度</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="command-table">
+                <thead>
+                    <tr>
+                        <th>ASPコマンド</th>
+                        <th>機能説明</th>
+                        <th>OpenASP実装方法</th>
+                        <th>使用技術</th>
+                        <th>実装複雑度</th>
+                        <th>優先度</th>
+                        <th>実装状態</th>
+                    </tr>
+                </thead>
+                <tbody id="commandTableBody">
+                    <!-- システム運用 -->
+                    <tr data-category="システム運用" data-priority="高">
+                        <td><span class="command-name">SBMJOB</span></td>
+                        <td>ジョブの投入</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Node.js Worker Threads + Bull Queue</strong><br>
+                                • child_process.spawn()でプロセス起動<br>
+                                • Redisベースのジョブキュー管理<br>
+                                • PM2クラスターでのプロセス管理<br>
+                                • WebSocketでリアルタイム状態通知
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Node.js</span>
+                                <span class="tech-tag">Bull</span>
+                                <span class="tech-tag">Redis</span>
+                                <span class="tech-tag">PM2</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <tr data-category="システム運用" data-priority="高">
+                        <td><span class="command-name">ENDJOB</span></td>
+                        <td>ジョブの終了</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Process Signal Management</strong><br>
+                                • process.kill()によるSIGTERM送信<br>
+                                • Graceful Shutdownの実装<br>
+                                • タイムアウト後のSIGKILL<br>
+                                • ジョブ状態のデータベース更新
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Node.js</span>
+                                <span class="tech-tag">PostgreSQL</span>
+                                <span class="tech-tag">Signal</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-simple"></div>
+                                <span>簡単</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <tr data-category="システム運用" data-priority="高">
+                        <td><span class="command-name">WRKACTJOB</span></td>
+                        <td>活動ジョブの処理</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Real-time Process Monitor</strong><br>
+                                • ps/procfsベースのプロセス監視<br>
+                                • React Dashboard with Server-Sent Events<br>
+                                • 自動更新UI (1秒間隔)<br>
+                                • フィルタリング・ソート機能
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">React</span>
+                                <span class="tech-tag">SSE</span>
+                                <span class="tech-tag">Express</span>
+                                <span class="tech-tag">Chart.js</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <!-- ライブラリ管理 -->
+                    <tr data-category="ライブラリ管理" data-priority="高">
+                        <td><span class="command-name">CRTLIB</span></td>
+                        <td>ライブラリの作成</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Database Schema + File System</strong><br>
+                                • PostgreSQL Schema作成<br>
+                                • ファイルシステムディレクトリ生成<br>
+                                • アクセス権限設定<br>
+                                • メタデータ管理テーブル更新
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">PostgreSQL</span>
+                                <span class="tech-tag">fs/promises</span>
+                                <span class="tech-tag">chown/chmod</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-simple"></div>
+                                <span>簡単</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <tr data-category="ライブラリ管理" data-priority="高">
+                        <td><span class="command-name">DSPLIBL</span></td>
+                        <td>ライブラリリストの表示</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Session Library Path Management</strong><br>
+                                • セッション毎のライブラリパス管理<br>
+                                • 環境変数PATH操作<br>
+                                • Web UIでの一覧表示<br>
+                                • 優先順位付きリスト表示
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Express Session</span>
+                                <span class="tech-tag">React Table</span>
+                                <span class="tech-tag">Environment Variables</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-simple"></div>
+                                <span>簡単</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <!-- ファイル管理 -->
+                    <tr data-category="ファイル管理" data-priority="高">
+                        <td><span class="command-name">CRTPF</span></td>
+                        <td>物理ファイルの作成</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>PostgreSQL Table Creation</strong><br>
+                                • DDS→SQL DDL変換エンジン<br>
+                                • フィールド定義のマッピング<br>
+                                • インデックス自動生成<br>
+                                • 制約・トリガー設定
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">PostgreSQL</span>
+                                <span class="tech-tag">DDL Parser</span>
+                                <span class="tech-tag">Sequelize</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-complex"></div>
+                                <span>複雑</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-partial">部分実装</span></td>
+                    </tr>
+
+                    <tr data-category="ファイル管理" data-priority="高">
+                        <td><span class="command-name">CPYF</span></td>
+                        <td>ファイルの複写</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Database ETL Pipeline</strong><br>
+                                • Streaming Data Copy<br>
+                                • フィールドマッピング<br>
+                                • データ変換・検証<br>
+                                • 進捗表示・ログ機能
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Node Streams</span>
+                                <span class="tech-tag">ETL Pipeline</span>
+                                <span class="tech-tag">Progress Bar</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <!-- プログラム開発 -->
+                    <tr data-category="プログラム開発" data-priority="高">
+                        <td><span class="command-name">CRTCBLPGM</span></td>
+                        <td>COBOLプログラムの作成</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>COBOL Compiler Integration</strong><br>
+                                • GnuCOBOL (OpenCOBOL) 統合<br>
+                                • AS/400互換copybook処理<br>
+                                • 自動依存関係解決<br>
+                                • エラー解析・レポート生成
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">GnuCOBOL</span>
+                                <span class="tech-tag">Makefile</span>
+                                <span class="tech-tag">Copybook Parser</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-complex"></div>
+                                <span>複雑</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-research">調査中</span></td>
+                    </tr>
+
+                    <tr data-category="プログラム開発" data-priority="中">
+                        <td><span class="command-name">STRSEU</span></td>
+                        <td>ソース入力ユーティリティの開始</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Web-based Code Editor</strong><br>
+                                • Monaco Editor (VS Code) 統合<br>
+                                • COBOL/RPG/CL シンタックスハイライト<br>
+                                • リアルタイム構文チェック<br>
+                                • バージョン管理 (Git連携)
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Monaco Editor</span>
+                                <span class="tech-tag">Language Server</span>
+                                <span class="tech-tag">Git</span>
+                                <span class="tech-tag">WebSocket</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-medium">中</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <!-- セキュリティ管理 -->
+                    <tr data-category="セキュリティ" data-priority="高">
+                        <td><span class="command-name">CRTUSRPRF</span></td>
+                        <td>ユーザープロファイルの作成</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Identity Management System</strong><br>
+                                • PostgreSQL ユーザーテーブル<br>
+                                • bcrypt パスワードハッシュ化<br>
+                                • RBAC (Role-Based Access Control)<br>
+                                • OAuth2/SAML統合対応
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">PostgreSQL</span>
+                                <span class="tech-tag">bcrypt</span>
+                                <span class="tech-tag">JWT</span>
+                                <span class="tech-tag">RBAC</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <tr data-category="セキュリティ" data-priority="高">
+                        <td><span class="command-name">GRTOBJAUT</span></td>
+                        <td>オブジェクト権限の認可</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Fine-grained Authorization</strong><br>
+                                • ACL (Access Control List) テーブル<br>
+                                • リソースレベル権限管理<br>
+                                • 継承型権限システム<br>
+                                • 監査ログ機能
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">ACL Tables</span>
+                                <span class="tech-tag">Permission Engine</span>
+                                <span class="tech-tag">Audit Log</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-complex"></div>
+                                <span>複雑</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-high">高</span></td>
+                        <td><span class="status-indicator status-partial">部分実装</span></td>
+                    </tr>
+
+                    <!-- 通信管理 -->
+                    <tr data-category="通信管理" data-priority="低">
+                        <td><span class="command-name">CRTCTLD</span></td>
+                        <td>制御装置記述の作成</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Network Configuration Management</strong><br>
+                                • Docker Compose ネットワーク設定<br>
+                                • Kubernetes Service定義<br>
+                                • API Gateway設定<br>
+                                • Load Balancer統合
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">Docker</span>
+                                <span class="tech-tag">Kubernetes</span>
+                                <span class="tech-tag">API Gateway</span>
+                                <span class="tech-tag">nginx</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-low">低</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <!-- 保管・復元 -->
+                    <tr data-category="保管・復元" data-priority="中">
+                        <td><span class="command-name">SAVLIB</span></td>
+                        <td>ライブラリの保管</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Backup & Archive System</strong><br>
+                                • pg_dump によるDBバックアップ<br>
+                                • tar/gzip によるファイル圧縮<br>
+                                • S3/MinIO オブジェクトストレージ<br>
+                                • 自動・スケジュールバックアップ
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">pg_dump</span>
+                                <span class="tech-tag">tar/gzip</span>
+                                <span class="tech-tag">S3/MinIO</span>
+                                <span class="tech-tag">Cron</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-medium">中</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+
+                    <!-- 印刷管理 -->
+                    <tr data-category="印刷管理" data-priority="中">
+                        <td><span class="command-name">WRKSPLF</span></td>
+                        <td>スプールファイルの処理</td>
+                        <td>
+                            <div class="implementation-details">
+                                <strong>Print Queue Management</strong><br>
+                                • CUPS (Common Unix Printing System)<br>
+                                • PDF生成・プレビュー機能<br>
+                                • スプールファイルDB管理<br>
+                                • Web印刷インターフェース
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tech-stack">
+                                <span class="tech-tag">CUPS</span>
+                                <span class="tech-tag">Puppeteer</span>
+                                <span class="tech-tag">PDF-lib</span>
+                                <span class="tech-tag">React</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="complexity-indicator">
+                                <div class="complexity-dot complexity-medium"></div>
+                                <span>中</span>
+                            </div>
+                        </td>
+                        <td><span class="priority-medium">中</span></td>
+                        <td><span class="status-indicator status-ready">実装可能</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 検索機能
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const priorityFilter = document.getElementById('priorityFilter');
+        const tableBody = document.getElementById('commandTableBody');
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const categoryValue = categoryFilter.value;
+            const priorityValue = priorityFilter.value;
+
+            rows.forEach(row => {
+                const commandName = row.querySelector('.command-name').textContent.toLowerCase();
+                const description = row.cells[1].textContent.toLowerCase();
+                const implementation = row.cells[2].textContent.toLowerCase();
+                const category = row.getAttribute('data-category');
+                const priority = row.getAttribute('data-priority');
+
+                const matchesSearch = commandName.includes(searchTerm) || 
+                                    description.includes(searchTerm) || 
+                                    implementation.includes(searchTerm);
+                const matchesCategory = !categoryValue || category === categoryValue;
+                const matchesPriority = !priorityValue || priority === priorityValue;
+
+                row.style.display = (matchesSearch && matchesCategory && matchesPriority) ? '' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        categoryFilter.addEventListener('change', filterTable);
+        priorityFilter.addEventListener('change', filterTable);
+
+        // 統計情報の更新
+        function updateStats() {
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            const readyCount = visibleRows.filter(row => 
+                row.querySelector('.status-ready')).length;
+            const partialCount = visibleRows.filter(row => 
+                row.querySelector('.status-partial')).length;
+            
+            console.log(`表示中: ${visibleRows.length}, 実装可能: ${readyCount}, 部分実装: ${partialCount}`);
+        }
+
+        // 初期化
+        filterTable();
+    </script>
+</body>
+</html>

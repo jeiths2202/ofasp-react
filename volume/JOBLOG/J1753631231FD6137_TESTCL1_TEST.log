@@ -1,0 +1,20 @@
+[2025-07-27 15:47:11] [JOB_SUBMITTED] Job TESTCL1_TEST submitted successfully
+[2025-07-27 15:54:18] [JOB_STARTED] Job TESTCL1_TEST started execution
+[2025-07-27 15:54:18] [JOB_INFO] Executing CL program: TESTCL1
+[2025-07-27 15:54:18] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-HELLOASP.TESTLIB,VOL-DISK01
+[INFO] Calling program: HELLOASP
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[ERROR] Program 'HELLOASP' not registered in catalog.json
+[WARN] Command returned PGMEC=999
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 1/1
+
+[2025-07-27 15:54:18] [JOB_ERROR] CL program execution failed: 1 instructions failed
+[2025-07-27 15:54:18] [JOB_ERROR] Job TESTCL1_TEST failed

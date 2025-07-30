@@ -1,0 +1,51 @@
+[2025-07-27 16:43:32] [JOB_SUBMITTED] Job CL_TESTCL1_1753634612843 submitted successfully
+[2025-07-27 16:43:34] [JOB_STARTED] Job CL_TESTCL1_1753634612843 started execution
+[2025-07-27 16:43:34] [JOB_INFO] Executing CL program: TESTCL1
+[2025-07-27 16:43:35] [JOB_STARTED] Job CL_TESTCL1_1753634612843 started execution
+[2025-07-27 16:43:35] [JOB_INFO] Executing CL program: TESTCL1
+[2025-07-27 16:43:36] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-HELLOASP.TESTLIB,VOL-DISK01
+[INFO] Calling program: HELLOASP
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB HelloASP
+[INFO] Java program executed
+[INFO] Return code: 0
+[OUTPUT] Hello ASP
+Java program executed successfully from TESTCL1
+Processing completed
+
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 0/1
+
+[2025-07-27 16:43:36] [JOB_INFO] CL program executed successfully
+[2025-07-27 16:43:36] [JOB_COMPLETED] Job CL_TESTCL1_1753634612843 completed successfully
+[2025-07-27 16:43:36] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-HELLOASP.TESTLIB,VOL-DISK01
+[INFO] Calling program: HELLOASP
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB HelloASP
+[INFO] Java program executed
+[INFO] Return code: 0
+[OUTPUT] Hello ASP
+Java program executed successfully from TESTCL1
+Processing completed
+
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 0/1
+
+[2025-07-27 16:43:36] [JOB_INFO] CL program executed successfully
+[2025-07-27 16:43:36] [JOB_COMPLETED] Job CL_TESTCL1_1753634612843 completed successfully

@@ -1,0 +1,33 @@
+# ASP Manager Configuration
+# OpenASP (Open Advanced System Products) Project Settings
+
+# Default Language Configuration
+DEFAULT_LANGUAGE=ja
+DEFAULT_ENCODING=SJIS
+DEFAULT_CHARSET=Shift_JIS
+
+# Business Environment Configuration  
+PRIMARY_MARKET=Japan
+PRIMARY_CURRENCY=JPY
+CURRENCY_SYMBOL=¥
+CURRENCY_FORMAT=¥#,##0
+
+# Date Format Configuration
+DATE_FORMAT=YYYY/MM/DD
+TIME_FORMAT=HH:mm:ss
+DATETIME_FORMAT=YYYY/MM/DD HH:mm:ss
+
+# Development Environment
+NODE_ENV=development
+PORT=3005
+HOST=0.0.0.0
+
+# File Encoding for COBOL/CL Processing
+INPUT_ENCODING=SJIS
+OUTPUT_ENCODING=SJIS
+COBOL_ENCODING=SJIS
+CL_ENCODING=SJIS
+
+# Project Type
+PROJECT_TYPE=OpenASP
+REFACTOR_TARGET=Linux_OpenEnvironment

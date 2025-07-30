@@ -1,0 +1,43 @@
+[2025-07-27 14:44:50] [JOB_SUBMITTED] Job QUICKTEST submitted successfully
+[2025-07-27 15:00:57] [JOB_STARTED] Job QUICKTEST started execution
+[2025-07-27 15:00:57] [JOB_INFO] Executing CL program: EMPREAD_CL
+[2025-07-27 15:00:57] [JOB_STARTED] Job QUICKTEST started execution
+[2025-07-27 15:00:57] [JOB_INFO] Executing CL program: EMPREAD_CL
+[2025-07-27 15:00:57] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-TESTPGM.TESTLIB,VOL-DISK01
+[INFO] Calling program: TESTPGM
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB TESTPGM
+[INFO] Executing job J1753627490FFC060: QUICKTEST
+[DEBUG] Looking up program info for EMPREAD_CL in catalog...
+[DEBUG] Program type: CL
+[DEBUG] Program info: {'TYPE': 'PGM', 'PGMTYPE': 'CL', 'PGMNAME': 'EMPREAD_CL', 'SOURCEFILE': 'EMPREAD_CL', 'DESCRIPTION': 'Employee file read CL - calls TESTPGM', 'VERSION': '1.0', 'CREATED': '2025-07-27T02:00:00Z', 'UPDATED': '2025-07-27T02:00:00Z'}
+[DEBUG] Executing CL job...
+
+[2025-07-27 15:00:57] [JOB_ERROR] CL program execution failed: 1 instructions failed
+[2025-07-27 15:00:57] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-TESTPGM.TESTLIB,VOL-DISK01
+[INFO] Calling program: TESTPGM
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB TESTPGM
+[ERROR] Java execution failed: 'utf-8' codec can't decode byte 0x83 in position 25: invalid start byte
+[WARN] Command returned PGMEC=999
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 1/1
+
+[2025-07-27 15:00:57] [JOB_ERROR] CL program execution failed: 1 instructions failed
+[2025-07-27 15:00:57] [JOB_ERROR] Job QUICKTEST failed
+[2025-07-27 15:00:57] [JOB_ERROR] Job QUICKTEST failed

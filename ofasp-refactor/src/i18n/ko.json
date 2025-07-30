@@ -1,0 +1,181 @@
+{
+  "common": {
+    "dashboard": "대시보드",
+    "settings": "AI Transform",
+    "documentation": "문서",
+    "chat": "채팅",
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "confirm": "확인",
+    "save": "저장",
+    "download": "다운로드",
+    "upload": "업로드",
+    "selectFile": "파일 선택",
+    "execute": "실행",
+    "refresh": "새로고침",
+    "close": "닫기"
+  },
+  "navigation": {
+    "cobolAX": "COBOL AX",
+    "clAX": "CL AX"
+  },
+  "dashboard": {
+    "title": "OpenASP AX Tool",
+    "subtitle": "ASP 애플리케이션을 Open 환경으로 마이그레이션하는 AI 트랜스포메이션 도구입니다.",
+    "cobolTitle": "COBOL AX",
+    "cobolDescription": "COBOL 프로그램을 Java, C, Shell Script, Python으로 변환합니다.",
+    "cobolFeatures": [
+      "데이터 구조 변환",
+      "비즈니스 로직 마이그레이션", 
+      "파일 처리 로직 변환"
+    ],
+    "clTitle": "CL AX",
+    "clDescription": "CL(Control Language) 스크립트를 Shell, JavaScript, Python으로 변환합니다.",
+    "clFeatures": [
+      "파일 작업 명령어 변환",
+      "프로그램 호출 로직 변환",
+      "배치 작업 스크립트 변환"
+    ],
+    "processTitle": "마이그레이션 프로세스",
+    "processSteps": [
+      {
+        "title": "소스 분석",
+        "description": "기존 ASP 소스코드 구조 분석"
+      },
+      {
+        "title": "변환 실행", 
+        "description": "대상 언어로 자동 변환"
+      },
+      {
+        "title": "검증 배포",
+        "description": "변환된 코드 검증 및 배포"
+      }
+    ]
+  },
+  "cobolAX": {
+    "title": "COBOL AX",
+    "subtitle": "ASP COBOL 프로그램을 Open 환경의 다양한 언어로 AX 변환합니다.",
+    "settingsTitle": "AX 설정",
+    "targetLanguage": "대상 언어 선택",
+    "quickActions": "빠른 작업",
+    "loadSample": "샘플 COBOL 로드",
+    "sourceCode": "COBOL 소스 코드",
+    "sourcePlaceholder": "COBOL 소스 코드를 입력하세요...",
+    "transforming": "AX 변환 중...",
+    "executeTransform": "AX 변환 실행",
+    "transformedCode": "코드",
+    "transformedPlaceholder": "AX 변환된 {language} 코드가 여기에 표시됩니다...",
+    "converting": "COBOL 코드를 {language}로 변환 중..."
+  },
+  "clAX": {
+    "title": "CL AX",
+    "subtitle": "Fujitsu ASP CL(Control Language) 스크립트를 Open 환경의 인터프리터 언어로 AX 변환합니다.",
+    "settingsTitle": "AX 설정",
+    "targetLanguage": "대상 언어 선택",
+    "quickActions": "빠른 작업",
+    "loadSample": "샘플 CL 로드",
+    "sourceCode": "CL 소스 코드",
+    "sourcePlaceholder": "CL 소스 코드를 입력하세요...",
+    "transforming": "AX 변환 중...",
+    "executeTransform": "AX 변환 실행",
+    "transformedCode": "코드",
+    "transformedPlaceholder": "AX 변환된 {language} 코드가 여기에 표시됩니다...",
+    "converting": "CL 코드를 {language}로 변환 중...",
+    "commandReference": "주요 CL 명령어 변환 참조",
+    "fileOperations": "파일 작업",
+    "programExecution": "프로그램 실행",
+    "variableHandling": "변수 처리",
+    "commands": {
+      "fileOps": [
+        "CPYF → cp/copy",
+        "DLTF → rm/unlink", 
+        "CRTPF → touch/create"
+      ],
+      "programExec": [
+        "CALL → function call",
+        "SBMJOB → background exec",
+        "EVOKE → subprocess"
+      ],
+      "variables": [
+        "DCL VAR → variable declaration",
+        "CHGVAR → assignment",
+        "RCVF → input/read"
+      ]
+    }
+  },
+  "languages": {
+    "java": "Java",
+    "c": "C", 
+    "shell": "Shell Script",
+    "python": "Python",
+    "javascript": "JavaScript"
+  },
+  "user": {
+    "role": "AX 관리자"
+  },
+  "mapEditor": {
+    "statusMessage": "드래그 앤 드롭으로 필드를 추가하고, 클릭하여 선택 후 속성을 편집하세요.",
+    "ctrlClickRequired": "필드를 선택하려면 Ctrl+클릭이 필요합니다",
+    "selectionCleared": "필드 선택이 해제되었습니다",
+    "ctrlClickToDeselect": "선택 해제하려면 Ctrl+그리드 클릭이 필요합니다",
+    "fieldSelected": "필드 {fieldId}이 선택되었습니다",
+    "multiSelectUpdated": "{count}개의 필드가 선택되어 있습니다",
+    "dragHint": "필드를 드래그하여 이동할 수 있습니다. 선택하려면 Ctrl+클릭",
+    "fieldMoved": "필드 {fieldId}가 이동되었습니다"
+  },
+  "mapLink": {
+    "statusMessage": "노드를 추가하고 연결하여 맵과 프로그램 간의 관계를 정의하세요.",
+    "title": "MapLink - 객체 연결 관리",
+    "description": "SMED 맵과 프로그램 간의 연결 관계를 정의하고 키 바인딩을 설정하세요",
+    "addMap": "MAP 추가",
+    "addProgram": "PROGRAM 추가",
+    "connectInstruction": "Shift+클릭으로 노드 연결",
+    "save": "저장",
+    "deleteSelected": "선택 삭제",
+    "clearAll": "전체 삭제",
+    "zoomIn": "확대 (마우스 오버)",
+    "zoomOut": "축소 (마우스 오버)",
+    "connectionCancelled": "연결 생성이 취소되었습니다.",
+    "mapProperties": "MAP 속성",
+    "programProperties": "PROGRAM 속성",
+    "name": "이름",
+    "smedFile": "SMED 파일",
+    "selectOption": "선택하세요",
+    "programPath": "프로그램 경로",
+    "selectJavaClass": "Java 클래스 선택",
+    "programPlaceholder": "com.example.Program 또는 위에서 선택",
+    "connectionProperties": "연결 속성",
+    "triggerKey": "트리거 키",
+    "load": "읽기",
+    "dataLoaded": "그리드 데이터를 읽었습니다",
+    "fileLoaded": "파일에서 그리드 데이터를 읽었습니다",
+    "fileLoadError": "파일 읽기에 실패했습니다",
+    "dataSaved": "그리드 데이터를 저장했습니다",
+    "clickTargetNode": "연결할 대상 노드를 클릭하세요",
+    "connectionCreated": "연결을 생성했습니다",
+    "sourceGenTitle": "AI 소스 생성",
+    "sourceGenMessage": "신경망 최적화를 통한 Java 소스 코드 생성 중",
+    "compileTitle": "AI Java 컴파일",
+    "compileMessage": "AI 최적화를 통한 Java 소스 컴파일 중",
+    "generatingJava": "Java 소스 파일 생성 중...",
+    "compilingJava": "Java 소스 파일 컴파일 중...",
+    "javaGenerated": "Java 소스 파일 {count}개 생성 완료",
+    "javaGenerationError": "Java 소스 생성 중 오류가 발생했습니다",
+    "compilationSuccess": "Java 파일 {count}개 컴파일 완료",
+    "compilationPartial": "{success}개 컴파일 성공, {errors}개 오류",
+    "compilationError": "Java 컴파일 중 오류가 발생했습니다",
+    "confirmGenerateJava": "모든 PROGRAM 노드의 Java 소스 코드를 생성하시겠습니까?",
+    "confirmCompile": "모든 Java 소스 파일을 컴파일하시겠습니까?",
+    "noNodes": "생성 가능한 노드가 없습니다",
+    "noProgramNodes": "컴파일 가능한 PROGRAM 노드가 없습니다",
+    "loadFile": "파일 읽기",
+    "loadStorage": "캐시 읽기",
+    "loadFromFile": "JSON 파일에서 MapLink 데이터 읽기",
+    "loadFromStorage": "브라우저 캐시에서 MapLink 데이터 읽기",
+    "dataLoadedFromStorage": "브라우저 캐시에서 데이터를 읽었습니다",
+    "noStorageData": "캐시된 데이터가 없습니다",
+    "storageLoadError": "캐시 데이터 읽기 오류"
+  }
+}

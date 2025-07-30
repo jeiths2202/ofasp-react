@@ -1,0 +1,42 @@
+2025-07-05 17:19:05 [INFO] ?? OpenASP SMED API Server v0.5.1 starting...
+2025-07-05 17:19:05 [INFO] Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
+2025-07-05 17:19:05 [INFO] Fixed configuration loading and error handling
+2025-07-05 17:19:05 [INFO] SMED directory: /home/aspuser/app/public/SMED_FILES
+2025-07-05 17:19:05 [INFO] Account file: /home/aspuser/app/src/account.json
+2025-07-05 17:19:05 [INFO] SMED-PGM file: /home/aspuser/app/src/smed_pgm.json
+2025-07-05 17:19:05 [INFO] MAP-PGM file: /home/aspuser/app/src/map_pgm.json
+2025-07-05 17:19:05 [INFO] JAR file: /home/aspuser/app/server/java_jars/ofasp.jar
+2025-07-05 17:19:05 [INFO] Loaded 4 user accounts
+2025-07-05 17:19:05 [INFO] Loaded SMED-PGM config: 14 valid maps
+2025-07-05 17:19:05 [INFO]   MENU: JAVA -> com.openasp.menu.MenuProgram
+2025-07-05 17:19:05 [INFO]   LOGO: JAVA -> com.openasp.login.LoginProgram
+2025-07-05 17:19:05 [INFO]   PGM1: JAVA -> com.openasp.core.PGM1
+2025-07-05 17:19:05 [INFO]   PGM2: JAVA -> com.openasp.core.PGM2
+2025-07-05 17:19:05 [INFO]   EIGYO001: JAVA -> com.openasp.eigyo.EIGYO001
+2025-07-05 17:19:05 [INFO]   EIGYO002: JAVA -> com.openasp.eigyo.EIGYO002
+2025-07-05 17:19:05 [INFO]   NOHINO001: COBOL -> /home/aspuser/app/server/cobol_modules/NOHIN001.so
+2025-07-05 17:19:05 [INFO]   NOHINO002: SHELL -> /home/aspuser/app/server/shell_modules/NOHIN002.sh
+2025-07-05 17:19:05 [INFO]   ZAIKO001: COBOL -> /home/aspuser/app/server/cobol_modules/ZAIKO001.so
+2025-07-05 17:19:05 [INFO]   BATCH001: SHELL -> /home/aspuser/app/server/shell_modules/BATCH001.sh
+2025-07-05 17:19:05 [INFO]   URIAGE001: JAVA -> com.openasp.uriage.URIAGE001
+2025-07-05 17:19:05 [INFO]   REPORT001: SHELL -> /home/aspuser/app/server/shell_modules/REPORT001.sh
+2025-07-05 17:19:05 [INFO]   USER001: JAVA -> com.openasp.user.UserManagement
+2025-07-05 17:19:05 [INFO]   SYSTEM001: JAVA -> com.openasp.system.SystemInfo
+2025-07-05 17:19:05 [INFO] ? Configuration loaded successfully
+2025-07-05 17:19:05 [INFO] ?? SMED Files: 2
+2025-07-05 17:19:05 [INFO] ?? User Accounts: 4
+2025-07-05 17:19:05 [INFO] ???  SMED-PGM Maps: 14
+2025-07-05 17:19:05 [INFO] ? Java Available: True
+2025-07-05 17:19:05 [INFO] ?? JAR File: /home/aspuser/app/server/java_jars/ofasp.jar (EXISTS)
+2025-07-05 17:19:05 [INFO] ?? OpenASP SMED API Server ready!
+ * Serving Flask app 'api_server'
+ * Debug mode: off
+2025-07-05 17:19:05 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.20.0.2:8000
+2025-07-05 17:19:05 [INFO] [33mPress CTRL+C to quit[0m
+2025-07-05 17:22:00 [INFO] 127.0.0.1 - - [05/Jul/2025 17:22:00] "GET /api/health HTTP/1.1" 200 -
+2025-07-05 17:22:05 [INFO] 127.0.0.1 - - [05/Jul/2025 17:22:05] "GET /api/smed/logo HTTP/1.1" 200 -
+2025-07-05 17:22:21 [INFO] 127.0.0.1 - - [05/Jul/2025 17:22:21] "OPTIONS /api/smed/logo HTTP/1.1" 200 -
+2025-07-05 17:22:28 [INFO] 127.0.0.1 - - [05/Jul/2025 17:22:28] "GET /api/smed/logo HTTP/1.1" 200 -

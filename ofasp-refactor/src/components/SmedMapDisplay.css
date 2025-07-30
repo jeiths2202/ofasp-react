@@ -1,0 +1,148 @@
+.smed-map-display {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #000000;
+  color: #00ff00;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  position: relative;
+  display: inline-block;
+}
+
+.smed-map-display:focus {
+  outline: none;
+}
+
+.map-header {
+  color: #00ff00;
+  margin-bottom: 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.terminal-grid {
+  display: inline-block;
+  border: 2px solid #00ff00;
+  padding: 10px;
+  background-color: #0a0a0a;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-row {
+  display: flex;
+  height: 1.2em;
+  line-height: 1.2em;
+  white-space: nowrap;
+}
+
+.grid-char {
+  display: inline-block;
+  width: 0.6em;
+  text-align: center;
+  color: #00ff00;
+  background-color: transparent;
+  cursor: default;
+  transition: background-color 0.1s ease;
+  font-family: 'MS Gothic', 'Yu Gothic', 'Hiragino Kaku Gothic Pro', 'Meiryo', 'Courier New', monospace;
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.grid-char.input-field {
+  color: #00ff00;
+  background-color: #003300;
+  cursor: text;
+}
+
+.grid-char.input-field:hover {
+  background-color: #004400;
+}
+
+.grid-char.focused-field {
+  background-color: #005500;
+  color: #00ff00;
+}
+
+.grid-char.cursor {
+  animation: blink 1s infinite;
+  background-color: #00ff00;
+  color: #000000;
+}
+
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.status-bar {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #003300;
+  color: #00ff00;
+  font-size: 12px;
+  border: 1px solid #00ff00;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Terminal phosphor glow effect */
+.terminal-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 0, 0.03),
+    rgba(0, 255, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle scanline effect - disabled to prevent distraction */
+.terminal-grid::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(0, 255, 0, 0.02);
+  /* animation: scanline 8s linear infinite; */
+  pointer-events: none;
+  z-index: 2;
+  display: none; /* Completely hide the scanline */
+}
+
+@keyframes scanline {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* Field highlighting for better visibility */
+.grid-char.input-field {
+  border-bottom: 1px solid #00ff00;
+  margin-bottom: -1px;
+}
+
+/* Full-width character support */
+.grid-char.full-width {
+  width: 1.2em !important;
+  text-align: left !important;
+  font-weight: normal;
+}

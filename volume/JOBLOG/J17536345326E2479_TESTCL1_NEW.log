@@ -1,0 +1,43 @@
+[2025-07-27 16:42:12] [JOB_SUBMITTED] Job TESTCL1_NEW submitted successfully
+[2025-07-27 16:42:16] [JOB_STARTED] Job TESTCL1_NEW started execution
+[2025-07-27 16:42:16] [JOB_INFO] Executing CL program: TESTCL1
+[2025-07-27 16:42:17] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 1 instructions
+
+[1/1] [EXEC] CALL PGM-HELLOASP.TESTLIB,VOL-DISK01
+[INFO] Calling program: HELLOASP
+[INFO] Library: TESTLIB
+[INFO] Volume: DISK01
+[INFO] Parameters: None
+[INFO] Program type: JAVA
+[INFO] Executing Java command: java -cp /home/aspuser/app/volume/DISK01/TESTLIB HelloASP
+[DEBUG] Found 6 jobs in database
+[DEBUG] Processing job J17536345326E2479: TESTCL1_NEW (status: RUNNING)
+[DEBUG] Added job J17536345326E2479 to active_jobs (status: RUNNING)
+[DEBUG] Processing job J175363320613CD64: CL_TESTCL1_1753633206525 (status: COMPLETED)
+[DEBUG] Added job J175363320613CD64 to active_jobs (status: COMPLETED)
+[DEBUG] Processing job J17536315659AAA2A: TESTCL1_TEST (status: ERROR)
+[DEBUG] Added job J17536315659AAA2A to active_jobs (status: ERROR)
+[DEBUG] Processing job J1753631231FD6137: TESTCL1_TEST (status: ERROR)
+[DEBUG] Added job J1753631231FD6137 to active_jobs (status: ERROR)
+[DEBUG] Processing job J17536289770347E5: JPTEST_NEW (status: ERROR)
+[DEBUG] Added job J17536289770347E5 to active_jobs (status: ERROR)
+[DEBUG] Processing job J1753628903326C47: JPTEST_NEW (status: ERROR)
+[DEBUG] Added job J1753628903326C47 to active_jobs (status: ERROR)
+[DEBUG] Returning 6 active jobs
+[DEBUG] Total jobs in database: 6
+[DEBUG] Found 0 pending jobs
+[DEBUG] No pending jobs found, waiting 5 seconds...
+[INFO] Java program executed
+[INFO] Return code: 0
+[OUTPUT] Hello ASP
+Java program executed successfully from TESTCL1
+Processing completed
+
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 0/1
+
+[2025-07-27 16:42:17] [JOB_INFO] CL program executed successfully
+[2025-07-27 16:42:17] [JOB_COMPLETED] Job TESTCL1_NEW completed successfully
