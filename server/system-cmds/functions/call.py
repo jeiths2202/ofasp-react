@@ -188,19 +188,45 @@ def _call_java_program(volume: str, library: str, program: str,
         
         # Execute the Java program
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, 
-                                  cwd=program_path, timeout=30)
+            # Set environment variables for proper encoding
+            env = os.environ.copy()
+            env['JAVA_TOOL_OPTIONS'] = '-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8'
+            env['LC_ALL'] = 'C.UTF-8'
+            env['LANG'] = 'C.UTF-8'
+            
+            result = subprocess.run(cmd, capture_output=True, text=False, 
+                                  cwd=program_path, timeout=30, env=env)
             
             print(f"[INFO] Java program executed")
             print(f"[INFO] Return code: {result.returncode}")
             
+            # Handle encoding for stdout and stderr
+            stdout = ""
+            stderr = ""
+            
             if result.stdout:
-                print(f"[OUTPUT] {result.stdout}")
+                try:
+                    stdout = result.stdout.decode('utf-8', errors='replace')
+                except UnicodeDecodeError:
+                    try:
+                        stdout = result.stdout.decode('shift_jis', errors='replace')
+                    except UnicodeDecodeError:
+                        stdout = result.stdout.decode('latin1', errors='replace')
+                
+                print(f"[OUTPUT] {stdout}")
                 # Process output for SMED integration
-                _process_java_output(result.stdout, volume, library, program)
+                _process_java_output(stdout, volume, library, program)
             
             if result.stderr:
-                print(f"[ERROR] {result.stderr}")
+                try:
+                    stderr = result.stderr.decode('utf-8', errors='replace')
+                except UnicodeDecodeError:
+                    try:
+                        stderr = result.stderr.decode('shift_jis', errors='replace')
+                    except UnicodeDecodeError:
+                        stderr = result.stderr.decode('latin1', errors='replace')
+                
+                print(f"[ERROR] {stderr}")
             
             if result.returncode != 0:
                 set_pgmec(result.returncode)
@@ -372,29 +398,148 @@ def _parse_parameters(param_string: str) -> List[str]:
         return []
 
 def _process_java_output(output: str, volume: str, library: str, program: str) -> None:
-    """Process Java program output for SMED integration (simplified)"""
+    """Process Java program output for SMED integration"""
     try:
-        # Look for JSON output for SMED integration
+        print(f"[CALL_DEBUG] Processing Java output for SMED integration...")
         lines = output.strip().split('\n')
+        
+        # Look for SMED_MAP_OUTPUT marker
+        smed_output_started = False
+        json_lines = []
+        
         for line in lines:
-            if line.strip().startswith('{') and line.strip().endswith('}'):
+            line = line.strip()
+            
+            if line == "SMED_MAP_OUTPUT:":
+                smed_output_started = True
+                print(f"[CALL_DEBUG] Found SMED_MAP_OUTPUT marker")
+                continue
+            
+            if smed_output_started:
+                if line.startswith('{') or line.startswith('"') or line.startswith('[') or json_lines:
+                    json_lines.append(line)
+                    
+                    # Try to parse as complete JSON
+                    json_str = '\n'.join(json_lines)
+                    try:
+                        smed_data = json.loads(json_str)
+                        print(f"[CALL_DEBUG] Successfully parsed SMED JSON data")
+                        
+                        # Send SMED map data to WebSocket
+                        _send_smed_to_websocket(smed_data, program)
+                        
+                        # Reset for potential additional JSON blocks
+                        json_lines = []
+                        smed_output_started = False
+                        
+                    except json.JSONDecodeError:
+                        # Continue collecting lines for multi-line JSON
+                        continue
+                else:
+                    # Non-JSON line after SMED output, stop collecting
+                    if json_lines:
+                        smed_output_started = False
+                        json_lines = []
+            
+            # Also check for legacy single-line JSON format
+            if line.startswith('{') and line.endswith('}') and not smed_output_started:
                 try:
-                    output_data = json.loads(line.strip())
+                    output_data = json.loads(line)
                     action = output_data.get('action')
                     
                     if action == 'display_map':
                         map_name = output_data.get('map_name')
-                        print(f"[INFO] SMED map display requested: {map_name}")
-                        # Simplified SMED integration
-                        print(f"[INFO] Map data: {output_data.get('data', {})}")
+                        print(f"[CALL_DEBUG] Legacy SMED map display requested: {map_name}")
+                        _send_smed_to_websocket(output_data.get('data', {}), map_name)
                     elif action == 'continue':
-                        print(f"[INFO] Program continuation requested")
+                        print(f"[CALL_DEBUG] Program continuation requested")
                     
                 except json.JSONDecodeError:
                     pass  # Not JSON, ignore
                     
     except Exception as e:
-        print(f"[DEBUG] Output processing error: {e}")
+        print(f"[CALL_DEBUG] Output processing error: {e}")
+
+def _send_smed_to_websocket(smed_data: dict, program_name: str) -> None:
+    """Send SMED map data to WebSocket for display via Socket.IO"""
+    try:
+        print(f"[CALL_DEBUG] Sending SMED data for program: {program_name}")
+        
+        # Create message for Socket.IO broadcast in the format expected by web terminal
+        message = {
+            'type': 'smed_map',
+            'program': program_name,
+            'map_file': smed_data.get('map_name', program_name),
+            'fields': smed_data,
+            'data': smed_data.get('fields', []),
+            'timestamp': datetime.now().isoformat(),
+            'hub_metadata': {
+                'source': 'call_function',
+                'terminal_id': 'system',
+                'timestamp': datetime.now().isoformat()
+            }
+        }
+        
+        print(f"[CALL_DEBUG] Prepared message: {json.dumps(message, indent=2)}")
+        
+        # First, try to write to file for pickup by web terminal
+        _write_smed_to_file(smed_data, program_name)
+        
+        # Also try HTTP method as fallback
+        try:
+            import urllib.request
+            import urllib.parse
+            
+            json_data = json.dumps(message).encode('utf-8')
+            req = urllib.request.Request(
+                'http://localhost:8000/broadcast-smed',
+                data=json_data,
+                headers={'Content-Type': 'application/json'}
+            )
+            
+            try:
+                with urllib.request.urlopen(req, timeout=2) as response:
+                    if response.status == 200:
+                        print(f"[CALL_DEBUG] Successfully sent SMED data to Socket.IO server")
+                    else:
+                        print(f"[CALL_DEBUG] Socket.IO server responded with status: {response.status}")
+            except Exception as http_error:
+                print(f"[CALL_DEBUG] HTTP request failed: {http_error}")
+                        
+        except Exception as e:
+            print(f"[CALL_DEBUG] HTTP fallback failed: {e}")
+            
+    except Exception as e:
+        print(f"[CALL_DEBUG] Failed to send SMED data: {e}")
+
+def _write_smed_to_file(smed_data: dict, program_name: str) -> None:
+    """Fallback: Write SMED data to a file for pickup by the server"""
+    try:
+        import tempfile
+        
+        smed_file = os.path.join(tempfile.gettempdir(), 'asp_smed_output.json')
+        
+        message = {
+            'type': 'smed_map',
+            'program': program_name,
+            'map_file': smed_data.get('map_name', program_name),
+            'fields': smed_data,
+            'data': smed_data.get('fields', []),
+            'timestamp': datetime.now().isoformat(),
+            'hub_metadata': {
+                'source': 'call_function',
+                'terminal_id': 'system',
+                'timestamp': datetime.now().isoformat()
+            }
+        }
+        
+        with open(smed_file, 'w', encoding='utf-8') as f:
+            json.dump(message, f, ensure_ascii=False, indent=2)
+            
+        print(f"[CALL_DEBUG] SMED data written to file: {smed_file}")
+        
+    except Exception as e:
+        print(f"[CALL_DEBUG] Failed to write SMED data to file: {e}")
 
 
 # For backwards compatibility and testing

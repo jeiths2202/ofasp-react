@@ -23,6 +23,8 @@ import logging
 from collections import deque
 import uuid
 from io import StringIO
+import chardet
+import codecs
 
 # ?? ??
 logging.basicConfig(
@@ -1664,6 +1666,624 @@ def add_log(level, source, message, details=None):
     }
     execution_logs.append(log_entry)
     logger.info(f"[{level}] {source}: {message}")
+
+# ========================================
+# Encoding Conversion API Endpoints
+# ========================================
+
+class EncodingConverter:
+    """UTF-8와 SJIS 간의 인코딩 변환을 처리하는 클래스"""
+    
+    @staticmethod
+    def detect_encoding(data):
+        """문자열 또는 바이너리 데이터의 인코딩을 자동 감지"""
+        try:
+            if isinstance(data, str):
+                # 문자열인 경우 바이트로 변환하여 감지
+                test_bytes = data.encode('utf-8')
+                result = chardet.detect(test_bytes)
+            else:
+                # 바이너리 데이터인 경우 직접 감지
+                result = chardet.detect(data)
+            
+            encoding = result.get('encoding', 'unknown').lower()
+            confidence = result.get('confidence', 0.0)
+            
+            # SJIS 계열 인코딩 정규화
+            if encoding in ['shift_jis', 'shift-jis', 'sjis', 'cp932', 'windows-31j']:
+                encoding = 'shift_jis'
+            elif encoding in ['utf-8', 'utf8']:
+                encoding = 'utf-8'
+            
+            return {
+                'encoding': encoding,
+                'confidence': confidence,
+                'is_japanese': encoding == 'shift_jis' or confidence > 0.8
+            }
+        except Exception as e:
+            logger.error(f"Encoding detection failed: {e}")
+            return {
+                'encoding': 'unknown',
+                'confidence': 0.0,
+                'is_japanese': False,
+                'error': str(e)
+            }
+    
+    @staticmethod
+    def utf8_to_sjis(text, error_handling='replace'):
+        """UTF-8 문자열을 SJIS로 변환"""
+        try:
+            if not isinstance(text, str):
+                raise ValueError("Input must be a string")
+            
+            # UTF-8에서 SJIS로 변환
+            sjis_bytes = text.encode('shift_jis', errors=error_handling)
+            
+            return {
+                'success': True,
+                'converted': sjis_bytes.decode('shift_jis'),
+                'hex_output': sjis_bytes.hex().upper(),
+                'byte_length': len(sjis_bytes),
+                'original_length': len(text),
+                'encoding_info': {
+                    'source': 'utf-8',
+                    'target': 'shift_jis',
+                    'error_handling': error_handling
+                }
+            }
+        except UnicodeEncodeError as e:
+            # 변환할 수 없는 문자가 있는 경우
+            if error_handling == 'strict':
+                raise
+            
+            # 대체 문자 사용하여 재시도
+            sjis_bytes = text.encode('shift_jis', errors='replace')
+            
+            return {
+                'success': True,
+                'converted': sjis_bytes.decode('shift_jis'),
+                'hex_output': sjis_bytes.hex().upper(),
+                'byte_length': len(sjis_bytes),
+                'original_length': len(text),
+                'warnings': [f"Character encoding error at position {e.start}: {e.reason}"],
+                'encoding_info': {
+                    'source': 'utf-8',
+                    'target': 'shift_jis',
+                    'error_handling': error_handling,
+                    'fallback_used': True
+                }
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'encoding_info': None
+            }
+    
+    @staticmethod
+    def sjis_to_utf8(data, error_handling='replace'):
+        """SJIS 데이터를 UTF-8로 변환"""
+        try:
+            # 입력 데이터 처리
+            if isinstance(data, str):
+                # 헥스 문자열인지 확인
+                if all(c in '0123456789ABCDEFabcdef' for c in data.replace(' ', '')):
+                    # 헥스 문자열을 바이트로 변환
+                    hex_clean = data.replace(' ', '')
+                    if len(hex_clean) % 2 != 0:
+                        raise ValueError("Invalid hex string length")
+                    sjis_bytes = bytes.fromhex(hex_clean)
+                else:
+                    # 일반 문자열을 SJIS 바이트로 가정
+                    sjis_bytes = data.encode('shift_jis')
+            else:
+                sjis_bytes = data
+            
+            # SJIS에서 UTF-8로 변환
+            utf8_text = sjis_bytes.decode('shift_jis', errors=error_handling)
+            
+            return {
+                'success': True,
+                'converted': utf8_text,
+                'byte_length': len(sjis_bytes),
+                'char_length': len(utf8_text),
+                'encoding_info': {
+                    'source': 'shift_jis',
+                    'target': 'utf-8',
+                    'error_handling': error_handling
+                }
+            }
+        except UnicodeDecodeError as e:
+            # 변환할 수 없는 바이트가 있는 경우
+            if error_handling == 'strict':
+                raise
+            
+            # 대체 문자 사용하여 재시도
+            utf8_text = sjis_bytes.decode('shift_jis', errors='replace')
+            
+            return {
+                'success': True,
+                'converted': utf8_text,
+                'byte_length': len(sjis_bytes),
+                'char_length': len(utf8_text),
+                'warnings': [f"Byte decoding error at position {e.start}: {e.reason}"],
+                'encoding_info': {
+                    'source': 'shift_jis',
+                    'target': 'utf-8',
+                    'error_handling': error_handling,
+                    'fallback_used': True
+                }
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'encoding_info': None
+            }
+    
+    @staticmethod
+    def batch_convert(texts, source_encoding, target_encoding, error_handling='replace'):
+        """여러 문자열을 배치로 변환"""
+        if not isinstance(texts, list):
+            return {
+                'success': False,
+                'error': 'Input must be a list of strings'
+            }
+        
+        results = []
+        errors = []
+        
+        for i, text in enumerate(texts):
+            try:
+                if source_encoding == 'utf-8' and target_encoding == 'shift_jis':
+                    result = EncodingConverter.utf8_to_sjis(text, error_handling)
+                elif source_encoding == 'shift_jis' and target_encoding == 'utf-8':
+                    result = EncodingConverter.sjis_to_utf8(text, error_handling)
+                else:
+                    result = {
+                        'success': False,
+                        'error': f'Unsupported conversion: {source_encoding} -> {target_encoding}'
+                    }
+                
+                result['index'] = i
+                results.append(result)
+                
+                if not result['success']:
+                    errors.append(f"Index {i}: {result.get('error', 'Unknown error')}")
+                    
+            except Exception as e:
+                error_result = {
+                    'success': False,
+                    'error': str(e),
+                    'index': i
+                }
+                results.append(error_result)
+                errors.append(f"Index {i}: {str(e)}")
+        
+        return {
+            'success': len(errors) == 0,
+            'results': results,
+            'total_count': len(texts),
+            'success_count': len([r for r in results if r['success']]),
+            'error_count': len(errors),
+            'errors': errors
+        }
+
+@app.route('/api/encoding/utf8-to-sjis', methods=['POST'])
+def utf8_to_sjis():
+    """UTF-8 문자열을 SJIS로 변환"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        text = data.get('text', '')
+        error_handling = data.get('error_handling', 'replace')
+        
+        if not text:
+            return jsonify({'error': 'Text parameter required'}), 400
+        
+        logger.info(f"UTF-8 to SJIS conversion request: {len(text)} characters")
+        add_log('INFO', 'ENCODING', f'UTF-8 to SJIS conversion started', {
+            'text_length': len(text),
+            'error_handling': error_handling
+        })
+        
+        result = EncodingConverter.utf8_to_sjis(text, error_handling)
+        
+        if result['success']:
+            add_log('INFO', 'ENCODING', f'UTF-8 to SJIS conversion completed', {
+                'original_length': result['original_length'],
+                'byte_length': result['byte_length']
+            })
+        else:
+            add_log('ERROR', 'ENCODING', f'UTF-8 to SJIS conversion failed', {
+                'error': result['error']
+            })
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"UTF-8 to SJIS conversion API error: {error_msg}")
+        add_log('ERROR', 'ENCODING', f'UTF-8 to SJIS API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/api/encoding/sjis-to-utf8', methods=['POST'])
+def sjis_to_utf8():
+    """SJIS 데이터를 UTF-8로 변환"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        sjis_data = data.get('data', '')
+        error_handling = data.get('error_handling', 'replace')
+        
+        if not sjis_data:
+            return jsonify({'error': 'Data parameter required'}), 400
+        
+        logger.info(f"SJIS to UTF-8 conversion request")
+        add_log('INFO', 'ENCODING', f'SJIS to UTF-8 conversion started', {
+            'data_type': type(sjis_data).__name__,
+            'error_handling': error_handling
+        })
+        
+        result = EncodingConverter.sjis_to_utf8(sjis_data, error_handling)
+        
+        if result['success']:
+            add_log('INFO', 'ENCODING', f'SJIS to UTF-8 conversion completed', {
+                'byte_length': result['byte_length'],
+                'char_length': result['char_length']
+            })
+        else:
+            add_log('ERROR', 'ENCODING', f'SJIS to UTF-8 conversion failed', {
+                'error': result['error']
+            })
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"SJIS to UTF-8 conversion API error: {error_msg}")
+        add_log('ERROR', 'ENCODING', f'SJIS to UTF-8 API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/api/encoding/batch-convert', methods=['POST'])
+def batch_convert():
+    """배치 변환 - 여러 문자열을 한 번에 변환"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        texts = data.get('texts', [])
+        source_encoding = data.get('source_encoding', 'utf-8')
+        target_encoding = data.get('target_encoding', 'shift_jis')
+        error_handling = data.get('error_handling', 'replace')
+        
+        if not texts:
+            return jsonify({'error': 'Texts parameter required'}), 400
+        
+        if not isinstance(texts, list):
+            return jsonify({'error': 'Texts must be an array'}), 400
+        
+        logger.info(f"Batch conversion request: {len(texts)} items, {source_encoding} -> {target_encoding}")
+        add_log('INFO', 'ENCODING', f'Batch conversion started', {
+            'item_count': len(texts),
+            'source_encoding': source_encoding,
+            'target_encoding': target_encoding,
+            'error_handling': error_handling
+        })
+        
+        result = EncodingConverter.batch_convert(texts, source_encoding, target_encoding, error_handling)
+        
+        add_log('INFO', 'ENCODING', f'Batch conversion completed', {
+            'total_count': result['total_count'],
+            'success_count': result['success_count'],
+            'error_count': result['error_count']
+        })
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Batch conversion API error: {error_msg}")
+        add_log('ERROR', 'ENCODING', f'Batch conversion API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/api/encoding/detect', methods=['POST'])
+def detect_encoding():
+    """인코딩 자동 감지"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        text_data = data.get('data', '')
+        
+        if not text_data:
+            return jsonify({'error': 'Data parameter required'}), 400
+        
+        logger.info(f"Encoding detection request")
+        add_log('INFO', 'ENCODING', f'Encoding detection started', {
+            'data_type': type(text_data).__name__,
+            'data_length': len(text_data) if isinstance(text_data, str) else len(str(text_data))
+        })
+        
+        result = EncodingConverter.detect_encoding(text_data)
+        
+        add_log('INFO', 'ENCODING', f'Encoding detection completed', {
+            'detected_encoding': result['encoding'],
+            'confidence': result['confidence'],
+            'is_japanese': result['is_japanese']
+        })
+        
+        return jsonify({
+            'success': True,
+            'detection': result
+        })
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Encoding detection API error: {error_msg}")
+        add_log('ERROR', 'ENCODING', f'Encoding detection API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+# WebSocket과 SMED 통합을 위한 추가 엔드포인트
+@app.route('/api/encoding/smed-convert', methods=['POST'])
+def smed_convert():
+    """SMED 파일 내용의 인코딩 변환 (Position-based API와 연동)"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        map_name = data.get('map_name', '')
+        field_data = data.get('field_data', [])
+        source_encoding = data.get('source_encoding', 'shift_jis')
+        target_encoding = data.get('target_encoding', 'utf-8')
+        error_handling = data.get('error_handling', 'replace')
+        terminal_id = data.get('terminal_id', 'TERM001')
+        wsname = data.get('wsname', 'DEFAULT')
+        
+        if not map_name:
+            return jsonify({'error': 'Map name required'}), 400
+        
+        if not isinstance(field_data, list):
+            return jsonify({'error': 'Field data must be an array'}), 400
+        
+        logger.info(f"SMED encoding conversion: {map_name}, {len(field_data)} fields")
+        add_log('INFO', 'SMED_ENCODING', f'SMED conversion started', {
+            'map_name': map_name,
+            'field_count': len(field_data),
+            'source_encoding': source_encoding,
+            'target_encoding': target_encoding,
+            'terminal_id': terminal_id,
+            'wsname': wsname
+        })
+        
+        # 배치 변환 수행
+        conversion_result = EncodingConverter.batch_convert(
+            field_data, source_encoding, target_encoding, error_handling
+        )
+        
+        if conversion_result['success']:
+            # 변환된 데이터 추출
+            converted_fields = [
+                result.get('converted', '') if result['success'] else result.get('error', '')
+                for result in conversion_result['results']
+            ]
+            
+            # Position-based rendering을 위한 응답 형식
+            smed_response = {
+                'success': True,
+                'map_name': map_name,
+                'field_data': converted_fields,
+                'encoding_info': {
+                    'source': source_encoding,
+                    'target': target_encoding,
+                    'error_handling': error_handling
+                },
+                'conversion_stats': {
+                    'total_fields': conversion_result['total_count'],
+                    'success_fields': conversion_result['success_count'],
+                    'error_fields': conversion_result['error_count']
+                },
+                'terminal_info': {
+                    'terminal_id': terminal_id,
+                    'wsname': wsname
+                }
+            }
+            
+            # 에러가 있는 경우 경고 포함
+            if conversion_result['error_count'] > 0:
+                smed_response['warnings'] = conversion_result['errors']
+            
+            add_log('INFO', 'SMED_ENCODING', f'SMED conversion completed', {
+                'map_name': map_name,
+                'success_fields': conversion_result['success_count'],
+                'error_fields': conversion_result['error_count']
+            })
+            
+            return jsonify(smed_response)
+        else:
+            add_log('ERROR', 'SMED_ENCODING', f'SMED conversion failed', {
+                'map_name': map_name,
+                'errors': conversion_result['errors']
+            })
+            
+            return jsonify({
+                'success': False,
+                'error': 'Batch conversion failed',
+                'details': conversion_result['errors']
+            }), 500
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"SMED encoding conversion API error: {error_msg}")
+        add_log('ERROR', 'SMED_ENCODING', f'SMED conversion API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/api/encoding/websocket-convert', methods=['POST'])
+def websocket_convert():
+    """WebSocket 메시지의 실시간 인코딩 변환"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request body required'}), 400
+        
+        message = data.get('message', '')
+        source_encoding = data.get('source_encoding', 'shift_jis')
+        target_encoding = data.get('target_encoding', 'utf-8')
+        error_handling = data.get('error_handling', 'replace')
+        session_id = data.get('session_id', 'default')
+        message_type = data.get('message_type', 'data')
+        
+        if not message:
+            return jsonify({'error': 'Message required'}), 400
+        
+        logger.info(f"WebSocket encoding conversion: {session_id}, type: {message_type}")
+        add_log('INFO', 'WS_ENCODING', f'WebSocket conversion started', {
+            'session_id': session_id,
+            'message_type': message_type,
+            'source_encoding': source_encoding,
+            'target_encoding': target_encoding,
+            'message_length': len(message)
+        })
+        
+        # 단일 메시지 변환
+        if source_encoding == 'utf-8' and target_encoding == 'shift_jis':
+            result = EncodingConverter.utf8_to_sjis(message, error_handling)
+        elif source_encoding == 'shift_jis' and target_encoding == 'utf-8':
+            result = EncodingConverter.sjis_to_utf8(message, error_handling)
+        else:
+            return jsonify({
+                'error': f'Unsupported conversion: {source_encoding} -> {target_encoding}'
+            }), 400
+        
+        if result['success']:
+            ws_response = {
+                'success': True,
+                'converted_message': result['converted'],
+                'original_message': message,
+                'session_id': session_id,
+                'message_type': message_type,
+                'encoding_info': result['encoding_info'],
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            # 추가 정보 포함
+            if 'hex_output' in result:
+                ws_response['hex_output'] = result['hex_output']
+            if 'warnings' in result:
+                ws_response['warnings'] = result['warnings']
+            
+            add_log('INFO', 'WS_ENCODING', f'WebSocket conversion completed', {
+                'session_id': session_id,
+                'message_type': message_type,
+                'success': True
+            })
+            
+            return jsonify(ws_response)
+        else:
+            add_log('ERROR', 'WS_ENCODING', f'WebSocket conversion failed', {
+                'session_id': session_id,
+                'error': result['error']
+            })
+            
+            return jsonify({
+                'success': False,
+                'error': result['error'],
+                'session_id': session_id,
+                'message_type': message_type
+            }), 500
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"WebSocket encoding conversion API error: {error_msg}")
+        add_log('ERROR', 'WS_ENCODING', f'WebSocket conversion API error: {error_msg}', {'error': error_msg})
+        return jsonify({'error': error_msg}), 500
+
+@app.route('/api/encoding/status', methods=['GET'])
+def encoding_status():
+    """인코딩 변환 서비스 상태 확인"""
+    try:
+        # Python 인코딩 지원 확인
+        encodings_supported = []
+        test_string = "テスト文字列"  # 일본어 테스트 문자열
+        
+        # UTF-8 지원 확인
+        try:
+            test_string.encode('utf-8')
+            encodings_supported.append('utf-8')
+        except:
+            pass
+        
+        # SJIS 지원 확인
+        try:
+            test_string.encode('shift_jis')
+            encodings_supported.append('shift_jis')
+        except:
+            pass
+        
+        # chardet 라이브러리 확인
+        chardet_available = False
+        try:
+            import chardet
+            chardet_available = True
+        except ImportError:
+            pass
+        
+        # 시스템 정보
+        import locale
+        system_encoding = locale.getpreferredencoding()
+        
+        status_info = {
+            'service_status': 'active',
+            'encodings_supported': encodings_supported,
+            'chardet_available': chardet_available,
+            'system_encoding': system_encoding,
+            'api_endpoints': [
+                'POST /api/encoding/utf8-to-sjis',
+                'POST /api/encoding/sjis-to-utf8',
+                'POST /api/encoding/batch-convert',
+                'POST /api/encoding/detect',
+                'POST /api/encoding/smed-convert',
+                'POST /api/encoding/websocket-convert',
+                'GET /api/encoding/status'
+            ],
+            'features': {
+                'japanese_support': 'shift_jis' in encodings_supported,
+                'korean_support': True,  # UTF-8로 처리 가능
+                'batch_processing': True,
+                'auto_detection': chardet_available,
+                'websocket_integration': True,
+                'smed_integration': True,
+                'error_handling': ['strict', 'replace', 'ignore']
+            },
+            'performance': {
+                'max_batch_size': 1000,
+                'max_message_size': 1024 * 1024,  # 1MB
+                'timeout_seconds': 30
+            }
+        }
+        
+        return jsonify({
+            'success': True,
+            'status': status_info
+        })
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Encoding status API error: {error_msg}")
+        return jsonify({'error': error_msg}), 500
 
 if __name__ == '__main__':
     logger.info("OpenASP API Server v0.5.1 starting...")
