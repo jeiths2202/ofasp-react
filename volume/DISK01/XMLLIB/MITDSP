@@ -1,0 +1,17 @@
+      *> MITDSP copybook - Standard SMED map definition
+      *> Created for Fujitsu ASP COBOLG integration
+      *> Encoding: SJIS
+       01  MAIN001-MAP.
+           05  FILLER          PIC X(1) VALUE SPACE.
+           05  MENU-TITLE      PIC X(20) VALUE "管理メニュー".
+           05  FILLER          PIC X(1) VALUE SPACE.
+           05  OPTION-1        PIC X(20) VALUE "１）参照".
+           05  FILLER          PIC X(1) VALUE SPACE.
+           05  OPTION-2        PIC X(20) VALUE "２）追加".
+           05  FILLER          PIC X(1) VALUE SPACE.
+           05  OPTION-3        PIC X(20) VALUE "３）更新".
+           05  FILLER          PIC X(1) VALUE SPACE.
+           05  OPTION-4        PIC X(20) VALUE "４）削除".
+           05  FILLER          PIC X(1) VALUE SPACE.
+           05  SELECTION-PROMPT PIC X(20) VALUE "選択：".
+           05  USER-INPUT      PIC X(1).

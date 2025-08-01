@@ -1,0 +1,67 @@
+{
+  "map_name": "MAIN001",
+  "title": "社員管理メニュー",
+  "rows": 24,
+  "cols": 80,
+  "fields": [
+    {
+      "name": "TITLE",
+      "row": 3,
+      "col": 30,
+      "length": 20,
+      "value": "社員管理メニュー",
+      "attribute": "HIGH"
+    },
+    {
+      "name": "OPTION1",
+      "row": 7,
+      "col": 30,
+      "length": 10,
+      "value": "1) 照会",
+      "attribute": "NORMAL"
+    },
+    {
+      "name": "OPTION2", 
+      "row": 9,
+      "col": 30,
+      "length": 10,
+      "value": "2) 追加",
+      "attribute": "NORMAL"
+    },
+    {
+      "name": "OPTION3",
+      "row": 11,
+      "col": 30,
+      "length": 10,
+      "value": "3) 更新",
+      "attribute": "NORMAL"
+    },
+    {
+      "name": "OPTION4",
+      "row": 13,
+      "col": 30,
+      "length": 10,
+      "value": "4) 削除",
+      "attribute": "NORMAL"
+    },
+    {
+      "name": "PROMPT",
+      "row": 18,
+      "col": 30,
+      "length": 5,
+      "value": "選択：",
+      "attribute": "HIGH"
+    },
+    {
+      "name": "INPUT",
+      "row": 18,
+      "col": 36,
+      "length": 1,
+      "value": "",
+      "attribute": "INPUT",
+      "input": true
+    }
+  ],
+  "background_color": "BLACK",
+  "foreground_color": "GREEN"
+}
