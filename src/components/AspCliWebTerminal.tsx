@@ -1978,23 +1978,28 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                       };
                       
                       // Use existing WebSocket Hub connection to send menu selection
-                      const sent = webSocketService.sendMenuSelection(programName, selection);
-                      
-                      if (sent) {
-                        console.log('[WEB_TERMINAL_DEBUG] Menu selection sent via WebSocket Hub');
+                      try {
+                        const sent = await webSocketService.sendMenuSelection(programName, selection);
                         
-                        // Add terminal log entry for menu selection
-                        const selectionEntry: CommandHistory = {
-                          command: `${programName} Menu Selection: ${selection}`,
-                          output: `Option ${selection} sent to running ${programName} process via WebSocket Hub`,
-                          timestamp: new Date(),
-                          success: true
-                        };
-                        setCommandHistory(prev => [...prev, selectionEntry]);
-                        
-                        console.log('[WEB_TERMINAL_DEBUG] Menu selection sent successfully - no new process created');
-                      } else {
-                        throw new Error('Failed to send menu selection via WebSocket Hub');
+                        if (sent) {
+                          console.log('[WEB_TERMINAL_DEBUG] Menu selection sent via WebSocket Hub');
+                          
+                          // Add terminal log entry for menu selection
+                          const selectionEntry: CommandHistory = {
+                            command: `${programName} Menu Selection: ${selection}`,
+                            output: `Option ${selection} sent to running ${programName} process via WebSocket Hub`,
+                            timestamp: new Date(),
+                            success: true
+                          };
+                          setCommandHistory(prev => [...prev, selectionEntry]);
+                          
+                          console.log('[WEB_TERMINAL_DEBUG] Menu selection sent successfully - no new process created');
+                        } else {
+                          throw new Error('Failed to send menu selection via WebSocket Hub');
+                        }
+                      } catch (error) {
+                        console.error('[WEB_TERMINAL_DEBUG] Menu selection failed:', error);
+                        throw error;
                       }
                     } else {
                       throw new Error('WebSocket Hub not connected');

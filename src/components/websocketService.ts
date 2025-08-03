@@ -233,6 +233,17 @@ class WebSocketService {
       this.emit('hub_key_event_error', data);
     });
 
+    // Hub 메뉴 선택 응답
+    this.socket.on('hub_menu_selection_response', (data: any) => {
+      console.log('[WebSocket Hub] Menu selection response:', data);
+      this.emit('hub_menu_selection_response', data);
+    });
+
+    this.socket.on('hub_menu_selection_error', (data: any) => {
+      console.error('[WebSocket Hub] Menu selection error:', data);
+      this.emit('hub_menu_selection_error', data);
+    });
+
     // Hub 상태 이벤트
     this.socket.on('hub_status', (data: any) => {
       console.log('[WebSocket Hub] Hub status:', data);
@@ -833,10 +844,10 @@ class WebSocketService {
   }
 
   // Send menu selection to avoid creating new process
-  sendMenuSelection(programName: string, selection: string): boolean {
+  sendMenuSelection(programName: string, selection: string): Promise<boolean> {
     if (!this.socket?.connected) {
       console.error('[WebSocket Hub] Cannot send menu selection - not connected to Hub');
-      return false;
+      return Promise.resolve(false);
     }
 
     console.log('[WebSocket Hub] Sending menu selection via Hub:', { programName, selection });
@@ -856,7 +867,34 @@ class WebSocketService {
     this.socket.emit('hub_menu_selection', menuData);
     
     console.log('[WebSocket Hub] hub_menu_selection event emitted successfully');
-    return true;
+    
+    // Return a promise that resolves when response is received
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        this.socket?.off('hub_menu_selection_response', handleResponse);
+        this.socket?.off('hub_menu_selection_error', handleError);
+        reject(new Error('Menu selection timeout'));
+      }, 10000); // 10 second timeout
+
+      const handleResponse = (data: any) => {
+        clearTimeout(timeout);
+        this.socket?.off('hub_menu_selection_response', handleResponse);
+        this.socket?.off('hub_menu_selection_error', handleError);
+        console.log('[WebSocket Hub] Menu selection confirmed:', data);
+        resolve(true);
+      };
+
+      const handleError = (data: any) => {
+        clearTimeout(timeout);
+        this.socket?.off('hub_menu_selection_response', handleResponse);
+        this.socket?.off('hub_menu_selection_error', handleError);
+        console.error('[WebSocket Hub] Menu selection error:', data);
+        reject(new Error(data.error || 'Menu selection failed'));
+      };
+
+      this.socket?.on('hub_menu_selection_response', handleResponse);
+      this.socket?.on('hub_menu_selection_error', handleError);
+    });
   }
 
   // Wrapper for terminal registration (Hub-based)
