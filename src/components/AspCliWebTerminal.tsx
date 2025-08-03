@@ -51,6 +51,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cleanupExecutedRef = useRef<boolean>(false);
   const [commandSuggestions] = useState([
     'HELP', 'CRTLIB', 'DLTLIB', 'WRKLIB', 'CRTFILE', 'DLTFILE', 
     'DSPFD', 'WRKOBJ', 'WRKVOL', 'WRKSPLF', 'WRKMSG',
@@ -257,7 +258,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
         webSocketService.connect('http://localhost:8000');
         
         // Hub 연결 성공 시
-        const handleHubConnected = () => {
+        const handleHubConnected = async () => {
           console.log('[WebSocket Hub] Connected to Hub, registering...');
           setHubConnectionStatus('connected');
           
@@ -267,14 +268,18 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           
           webSocketService.registerWithHub(terminalId, username, wsname);
           
-          // Hub 연결 성공 메시지
-          const newEntry: CommandHistory = {
+          // Hub 연결 성공 메시지를 서버 로그로 전송
+          const hubConnectionEntry: CommandHistory = {
             command: 'WebSocket Hub Connection',
             output: `Connected to WebSocket Hub v2.0 - Terminal: ${terminalId}, User: ${username}, Workstation: ${wsname}`,
             timestamp: new Date(),
             success: true
           };
-          setCommandHistory(prev => [...prev, newEntry]);
+          try {
+            await sendLogToOpenASPManager(hubConnectionEntry);
+          } catch (error) {
+            console.debug('Failed to send hub connection log to server:', error);
+          }
         };
 
         // Hub 연결 해제 시
@@ -418,7 +423,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     console.log('[WebSocket Hub] Setting up Hub event handlers...');
     
     // Single event handler: smed_data_received (sent from Hub)
-    const handleSmedDataReceived = (data: any) => {
+    const handleSmedDataReceived = async (data: any) => {
       console.log('[WebSocket Hub] SMED data received from Hub:', {
         map_file: data.map_file,
         fields_count: Array.isArray(data.fields) ? data.fields.length : Object.keys(data.fields || {}).length,
@@ -516,26 +521,34 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           setShowSmedMap(true);
         }
         
-        // Add success message to terminal
-        const newEntry: CommandHistory = {
+        // SMED Map 수신 메시지를 서버 로그로 전송
+        const smedReceivedEntry: CommandHistory = {
           command: 'WebSocket Hub SMED',
           output: `SMED Map received via Hub: ${data.map_file || 'BROWSE_MENU'} (${processedFields.length} fields) - Hub v${data.hub_metadata?.source || '2.0'}`,
           timestamp: new Date(),
           success: true
         };
-        setCommandHistory(prev => [...prev, newEntry]);
+        try {
+          await sendLogToOpenASPManager(smedReceivedEntry);
+        } catch (error) {
+          console.debug('Failed to send SMED received log to server:', error);
+        }
         
       } catch (error) {
         console.error('[WebSocket Hub] Error processing SMED data:', error);
         
-        // Add error message
+        // Hub SMED 처리 오류 메시지를 서버 로그로 전송
         const errorEntry: CommandHistory = {
           command: 'WebSocket Hub Error',
           output: `Hub SMED processing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
           timestamp: new Date(),
           success: false
         };
-        setCommandHistory(prev => [...prev, errorEntry]);
+        try {
+          await sendLogToOpenASPManager(errorEntry);
+        } catch (logError) {
+          console.debug('Failed to send hub error log to server:', logError);
+        }
       }
     };
 
@@ -546,7 +559,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     };
 
     // Command confirmation 핸들러
-    const handleCommandConfirmation = (data: any) => {
+    const handleCommandConfirmation = async (data: any) => {
       console.log('[WebSocket Hub] Command confirmation received:', data);
       
       const confirmationEntry: CommandHistory = {
@@ -555,7 +568,11 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
         timestamp: new Date(),
         success: data.success
       };
-      setCommandHistory(prev => [...prev, confirmationEntry]);
+      try {
+        await sendLogToOpenASPManager(confirmationEntry);
+      } catch (error) {
+        console.debug('Failed to send command confirmation log to server:', error);
+      }
     };
 
     // Hub 등록 완료 핸들러
@@ -598,10 +615,82 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   // WebSocket Hub 정리 (컴포넌트 언마운트 시)
   useEffect(() => {
     return () => {
-      console.log('[WebSocket Hub] Component unmounting, disconnecting from Hub');
+      console.log('[WebSocket Hub] Component unmounting, cleaning up all processes and disconnecting from Hub');
+      
+      // 컴포넌트 언마운트 시 실행 중인 모든 프로세스 정리 (중복 실행 방지)
+      const cleanupProcessesOnUnmount = async () => {
+        if (cleanupExecutedRef.current) {
+          console.log('[Component Cleanup] Cleanup already executed, skipping...');
+          return;
+        }
+        
+        cleanupExecutedRef.current = true;
+        
+        try {
+          console.log('[Component Cleanup] Cleaning up all running processes before unmount...');
+          console.log('[Component Cleanup] Current user:', systemInfo.currentUser);
+          
+          const cleanupResponse = await fetch('http://localhost:8000/api/cleanup-processes', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user: systemInfo.currentUser,
+              cleanup_mode: 'all_main_programs',
+              reason: 'web_terminal_unmount'
+            })
+          });
+          
+          if (cleanupResponse.ok) {
+            const result = await cleanupResponse.json();
+            console.log('[Component Cleanup] Process cleanup on unmount successful:', result);
+            console.log('[Component Cleanup] Cleaned processes count:', result.cleaned_processes);
+            console.log('[Component Cleanup] Cleanup details:', result.cleanup_details);
+          } else {
+            console.warn('[Component Cleanup] Process cleanup on unmount failed:', cleanupResponse.status);
+          }
+        } catch (error) {
+          console.error('[Component Cleanup] Error during unmount cleanup:', error);
+        }
+      };
+      
+      // 비동기 정리 작업 실행
+      cleanupProcessesOnUnmount();
+      
+      // WebSocket 연결 해제
       webSocketService.disconnect();
     };
-  }, []);
+  }, [systemInfo.currentUser]);
+
+  // 브라우저 탭 닫기/새로고침 시 프로세스 정리
+  useEffect(() => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      console.log('[Browser Cleanup] Page unloading, cleaning up processes...');
+      
+      // 동기적으로 프로세스 정리 요청 (페이지 언로드 시에는 비동기 작업이 완료되지 않을 수 있음)
+      try {
+        const cleanupData = JSON.stringify({
+          user: systemInfo.currentUser,
+          cleanup_mode: 'all_main_programs',
+          reason: 'browser_page_unload'
+        });
+        
+        // Blob을 사용하여 Content-Type 설정
+        const blob = new Blob([cleanupData], { type: 'application/json' });
+        navigator.sendBeacon('http://localhost:8000/api/cleanup-processes', blob);
+      } catch (error) {
+        console.error('[Browser Cleanup] Error sending cleanup beacon:', error);
+      }
+    };
+
+    // beforeunload 이벤트 리스너 등록
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [systemInfo.currentUser]);
 
   // Update system time
   useEffect(() => {
@@ -938,15 +1027,19 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
               console.log('[DEBUG] AspCliWebTerminal: Command sent result:', sent);
               
               if (sent) {
-                // Add success message to terminal
+                // MSGSAMPLEBROWSERMENU 명령 메시지를 서버 로그로 전송
                 const hubEntry: CommandHistory = {
                   command: 'MSGSAMPLEBROWSERMENU (Hub)',
                   output: `[DEBUG] Command sent via WebSocket Hub v2.0. Hub will process and send SMED data directly...`,
                   timestamp: new Date(),
                   success: true
                 };
-                setCommandHistory(prev => [...prev, hubEntry]);
-                console.log('[DEBUG] AspCliWebTerminal: Success message added to terminal history');
+                try {
+                  await sendLogToOpenASPManager(hubEntry);
+                  console.log('[DEBUG] AspCliWebTerminal: Success message sent to server log');
+                } catch (error) {
+                  console.debug('Failed to send MSGSAMPLEBROWSERMENU log to server:', error);
+                }
                 
                 // Hub가 직접 처리하므로 여기서 종료
                 setIsExecuting(false);
@@ -1768,7 +1861,30 @@ HELP を入力して使用可能なコマンドを確認してください。`;
               <h3>SMED Map: {smedMapData.map_name}</h3>
               <button 
                 className="smed-close-button"
-                onClick={() => {
+                onClick={async () => {
+                  console.log('[SMED Close Button] Closing SMED Map and cleaning up processes...');
+                  
+                  try {
+                    const cleanupResponse = await fetch('http://localhost:8000/api/cleanup-processes', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        user: systemInfo.currentUser,
+                        cleanup_mode: 'all_main_programs',
+                        reason: 'smed_close_button'
+                      })
+                    });
+                    
+                    if (cleanupResponse.ok) {
+                      const result = await cleanupResponse.json();
+                      console.log('[SMED Close Button] Process cleanup successful:', result);
+                    }
+                  } catch (error) {
+                    console.error('[SMED Close Button] Error during cleanup:', error);
+                  }
+                  
                   setShowSmedMap(false);
                   setSmedMapData(null);
                 }}
@@ -1800,37 +1916,49 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                     const result = await cleanupResponse.json();
                     console.log('[SMED Cleanup] Process cleanup result:', result);
                     
-                    // Log cleanup success with generic message
+                    // 프로세스 정리 성공 메시지를 서버 로그로 전송
                     const cleanupEntry: CommandHistory = {
                       command: 'Process Cleanup',
                       output: `Cleaned up ${result.cleaned_processes || 0} processes. All active main programs and forked subprograms terminated.`,
                       timestamp: new Date(),
                       success: true
                     };
-                    setCommandHistory(prev => [...prev, cleanupEntry]);
+                    try {
+                      await sendLogToOpenASPManager(cleanupEntry);
+                    } catch (logError) {
+                      console.debug('Failed to send cleanup success log to server:', logError);
+                    }
                   } else {
                     console.warn('[SMED Cleanup] Process cleanup failed:', cleanupResponse.status);
                     
-                    // Log cleanup failure
+                    // 프로세스 정리 실패 메시지를 서버 로그로 전송
                     const cleanupEntry: CommandHistory = {
                       command: 'Process Cleanup',
                       output: `Process cleanup failed with status: ${cleanupResponse.status}`,
                       timestamp: new Date(),
                       success: false
                     };
-                    setCommandHistory(prev => [...prev, cleanupEntry]);
+                    try {
+                      await sendLogToOpenASPManager(cleanupEntry);
+                    } catch (logError) {
+                      console.debug('Failed to send cleanup failure log to server:', logError);
+                    }
                   }
                 } catch (error) {
                   console.error('[SMED Cleanup] Error during process cleanup:', error);
                   
-                  // Log cleanup error
+                  // 프로세스 정리 오류 메시지를 서버 로그로 전송
                   const cleanupEntry: CommandHistory = {
                     command: 'Process Cleanup',
                     output: `Process cleanup error: ${error instanceof Error ? error.message : 'Unknown error'}`,
                     timestamp: new Date(),
                     success: false
                   };
-                  setCommandHistory(prev => [...prev, cleanupEntry]);
+                  try {
+                    await sendLogToOpenASPManager(cleanupEntry);
+                  } catch (logError) {
+                    console.debug('Failed to send cleanup error log to server:', logError);
+                  }
                 }
                 
                 setShowSmedMap(false);
@@ -1854,18 +1982,23 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                     const sent = webSocketService.sendKeyEventToHub(key, fieldValues);
                     
                     if (sent) {
-                      // Log the Hub key event
+                      // Hub 키 이벤트 메시지를 서버 로그로 전송
                       const keyEventEntry: CommandHistory = {
                         command: `SMED Key Event (Hub): ${key}`,
                         output: `Key ${key} sent via WebSocket Hub v2.0`,
                         timestamp: new Date(),
                         success: true
                       };
-                      setCommandHistory(prev => [...prev, keyEventEntry]);
+                      try {
+                        await sendLogToOpenASPManager(keyEventEntry);
+                      } catch (error) {
+                        console.debug('Failed to send key event log to server:', error);
+                      }
                       
-                      // Hub가 응답을 처리하므로 로컬에서는 F3 처리만
+                      // CRITICAL FIX: F3 키 처리 시 새로운 SMED 데이터를 기다림
                       if (key === 'F3') {
-                        return { action: 'close' };
+                        // F3 키의 경우 SUB001 종료 후 MAIN001 메뉴 표시를 기다림
+                        return { action: 'waiting_for_next_screen', hub: true };
                       }
                       
                       return { action: 'processing', hub: true };
@@ -1890,24 +2023,26 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                   if (response.ok) {
                     const result = await response.json();
                     
-                    // Log the HTTP key event
+                    // HTTP 키 이벤트 메시지를 서버 로그로 전송
                     const keyEventEntry: CommandHistory = {
                       command: `SMED Key Event (HTTP): ${key}`,
                       output: `Key ${key} sent via HTTP API (Hub fallback)`,
                       timestamp: new Date(),
                       success: true
                     };
-                    setCommandHistory(prev => [...prev, keyEventEntry]);
+                    try {
+                      await sendLogToOpenASPManager(keyEventEntry);
+                    } catch (error) {
+                      console.debug('Failed to send HTTP key event log to server:', error);
+                    }
                     
                     return result;
                   }
                 } catch (error) {
                   console.error('[WebSocket Hub] Error sending key event:', error);
                   
-                  // Test F3 handling
-                  if (key === 'F3') {
-                    return { action: 'close' };
-                  }
+                  // CRITICAL FIX: F3 키 처리 시에도 서버 응답을 기다리도록 수정
+                  // 로컬에서 바로 close하지 않음
                 }
                 
                 return null;
@@ -1984,14 +2119,18 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                         if (sent) {
                           console.log('[WEB_TERMINAL_DEBUG] Menu selection sent via WebSocket Hub');
                           
-                          // Add terminal log entry for menu selection
+                          // 메뉴 선택 메시지를 서버 로그로 전송
                           const selectionEntry: CommandHistory = {
                             command: `${programName} Menu Selection: ${selection}`,
                             output: `Option ${selection} sent to running ${programName} process via WebSocket Hub`,
                             timestamp: new Date(),
                             success: true
                           };
-                          setCommandHistory(prev => [...prev, selectionEntry]);
+                          try {
+                            await sendLogToOpenASPManager(selectionEntry);
+                          } catch (error) {
+                            console.debug('Failed to send menu selection log to server:', error);
+                          }
                           
                           console.log('[WEB_TERMINAL_DEBUG] Menu selection sent successfully - no new process created');
                         } else {
@@ -2007,14 +2146,18 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                   } catch (error) {
                     console.error('[WEB_TERMINAL_ERROR] Failed to send menu selection via WebSocket:', error);
                     
-                    // Fallback: Log the issue but don't create new process
+                    // 폴백 메시지를 서버 로그로 전송
                     const fallbackEntry: CommandHistory = {
                       command: `${programName} Menu Selection: ${selection}`,
                       output: `WebSocket Hub not available. Selection: ${selection} (Note: ${programName} process should handle this internally)`,
                       timestamp: new Date(),
                       success: false
                     };
-                    setCommandHistory(prev => [...prev, fallbackEntry]);
+                    try {
+                      await sendLogToOpenASPManager(fallbackEntry);
+                    } catch (error) {
+                      console.debug('Failed to send fallback log to server:', error);
+                    }
                   }
                   
                   console.log('[WEB_TERMINAL_DEBUG] === Menu Selection Processing Complete ===');
