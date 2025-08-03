@@ -47,6 +47,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   const [showSmedMap, setShowSmedMap] = useState(false);
   const [smedMapData, setSmedMapData] = useState<any>(null);
   const [hubConnectionStatus, setHubConnectionStatus] = useState<string>('disconnected');
+  const [isInitializing, setIsInitializing] = useState(true); // Prevent auto-execution during initialization
   
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +58,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     'CRTPGM', 'CRTMAP', 'CALL'
   ]);
 
-  // 실제 Python API를 통해 볼륨 목록 로드
+  // Load volume list via Python API
   const loadAvailableVolumes = async () => {
     try {
       // Python aspcli.py WRKVOL 명령 호출
@@ -77,25 +78,25 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
         const result = await response.json();
         volumeOutput = result.output || '';
       } else {
-        // 백엔드가 없는 경우 시뮬레이션으로 폴백
+        // Fallback to simulation if backend is unavailable
         volumeOutput = await simulateCommand('WRKVOL');
       }
       
       const volumes = parseVolumesFromOutput(volumeOutput);
       setAvailableVolumes(volumes);
       
-      // 첫 번째 볼륨을 기본값으로 설정
+      // Set first volume as default
       if (volumes.length > 0 && !systemInfo.currentVolume) {
         setSystemInfo(prev => ({
           ...prev,
           currentVolume: volumes[0]
         }));
-        // 첫 번째 볼륨의 라이브러리도 로드
+        // Load libraries for first volume
         loadLibrariesForVolume(volumes[0]);
       }
     } catch (error) {
       console.error('Error loading volumes:', error);
-      // 에러 시 시뮬레이션으로 폴백
+      // Fallback to simulation on error
       try {
         const volumeOutput = await simulateCommand('WRKVOL');
         const volumes = parseVolumesFromOutput(volumeOutput);
@@ -113,7 +114,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     }
   };
 
-  // 실제 Python API를 통해 라이브러리 목록 로드
+  // Load library list via Python API
   const loadLibrariesForVolume = async (volume: string) => {
     try {
       // Python aspcli.py WRKLIB 명령 호출
@@ -133,14 +134,14 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
         const result = await response.json();
         libraryOutput = result.output || '';
       } else {
-        // 백엔드가 없는 경우 시뮬레이션으로 폴백
+        // Fallback to simulation if backend is unavailable
         libraryOutput = await simulateCommand('WRKLIB');
       }
       
       const libraries = parseLibrariesFromOutput(libraryOutput, volume);
       setAvailableLibraries(libraries);
       
-      // 첫 번째 라이브러리를 기본값으로 설정
+      // Set first library as default
       if (libraries.length > 0) {
         setSystemInfo(prev => ({
           ...prev,
@@ -149,7 +150,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       }
     } catch (error) {
       console.error('Error loading libraries:', error);
-      // 에러 시 시뮬레이션으로 폴백
+      // Fallback to simulation on error
       try {
         const libraryOutput = await simulateCommand('WRKLIB');
         const libraries = parseLibrariesFromOutput(libraryOutput, volume);
@@ -213,7 +214,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     }
   }, [user]);
 
-  // 로그인 유저 정보 가져오기 및 초기 데이터 로드
+  // Get user login info and load initial data
   useEffect(() => {
     const getUserInfo = () => {
       // props로 user가 전달되면 그것을 우선 사용
@@ -225,7 +226,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
         return;
       }
 
-      // 그렇지 않으면 기존 로직 사용
+      // Otherwise use existing logic
       const userInfo = localStorage.getItem('openaspUser');
       if (userInfo) {
         try {
@@ -282,7 +283,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           setHubConnectionStatus('disconnected');
         };
 
-        // 이벤트 리스너 등록 - 단순화
+        // Register event listeners - simplified
         webSocketService.on('hub_connected', handleHubConnected);
         webSocketService.on('hub_disconnected', handleHubDisconnected);
         
@@ -298,6 +299,58 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
 
     initializeHub();
   }, [systemInfo.currentUser, user, workstationName]);
+
+  // Convert MAIN001 menu fields to SMED format
+  // Load actual SMED map file from volume/DISK01/SMED/
+  const loadSmedMapFile = async (mapFile: string) => {
+    try {
+      console.log('[SMED Map] Loading SMED map file:', mapFile);
+      
+      // Request actual SMED map file from volume/DISK01/SMED/
+      const response = await fetch(`http://localhost:8000/api/smed/content/DISK01/SMED/${mapFile}`);
+      if (!response.ok) {
+        console.error('[SMED Map] Failed to fetch SMED map:', response.status);
+        return [];
+      }
+      
+      // Parse text-based SMED file using parse API
+      const parseResponse = await fetch('http://localhost:8000/api/smed/parse', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          map_file: `SMED/${mapFile}`
+        })
+      });
+      
+      if (!parseResponse.ok) {
+        console.error('[SMED Map] Failed to parse SMED map:', parseResponse.status);
+        return [];
+      }
+      
+      const smedData = await parseResponse.json();
+      console.log('[SMED Map] Parsed SMED data:', smedData);
+      
+      // Convert to React component format
+      const smedFields = smedData.fields.map((field: any) => ({
+        name: field.name,
+        row: field.row,
+        col: field.col,
+        length: field.length,
+        prompt: field.prompt || '',
+        type: field.type === 'input' ? 'input' : 'output',
+        color: field.color
+      }));
+      
+      console.log('[SMED Map] Converted SMED fields:', smedFields);
+      return smedFields;
+      
+    } catch (error) {
+      console.error('[SMED Map] Error loading SMED map file:', error);
+      return [];
+    }
+  };
 
   // Convert simplified employee data to SMED format
   const convertEmployeeDataToSmedFormat = (data: any) => {
@@ -364,7 +417,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   useEffect(() => {
     console.log('[WebSocket Hub] Setting up Hub event handlers...');
     
-    // 단일 이벤트 핸들러: smed_data_received (Hub에서 전송)
+    // Single event handler: smed_data_received (sent from Hub)
     const handleSmedDataReceived = (data: any) => {
       console.log('[WebSocket Hub] SMED data received from Hub:', {
         map_file: data.map_file,
@@ -380,13 +433,13 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           has_fields: !!data.fields,
           fields_count: data.fields ? (Array.isArray(data.fields) ? data.fields.length : Object.keys(data.fields).length) : 0,
           data_preview: data.data ? data.data.slice(0, 2) : 'No data field',
-          full_data: data // 전체 데이터 구조 확인
+          full_data: data // Check full data structure
         });
         
-        // 즉시 렌더링 - Hub가 이미 중복 방지 처리함
+        // Immediate rendering - Hub already handles duplicate prevention
         let processedFields = data.fields;
         
-        // 새로운 employee data 형식 처리 - fields 내부의 데이터 확인
+        // Process new employee data format - check data inside fields
         if (data.fields && data.fields.type === 'smed_map' && data.fields.data) {
           console.log('[WebSocket Hub] Converting employee data to SMED format');
           processedFields = convertEmployeeDataToSmedFormat(data.fields);
@@ -396,7 +449,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
             return;
           }
         } else if (data.type === 'smed_map' && data.data) {
-          // 직접 전달된 경우
+          // When directly passed
           console.log('[WebSocket Hub] Converting direct employee data to SMED format');
           processedFields = convertEmployeeDataToSmedFormat(data);
           
@@ -405,31 +458,65 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
             return;
           }
         } else if (data.fields && typeof data.fields === 'object' && !Array.isArray(data.fields)) {
-          console.log('[WebSocket Hub] Converting legacy fields object to SMED format');
-          // Legacy support - 이전 버전과의 호환성
-          processedFields = [];
+          console.log('[WebSocket Hub] Converting fields object to SMED format');
+          
+          // Check if fields contains nested fields (from smed_display event)
+          const actualFields = data.fields.fields || data.fields;
+          
+          if (actualFields && typeof actualFields === 'object') {
+            console.log('[WebSocket Hub] Loading SMED map file for:', data.map_file || 'MENU');
+            loadSmedMapFile(data.map_file || 'MENU').then(fields => {
+              processedFields = fields;
+              console.log('[WebSocket Hub] Converted fields count:', processedFields.length);
+              
+              // Map field values from actualFields to processedFields
+              processedFields = processedFields.map((field: any) => {
+                const fieldValue = actualFields[field.name];
+                if (fieldValue !== undefined && fieldValue !== null) {
+                  return {
+                    ...field,
+                    value: fieldValue.toString()
+                  };
+                }
+                return field;
+              });
+              
+              console.log('[WebSocket Hub] Fields with values mapped:', processedFields.filter((f: any) => f.value).length);
+              
+              // SMED 맵 표시
+              const smedData = {
+                map_name: data.map_file || 'MENU',
+                fields: processedFields,
+                rows: 24,
+                cols: 80
+              };
+              
+              setSmedMapData(smedData);
+              setShowSmedMap(true);
+              console.log('[WebSocket Hub] SMED map displayed');
+            }).catch(error => {
+              console.error('[WebSocket Hub] Failed to load SMED map:', error);
+              processedFields = [];
+            });
+          } else {
+            console.log('[WebSocket Hub] No valid fields found');
+            processedFields = [];
+          }
+        } else {
+          // Fallback for non-MAIN program maps
+          const smedData = {
+            map_name: data.map_file || 'BROWSE_MENU',
+            fields: processedFields,
+            program_name: data.program_name || 'MSGSAMPLEBROWSERMENU',
+            session_id: data.session_id || `hub_session_${Date.now()}`,
+            hub_metadata: data.hub_metadata
+          };
+          
+          setSmedMapData(smedData);
+          setShowSmedMap(true);
         }
         
-        // 즉시 SMED 맵 표시 - 상태 관리 단순화
-        const smedData = {
-          map_name: data.map_file || 'BROWSE_MENU',
-          fields: processedFields,
-          program_name: data.program_name || 'MSGSAMPLEBROWSERMENU',
-          session_id: data.session_id || `hub_session_${Date.now()}`,
-          hub_metadata: data.hub_metadata
-        };
-        
-        console.log('[DEBUG] AspCliWebTerminal: Setting SMED map data:', JSON.stringify(smedData, null, 2));
-        console.log('[DEBUG] AspCliWebTerminal: Processed fields count:', processedFields.length);
-        console.log('[DEBUG] AspCliWebTerminal: Fields sample:', processedFields.length > 0 ? processedFields.slice(0, 3) : 'No fields');
-        
-        setSmedMapData(smedData);
-        setShowSmedMap(true);
-        
-        console.log('[DEBUG] AspCliWebTerminal: setSmedMapData and setShowSmedMap called');
-        console.log('[DEBUG] AspCliWebTerminal: showSmedMap will be set to true');
-        
-        // 터미널에 성공 메시지 추가
+        // Add success message to terminal
         const newEntry: CommandHistory = {
           command: 'WebSocket Hub SMED',
           output: `SMED Map received via Hub: ${data.map_file || 'BROWSE_MENU'} (${processedFields.length} fields) - Hub v${data.hub_metadata?.source || '2.0'}`,
@@ -441,7 +528,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       } catch (error) {
         console.error('[WebSocket Hub] Error processing SMED data:', error);
         
-        // 에러 메시지 추가
+        // Add error message
         const errorEntry: CommandHistory = {
           command: 'WebSocket Hub Error',
           output: `Hub SMED processing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -471,17 +558,40 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       setCommandHistory(prev => [...prev, confirmationEntry]);
     };
 
-    // 단순화된 이벤트 리스너 등록
+    // Hub 등록 완료 핸들러
+    const handleHubRegistered = (data: any) => {
+      console.log('[WebSocket Hub] Registration completed:', data);
+      if (data.success) {
+        setHubConnectionStatus('connected');
+        console.log('[WebSocket Hub] Hub status set to connected');
+      } else {
+        setHubConnectionStatus('error');
+        console.error('[WebSocket Hub] Registration failed:', data);
+      }
+    };
+
+    // SMED display 핸들러 (Hub에서 직접 전송)
+    const handleSmedDisplay = (data: any) => {
+      console.log('[WebSocket Hub] SMED display event received:', data);
+      // smed_data_received와 같은 방식으로 처리
+      handleSmedDataReceived(data);
+    };
+
+    // Register simplified event listeners
     webSocketService.on('smed_data_received', handleSmedDataReceived);
+    webSocketService.on('smed_display', handleSmedDisplay);
     webSocketService.on('hub_status', handleHubStatus);
     webSocketService.on('command_confirmation', handleCommandConfirmation);
+    webSocketService.on('hub_registered', handleHubRegistered);
 
     return () => {
-      // 정리
+      // Cleanup
       console.log('[WebSocket Hub] Cleaning up Hub event listeners');
       webSocketService.off('smed_data_received', handleSmedDataReceived);
+      webSocketService.off('smed_display', handleSmedDisplay);
       webSocketService.off('hub_status', handleHubStatus);
       webSocketService.off('command_confirmation', handleCommandConfirmation);
+      webSocketService.off('hub_registered', handleHubRegistered);
     };
   }, []); // Hub 이벤트는 한 번만 등록
 
@@ -493,7 +603,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     };
   }, []);
 
-  // 시스템 시간 업데이트
+  // Update system time
   useEffect(() => {
     const timer = setInterval(() => {
       setSystemInfo(prev => ({
@@ -505,7 +615,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     return () => clearInterval(timer);
   }, []);
 
-  // 드롭다운 외부 클릭 시 닫기
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -521,12 +631,22 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     };
   }, []);
 
-  // 터미널 스크롤 자동 조정
+  // Auto-adjust terminal scroll
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [commandHistory]);
+
+  // Initialization complete - wait 3 seconds after component load to prevent auto-execution
+  useEffect(() => {
+    const initTimer = setTimeout(() => {
+      console.log('[AspCliWebTerminal] Initialization complete - auto-execution protection disabled');
+      setIsInitializing(false);
+    }, 3000); // 3초 후 초기화 완료
+
+    return () => clearTimeout(initTimer);
+  }, []);
 
   // OpenASP Manager에 로그 전송
   const sendLogToOpenASPManager = async (entry: CommandHistory) => {
@@ -563,22 +683,91 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   const executeCommand = useCallback(async (command: string) => {
     if (!command.trim()) return;
 
+    // Prevent auto-execution during initialization
+    if (isInitializing) {
+      console.log('[AspCliWebTerminal] Command execution blocked during initialization:', command);
+      return;
+    }
+
     setIsExecuting(true);
     const timestamp = new Date();
     let commandOutput = '';
     
     try {
-      // Python aspcli.py 호출
-      const response = await fetch('http://localhost:8000/api/asp-command', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          command: command.trim(),
-          user: systemInfo.currentUser 
-        }),
-      });
+      let response: any;
+      
+      // Debug: Log current connection status
+      console.log('[ASP Terminal] DEBUG - executeCommand called');
+      console.log('[ASP Terminal] DEBUG - webSocketService.isConnected():', webSocketService.isConnected());
+      console.log('[ASP Terminal] DEBUG - hubConnectionStatus:', hubConnectionStatus);
+      
+      // Check if Hub is registered by asking webSocketService directly
+      const isHubRegistered = webSocketService.isTerminalRegistered();
+      console.log('[ASP Terminal] DEBUG - webSocketService.isTerminalRegistered():', isHubRegistered);
+      console.log('[ASP Terminal] DEBUG - Hub check result:', webSocketService.isConnected() && isHubRegistered);
+      
+      // Use WebSocket Hub for command execution if connected and registered
+      if (webSocketService.isConnected() && isHubRegistered) {
+        console.log('[ASP Terminal] Sending command via WebSocket Hub:', command);
+        
+        // Additional check to prevent auto-execution during initialization
+        if (isInitializing) {
+          console.log('[AspCliWebTerminal] WebSocket command blocked during initialization');
+          setIsExecuting(false);
+          return;
+        }
+        
+        // Send command via WebSocket using the public method
+        webSocketService.sendCommandToHub(command.trim());
+        
+        // Wait for command confirmation
+        const confirmationPromise = new Promise<any>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('Command execution timeout'));
+          }, 60000); // 60 seconds timeout for MAIN programs
+          
+          const handleConfirmation = (data: any) => {
+            clearTimeout(timeout);
+            webSocketService.off('command_confirmation', handleConfirmation);
+            resolve(data);
+          };
+          
+          webSocketService.on('command_confirmation', handleConfirmation);
+        });
+        
+        const result = await confirmationPromise;
+        console.log('[ASP Terminal] Command confirmation received:', result);
+        
+        // Create response object for compatibility
+        response = {
+          ok: result.success,
+          json: async () => ({
+            success: result.success,
+            output: result.output || 'Command executed via WebSocket Hub',
+            error: result.error
+          })
+        };
+      } else {
+        // Fallback to HTTP API if WebSocket not connected or not registered
+        const reason = !webSocketService.isConnected() ? 'WebSocket not connected' : 'Hub registration not complete';
+        console.log(`[ASP Terminal] ${reason}, using HTTP API fallback`);
+        
+        // Add warning for MAIN program commands that need Hub for SMED display
+        if (command.trim().toUpperCase().match(/MAIN\d+/)) {
+          const mainProgram = command.trim().toUpperCase().match(/MAIN\d+/)?.[0];
+          console.warn(`[ASP Terminal] ${mainProgram} requires Hub connection for proper SMED display`);
+        }
+        response = await fetch('http://localhost:8000/api/asp-command', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            command: command.trim(),
+            user: systemInfo.currentUser 
+          }),
+        });
+      }
 
       let output = '';
       let success = false;
@@ -700,7 +889,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
                 setShowSmedMap(true);
                 
                 // WebSocket을 통해 SMED 데이터 전송 (다른 클라이언트들과 공유)
-                if (webSocketService.isConnected() && workstationName) {
+                if (webSocketService.isConnected() && hubConnectionStatus === 'connected' && workstationName) {
                   try {
                     const sent = webSocketService.sendSmedData(workstationName, {
                       map_file: mapFile,
@@ -732,7 +921,14 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
 
         // Check for MSGSAMPLEBROWSERMENU command - send via Hub (includes both old and new JSON versions)
         if (command.trim().toUpperCase().includes('MSGSAMPLEBROWSERMENU')) {
-          if (webSocketService.isConnected()) {
+          if (webSocketService.isConnected() && hubConnectionStatus === 'connected') {
+            // Block demo commands during initialization
+            if (isInitializing) {
+              console.log('[AspCliWebTerminal] MSGSAMPLEBROWSERMENU command blocked during initialization');
+              setIsExecuting(false);
+              return;
+            }
+            
             try {
               console.log('[DEBUG] AspCliWebTerminal: Sending MSGSAMPLEBROWSERMENU command via Hub');
               console.log('[DEBUG] AspCliWebTerminal: Full command:', command);
@@ -767,7 +963,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           }
         }
       } else {
-        // 백엔드가 없는 경우 시뮬레이션
+        // Simulation when backend is unavailable
         output = await simulateCommand(command.trim());
         success = true;
       }
@@ -786,7 +982,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       await sendLogToOpenASPManager(newEntry);
       
     } catch (error) {
-      // 에러 발생 시 시뮬레이션으로 폴백
+      // Fallback to simulation on error
       const output = await simulateCommand(command.trim());
       const newEntry: CommandHistory = {
         command: command.trim(),
@@ -805,11 +1001,11 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     setCurrentCommand('');
     setHistoryIndex(-1);
     
-    // 커서 위치 설정
+    // Set cursor position
     setTimeout(() => {
       focusCursor(commandOutput);
     }, 100);
-  }, [systemInfo.currentUser]);
+  }, [systemInfo.currentUser, isInitializing]);
 
   // Parse EDTFILE output to extract structured data
   const parseEdtfileOutput = (output: string, command: string) => {
@@ -920,15 +1116,15 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     }
   };
 
-  // 명령어 시뮬레이션 (백엔드 없을 때)
+  // Command simulation (when backend unavailable)
   const simulateCommand = async (command: string): Promise<string> => {
     const upperCommand = command.toUpperCase();
     
-    // 명령어 파싱
+    // Parse command
     const parts = upperCommand.split(' ');
     const mainCommand = parts[0];
     
-    await new Promise(resolve => setTimeout(resolve, 500)); // 시뮬레이션 지연
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulation delay
 
     switch (mainCommand) {
       case 'WRKVOL':
@@ -1339,7 +1535,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
     }
   };
 
-  // 커서 포커스 관리
+  // Cursor focus management
   const focusCursor = (output: string) => {
     // SMED 맵 출력에서 입력 필드가 있는지 확인
     if (output.includes('입력필드') || output.includes('INPUT') || output.includes('_____')) {
@@ -1351,7 +1547,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
       }
     }
     
-    // 그 외의 경우는 명령어 입력창에 포커스
+    // Otherwise focus on command input
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -1360,7 +1556,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      // 명령어 자동완성
+      // Command auto-completion
       const suggestions = commandSuggestions.filter(cmd => 
         cmd.toLowerCase().startsWith(currentCommand.toLowerCase())
       );
@@ -1369,7 +1565,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      // 이전 명령어 불러오기 (최대 10개)
+      // Load previous command (max 10)
       const maxHistory = Math.min(commandHistory.length, 10);
       const recentHistory = commandHistory.slice(-maxHistory);
       
@@ -1380,7 +1576,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      // 다음 명령어 불러오기
+      // Load next command
       const maxHistory = Math.min(commandHistory.length, 10);
       const recentHistory = commandHistory.slice(-maxHistory);
       
@@ -1404,7 +1600,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
 
   return (
     <div className={`asp-cli-terminal ${isDarkMode ? 'dark' : 'light'}`}>
-      {/* 헤더 */}
+      {/* Header */}
       <div className="terminal-header">
         <div className="header-title">
           <span className="title-icon">🖥️</span>
@@ -1480,9 +1676,9 @@ HELP を入力して使用可能なコマンドを確認してください。`;
         </button>
       </div>
 
-      {/* 터미널 본문 */}
+      {/* Terminal body */}
       <div className="terminal-body" ref={terminalRef}>
-        {/* 시작 메시지 */}
+        {/* Start message */}
         {commandHistory.length === 0 && (
           <div className="welcome-message">
             <div className="welcome-logo">
@@ -1498,7 +1694,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
           </div>
         )}
 
-        {/* 명령어 히스토리 */}
+        {/* Command history */}
         {commandHistory.map((entry, index) => (
           <div key={index} className="command-entry">
             <div className="command-line">
@@ -1514,7 +1710,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
           </div>
         ))}
 
-        {/* 실행 중 표시 */}
+        {/* Execution indicator */}
         {isExecuting && (
           <div className="executing-indicator">
             <span className="prompt">ASP&gt;</span>
@@ -1524,7 +1720,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
         )}
       </div>
 
-      {/* 명령어 입력 */}
+      {/* Command input */}
       <form className="terminal-input" onSubmit={handleSubmit}>
         <span className="input-prompt">ASP&gt;</span>
         <input
@@ -1547,7 +1743,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
         </button>
       </form>
 
-      {/* 도움말 패널 */}
+      {/* Help panel */}
       <div className="help-panel">
         <strong>ショートカット:</strong> Tab(自動完成), ↑↓(コマンド履歴), Ctrl+L(画面クリア) | <strong>履歴:</strong> 最大 10 コマンド保存
       </div>
@@ -1583,7 +1779,60 @@ HELP を入力して使用可能なコマンドを確認してください。`;
             <SmedMapDisplay
               fields={smedMapData.fields}
               mapName={smedMapData.map_name}
-              onClose={() => {
+              onClose={async () => {
+                console.log('[SMED Cleanup] SMED Map closing, cleaning up all active processes...');
+                
+                try {
+                  // Generic cleanup - detect and clean up any running main program and its forked processes
+                  const cleanupResponse = await fetch('http://localhost:8000/api/cleanup-processes', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      user: systemInfo.currentUser,
+                      cleanup_mode: 'all_main_programs',
+                      reason: 'web_terminal_closed'
+                    })
+                  });
+                  
+                  if (cleanupResponse.ok) {
+                    const result = await cleanupResponse.json();
+                    console.log('[SMED Cleanup] Process cleanup result:', result);
+                    
+                    // Log cleanup success with generic message
+                    const cleanupEntry: CommandHistory = {
+                      command: 'Process Cleanup',
+                      output: `Cleaned up ${result.cleaned_processes || 0} processes. All active main programs and forked subprograms terminated.`,
+                      timestamp: new Date(),
+                      success: true
+                    };
+                    setCommandHistory(prev => [...prev, cleanupEntry]);
+                  } else {
+                    console.warn('[SMED Cleanup] Process cleanup failed:', cleanupResponse.status);
+                    
+                    // Log cleanup failure
+                    const cleanupEntry: CommandHistory = {
+                      command: 'Process Cleanup',
+                      output: `Process cleanup failed with status: ${cleanupResponse.status}`,
+                      timestamp: new Date(),
+                      success: false
+                    };
+                    setCommandHistory(prev => [...prev, cleanupEntry]);
+                  }
+                } catch (error) {
+                  console.error('[SMED Cleanup] Error during process cleanup:', error);
+                  
+                  // Log cleanup error
+                  const cleanupEntry: CommandHistory = {
+                    command: 'Process Cleanup',
+                    output: `Process cleanup error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                    timestamp: new Date(),
+                    success: false
+                  };
+                  setCommandHistory(prev => [...prev, cleanupEntry]);
+                }
+                
                 setShowSmedMap(false);
                 setSmedMapData(null);
                 // Focus back to terminal input
@@ -1594,7 +1843,13 @@ HELP を入力して使用可能なコマンドを確認してください。`;
               onKeyEvent={async (key: string, fieldValues: Record<string, string>) => {
                 // Send key event via Hub
                 try {
-                  if (webSocketService.isConnected()) {
+                  if (webSocketService.isConnected() && hubConnectionStatus === 'connected') {
+                    // Block key events during initialization
+                    if (isInitializing) {
+                      console.log('[AspCliWebTerminal] Key event blocked during initialization');
+                      return;
+                    }
+                    
                     console.log('[WebSocket Hub] Sending key event via Hub:', key);
                     const sent = webSocketService.sendKeyEventToHub(key, fieldValues);
                     
@@ -1649,7 +1904,7 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                 } catch (error) {
                   console.error('[WebSocket Hub] Error sending key event:', error);
                   
-                  // 테스트용 F3 처리
+                  // Test F3 handling
                   if (key === 'F3') {
                     return { action: 'close' };
                   }
@@ -1668,12 +1923,14 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                 console.log('[WEB_TERMINAL_DEBUG] INPUT Field Value:', fieldValues.INPUT);
                 console.log('[WEB_TERMINAL_DEBUG] INPUT Field Type:', typeof fieldValues.INPUT);
                 
-                // Handle MAIN001 menu selection with enhanced debugging
-                // Check for both INPUT and SEL fields (MAIN001 uses SEL field)
+                // Handle MAIN program menu selection with enhanced debugging  
+                // Check for both INPUT and SEL fields (MAIN programs use SEL field)
                 const inputValue = fieldValues.INPUT || fieldValues.SEL;
-                if (smedMapData?.map_name === 'MAIN001' && inputValue) {
+                const isMainProgram = smedMapData?.map_name && smedMapData.map_name.startsWith('MAIN');
+                if (isMainProgram && inputValue) {
                   const selection = inputValue.toString().trim();
-                  console.log('[WEB_TERMINAL_DEBUG] MAIN001 Menu Processing:');
+                  const programName = smedMapData.map_name;
+                  console.log(`[WEB_TERMINAL_DEBUG] ${programName} Menu Processing:`);
                   console.log('[WEB_TERMINAL_DEBUG] - Raw INPUT:', fieldValues.INPUT);
                   console.log('[WEB_TERMINAL_DEBUG] - Raw SEL:', fieldValues.SEL);
                   console.log('[WEB_TERMINAL_DEBUG] - Used inputValue:', inputValue);
@@ -1686,58 +1943,81 @@ HELP を入力して使用可能なコマンドを確認してください。`;
                   setShowSmedMap(false);
                   setSmedMapData(null);
                   
-                  // Execute corresponding CALL command based on selection
-                  let callCommand = '';
-                  console.log('[WEB_TERMINAL_DEBUG] Processing selection switch...');
-                  switch (selection) {
-                    case '1':
-                      callCommand = 'CALL PGM-SUB001.JAVA,VOL-DISK01';
-                      console.log('[WEB_TERMINAL_DEBUG] Selection 1: Direct SUB001 call');
-                      break;
-                    case '2':
-                      callCommand = 'CALL PGM-MAIN001.JAVA,PARA-(2),VOL-DISK01';
-                      console.log('[WEB_TERMINAL_DEBUG] Selection 2: CREATE1 call');
-                      break;
-                    case '3':
-                      callCommand = 'CALL PGM-MAIN001.JAVA,PARA-(3),VOL-DISK01';
-                      console.log('[WEB_TERMINAL_DEBUG] Selection 3: UPDATE1 call');
-                      break;
-                    case '4':
-                      callCommand = 'CALL PGM-MAIN001.JAVA,PARA-(4),VOL-DISK01';
-                      console.log('[WEB_TERMINAL_DEBUG] Selection 4: DELETE1 call');
-                      break;
-                    default:
-                      console.log('[WEB_TERMINAL_DEBUG] Invalid selection detected');
-                      console.log('[WEB_TERMINAL_DEBUG] Expected: "1", "2", "3", or "4"');
-                      console.log('[WEB_TERMINAL_DEBUG] Received:', JSON.stringify(selection));
-                      const errorEntry: CommandHistory = {
-                        command: `Selection: ${selection}`,
-                        output: `Error: Invalid selection. Please choose 1-4.`,
-                        timestamp: new Date(),
-                        success: false
-                      };
-                      setCommandHistory(prev => [...prev, errorEntry]);
-                      return;
+                  // Send menu selection via WebSocket Hub instead of creating new process
+                  console.log(`[WEB_TERMINAL_DEBUG] Processing ${programName} menu selection via WebSocket...`);
+                  
+                  // Validate selection
+                  if (!['1', '2', '3', '4'].includes(selection)) {
+                    console.log('[WEB_TERMINAL_DEBUG] Invalid selection detected');
+                    console.log('[WEB_TERMINAL_DEBUG] Expected: "1", "2", "3", or "4"');
+                    console.log('[WEB_TERMINAL_DEBUG] Received:', JSON.stringify(selection));
+                    const errorEntry: CommandHistory = {
+                      command: `Selection: ${selection}`,
+                      output: `Error: Invalid selection. Please choose 1-4.`,
+                      timestamp: new Date(),
+                      success: false
+                    };
+                    setCommandHistory(prev => [...prev, errorEntry]);
+                    return;
                   }
                   
-                  // Execute the CALL command with detailed logging
-                  console.log('[WEB_TERMINAL_DEBUG] === Executing CALL Command ===');
-                  console.log('[WEB_TERMINAL_DEBUG] Command:', callCommand);
-                  console.log('[WEB_TERMINAL_DEBUG] Setting current command...');
-                  setCurrentCommand(callCommand);
+                  // Send selection via WebSocket Hub to running MAIN001 process
+                  console.log('[WEB_TERMINAL_DEBUG] === Sending Menu Selection via WebSocket ===');
+                  console.log('[WEB_TERMINAL_DEBUG] Selection:', selection);
                   
-                  console.log('[WEB_TERMINAL_DEBUG] Calling executeCommand...');
                   try {
-                    const result = await executeCommand(callCommand);
-                    console.log('[WEB_TERMINAL_DEBUG] executeCommand result:', result);
+                    if (webSocketService.isConnected() && hubConnectionStatus === 'connected') {
+                      // Send menu selection to Hub instead of executing new CALL command
+                      const currentTerminalId = webSocketService.getTerminalId();
+                      const menuSelectionData = {
+                        action: 'menu_selection',
+                        program: programName,
+                        selection: selection,
+                        terminal_id: currentTerminalId,
+                        timestamp: new Date().toISOString()
+                      };
+                      
+                      // Use existing WebSocket Hub connection to send menu selection
+                      const sent = webSocketService.sendMenuSelection(programName, selection);
+                      
+                      if (sent) {
+                        console.log('[WEB_TERMINAL_DEBUG] Menu selection sent via WebSocket Hub');
+                        
+                        // Add terminal log entry for menu selection
+                        const selectionEntry: CommandHistory = {
+                          command: `${programName} Menu Selection: ${selection}`,
+                          output: `Option ${selection} sent to running ${programName} process via WebSocket Hub`,
+                          timestamp: new Date(),
+                          success: true
+                        };
+                        setCommandHistory(prev => [...prev, selectionEntry]);
+                        
+                        console.log('[WEB_TERMINAL_DEBUG] Menu selection sent successfully - no new process created');
+                      } else {
+                        throw new Error('Failed to send menu selection via WebSocket Hub');
+                      }
+                    } else {
+                      throw new Error('WebSocket Hub not connected');
+                    }
                   } catch (error) {
-                    console.error('[WEB_TERMINAL_ERROR] executeCommand failed:', error);
+                    console.error('[WEB_TERMINAL_ERROR] Failed to send menu selection via WebSocket:', error);
+                    
+                    // Fallback: Log the issue but don't create new process
+                    const fallbackEntry: CommandHistory = {
+                      command: `${programName} Menu Selection: ${selection}`,
+                      output: `WebSocket Hub not available. Selection: ${selection} (Note: ${programName} process should handle this internally)`,
+                      timestamp: new Date(),
+                      success: false
+                    };
+                    setCommandHistory(prev => [...prev, fallbackEntry]);
                   }
-                  console.log('[WEB_TERMINAL_DEBUG] === CALL Command Execution Complete ===');
+                  
+                  console.log('[WEB_TERMINAL_DEBUG] === Menu Selection Processing Complete ===');
                   return;
                 } else {
-                  console.log('[WEB_TERMINAL_DEBUG] MAIN001 menu condition not met:');
-                  console.log('[WEB_TERMINAL_DEBUG] - Map name match:', smedMapData?.map_name === 'MAIN001');
+                  console.log('[WEB_TERMINAL_DEBUG] MAIN program menu condition not met:');
+                  console.log('[WEB_TERMINAL_DEBUG] - Map name:', smedMapData?.map_name);
+                  console.log('[WEB_TERMINAL_DEBUG] - Is MAIN program:', isMainProgram);
                   console.log('[WEB_TERMINAL_DEBUG] - INPUT field present:', !!fieldValues.INPUT);
                   console.log('[WEB_TERMINAL_DEBUG] - SEL field present:', !!fieldValues.SEL);
                   console.log('[WEB_TERMINAL_DEBUG] - Combined inputValue present:', !!(fieldValues.INPUT || fieldValues.SEL));
