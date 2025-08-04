@@ -336,6 +336,108 @@ const connectionId = hub.sendWithLoadBalancing({
 const hubStats = hub.getStatistics();
 ```
 
+## Phase 5 DOM Manipulation Anti-Patterns APIs
+
+### 新しいAPI追加 (New APIs Added)
+
+#### 1. Virtual DOM Renderer
+**場所**: `/ofasp-refactor/src/utils/virtualDOMRenderer.ts`
+**機能**: Large grid virtualization with viewport culling (24x80 = 1,920 cells)
+**使用法**:
+```typescript
+import { VirtualDOMRenderer } from '../utils/virtualDOMRenderer';
+
+const renderer = new VirtualDOMRenderer(containerElement, {
+  gridRows: 24,
+  gridCols: 80,
+  cellWidth: 12,
+  cellHeight: 20,
+  enableVirtualization: true,
+  reuseElements: true
+});
+
+// Render cell data
+const stats = renderer.render(cellData);
+
+// Update specific cells
+renderer.updateCells([{ row: 0, col: 0, content: 'Updated' }]);
+
+// Handle scroll for virtual rendering
+renderer.onScroll();
+
+// Get performance statistics
+const renderStats = renderer.getStatistics();
+```
+
+#### 2. DOM Optimization Hook
+**場所**: `/ofasp-refactor/src/hooks/useDOMOptimization.ts`
+**機能**: DOM update batching and reflow optimization
+**使用法**:
+```typescript
+import { useDOMOptimization } from '../hooks/useDOMOptimization';
+
+const { 
+  batchUpdates, 
+  measureLayout, 
+  optimizeReflow, 
+  getOptimizationStats 
+} = useDOMOptimization({
+  enableBatching: true,
+  enableMeasurementCache: true
+});
+
+// Batch DOM operations
+await batchUpdates({
+  reads: [() => element.getBoundingClientRect()],
+  writes: [() => { element.style.width = '100px'; }],
+  callback: () => console.log('Batch complete')
+});
+
+// Cached layout measurement
+const layout = measureLayout(element, true);
+
+// Optimize reflow operations
+optimizeReflow(() => {
+  element.style.transform = 'translateX(100px)';
+});
+```
+
+#### 3. DOM Manipulation Safe Guards
+**場所**: `/ofasp-refactor/src/utils/domManipulationSafeGuards.ts`
+**機能**: Safe DOM operations with anti-pattern detection
+**使用法**:
+```typescript
+import { DOMSafeGuards } from '../utils/domManipulationSafeGuards';
+
+const safeDOM = new DOMSafeGuards({
+  enableErrorHandling: true,
+  enablePerformanceMonitoring: true,
+  enableAntiPatternDetection: true
+});
+
+// Safe element queries with caching
+const element = safeDOM.safeQuerySelector('#myElement', document, true);
+const elements = safeDOM.safeQuerySelectorAll('.items');
+
+// Safe element creation with sanitization
+const newElement = safeDOM.safeCreateElement('div', {
+  className: 'safe-element',
+  textContent: 'Safe content',
+  attributes: { 'data-id': '123' }
+});
+
+// Safe style updates with batching
+safeDOM.safeUpdateStyles(element, {
+  width: '200px',
+  height: '100px',
+  backgroundColor: 'blue'
+}, true);
+
+// Get safety statistics and warnings
+const stats = safeDOM.getStatistics();
+const warnings = safeDOM.getAntiPatternWarnings('high');
+```
+
 ## 1. Duplicate MD Files
 
 ### Exact Duplicates (same MD5 hash):
