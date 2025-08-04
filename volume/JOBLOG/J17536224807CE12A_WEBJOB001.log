@@ -1,0 +1,40 @@
+[2025-07-27 13:21:20] [JOB_SUBMITTED] Job WEBJOB001 submitted successfully
+[2025-07-27 14:58:51] [JOB_STARTED] Job WEBJOB001 started execution
+[2025-07-27 14:58:51] [JOB_INFO] Executing CL program: TESTCL
+[2025-07-27 14:58:51] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 9 instructions
+
+[1/9] [SKIP] Unknown command: //
+[INFO] Parameters: {'TESTCL': None, '-': None, 'FUJITSU': None, 'ASP': None, 'TEST': None, 'CL': None, 'PROGRAM': None}
+
+[2/9] [SKIP] Unknown command: //
+[INFO] Parameters: {'SIMPLE': None, 'TEST': None, 'CL': None, 'FOR': None, 'DEMONSTRATION': None}
+
+[3/9] [SKIP] Unknown command: //
+[INFO] Parameters: {'DISPLAY': None, 'MESSAGE': None}
+
+[4/9] [SKIP] Unknown command: MSG
+[INFO] Parameters: {'"STARTING TESTCL EXECUTION"': None}
+
+[5/9] [SKIP] Unknown command: //
+[INFO] Parameters: {'CREATE': None, 'A': None, 'TEST': None, 'FILE': None}
+
+[6/9] [EXEC] CRTFILE FILE(TESTLIB/),VOL-DISK01,RECTYPE-FB
+[ERROR] File '' already exists in library 'TESTLIB' on volume 'DISK01'.
+[WARN] Command returned PGMEC=999
+
+[7/9] [SKIP] Unknown command: //
+[INFO] Parameters: {'DISPLAY': None, 'COMPLETION': None, 'MESSAGE': None}
+
+[8/9] [SKIP] Unknown command: MSG
+[INFO] Parameters: {'"TESTCL EXECUTION COMPLETED"': None}
+
+[9/9] [SKIP] Unknown command: //
+[INFO] Parameters: {'END': None, 'OF': None, 'CL': None}
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 1/9
+
+[2025-07-27 14:58:51] [JOB_ERROR] CL program execution failed: 1 instructions failed
+[2025-07-27 14:58:51] [JOB_ERROR] Job WEBJOB001 failed

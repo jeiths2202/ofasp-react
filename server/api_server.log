@@ -1,0 +1,483 @@
+2025-08-03 11:29:28 [WARNING] Failed to load sessions: name 'active_terminals' is not defined
+2025-08-03 11:29:28 [WARNING] Encoding API not available: HTTPConnectionPool(host='localhost', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x74531919b280>: Failed to establish a new connection: [Errno 111] Connection refused'))
+2025-08-03 11:29:28 [INFO] OpenASP API Server v0.5.1 starting...
+2025-08-03 11:29:28 [INFO] Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
+2025-08-03 11:29:28 [INFO] Fixed configuration loading and error handling
+2025-08-03 11:29:29 [INFO] SMED directory: /home/aspuser/app/public/SMED_FILES
+2025-08-03 11:29:29 [INFO] Account file: /home/aspuser/app/src/account.json
+2025-08-03 11:29:29 [INFO] SMED-PGM file: /home/aspuser/app/src/smed_pgm.json
+2025-08-03 11:29:29 [INFO] MAP-PGM file: /home/aspuser/app/src/map_pgm.json
+2025-08-03 11:29:29 [INFO] JAR file: /home/aspuser/app/server/java_jars/ofasp.jar
+2025-08-03 11:29:29 [INFO] Loaded 4 user accounts
+2025-08-03 11:29:29 [INFO] Loaded SMED-PGM config: 20 valid maps
+2025-08-03 11:29:29 [INFO]   MENU: JAVA -> com.openasp.menu.MenuProgram
+2025-08-03 11:29:29 [INFO]   LOGO: JAVA -> com.openasp.login.LoginProgram
+2025-08-03 11:29:29 [INFO]   PGM1: JAVA -> com.openasp.core.PGM1
+2025-08-03 11:29:29 [INFO]   PGM2: JAVA -> com.openasp.core.PGM2
+2025-08-03 11:29:29 [INFO]   EIGYO001: JAVA -> com.openasp.eigyo.EIGYO001
+2025-08-03 11:29:29 [INFO]   EIGYO002: JAVA -> com.openasp.eigyo.EIGYO002
+2025-08-03 11:29:29 [INFO]   NOHINO001: COBOL -> /home/aspuser/app/server/cobol_modules/NOHIN001.so
+2025-08-03 11:29:29 [INFO]   NOHINO002: SHELL -> /home/aspuser/app/server/shell_modules/NOHIN002.sh
+2025-08-03 11:29:29 [INFO]   ZAIKO001: COBOL -> /home/aspuser/app/server/cobol_modules/ZAIKO001.so
+2025-08-03 11:29:29 [INFO]   BATCH001: SHELL -> /home/aspuser/app/server/shell_modules/BATCH001.sh
+2025-08-03 11:29:29 [INFO]   URIAGE001: JAVA -> com.openasp.uriage.URIAGE001
+2025-08-03 11:29:29 [INFO]   REPORT001: SHELL -> /home/aspuser/app/server/shell_modules/REPORT001.sh
+2025-08-03 11:29:29 [INFO]   USER001: JAVA -> com.openasp.user.UserManagement
+2025-08-03 11:29:29 [INFO]   SYSTEM001: JAVA -> com.openasp.system.SystemInfo
+2025-08-03 11:29:29 [INFO]   LOGOUT: JAVA -> com.openasp.system.LogoutProgram
+2025-08-03 11:29:29 [INFO]   MAIN001: JAVA -> com.openasp.sample.PGM000
+2025-08-03 11:29:29 [INFO]   MENU001: JAVA -> com.openasp.sample.PGM001
+2025-08-03 11:29:29 [INFO]   MENU003: JAVA -> com.openasp.sample.PGM002
+2025-08-03 11:29:29 [INFO]   MENU004: JAVA -> com.openasp.sample.PGM003
+2025-08-03 11:29:29 [INFO]   MENU005: JAVA -> com.openasp.sample.PGM004
+2025-08-03 11:29:29 [INFO] ? Configuration loaded successfully
+2025-08-03 11:29:29 [INFO] ?? SMED Files: 1
+2025-08-03 11:29:29 [INFO] ?? User Accounts: 4
+2025-08-03 11:29:29 [INFO] ???  SMED-PGM Maps: 20
+2025-08-03 11:29:29 [INFO] ? Java Available: True
+2025-08-03 11:29:29 [INFO] ?? JAR File: /home/aspuser/app/server/java_jars/ofasp.jar (EXISTS)
+2025-08-03 11:29:29 [INFO] ?? OpenASP SMED API Server ready!
+2025-08-03 11:29:29 [INFO] ?? WebSocket support enabled for real-time terminal communication
+2025-08-03 11:29:29 [WARNING] Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+ * Serving Flask app 'api_server'
+ * Debug mode: off
+2025-08-03 11:29:29 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.20.0.2:8000
+2025-08-03 11:29:29 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-03 11:29:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:29:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:30:11 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:11 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:11 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:30:11 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:30:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:11] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:30:11 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:11 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:11 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:30:11 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:30:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:11] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:30:15 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/MAINMENU
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/MAINMENU
+2025-08-03 11:30:15 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
+2025-08-03 11:30:15 [INFO] SMED File DEBUG: SJIS read completed, length: 904
+2025-08-03 11:30:15 [INFO] SMED File DEBUG: Japanese part Unicode: [12513, 12452, 12531, 12531, 12513]
+2025-08-03 11:30:15 [INFO] SMED File DEBUG: Proper Japanese characters detected with SJIS
+2025-08-03 11:30:15 [INFO] Successfully loaded SMED content from DISK01/SMED/MAINMENU
+2025-08-03 11:30:15 [INFO] FINAL RESPONSE DEBUG: Content length: 904
+2025-08-03 11:30:15 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP ÉÅÉCÉìÉìÉÅÉjÉÖÅ[   "'
+2025-08-03 11:30:15 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e41535020e383a1e382a4e383b3e383b3e383a1e3838be383a5e383bc20202022
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 904
+2025-08-03 11:30:15 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:15] "GET /api/smed/content/DISK01/SMED/MAINMENU HTTP/1.1" 200 -
+2025-08-03 11:30:19 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:19 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:19 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:30:19 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:30:19 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:30:19 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:30:19 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:30:19 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:19] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:30:22 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/MAINMENU
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/MAINMENU
+2025-08-03 11:30:22 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
+2025-08-03 11:30:22 [INFO] SMED File DEBUG: SJIS read completed, length: 904
+2025-08-03 11:30:22 [INFO] SMED File DEBUG: Japanese part Unicode: [12513, 12452, 12531, 12531, 12513]
+2025-08-03 11:30:22 [INFO] SMED File DEBUG: Proper Japanese characters detected with SJIS
+2025-08-03 11:30:22 [INFO] Successfully loaded SMED content from DISK01/SMED/MAINMENU
+2025-08-03 11:30:22 [INFO] FINAL RESPONSE DEBUG: Content length: 904
+2025-08-03 11:30:22 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP ÉÅÉCÉìÉìÉÅÉjÉÖÅ[   "'
+2025-08-03 11:30:22 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e41535020e383a1e382a4e383b3e383b3e383a1e3838be383a5e383bc20202022
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 904
+2025-08-03 11:30:22 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:22] "GET /api/smed/content/DISK01/SMED/MAINMENU HTTP/1.1" 200 -
+2025-08-03 11:30:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:31:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:31:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:32:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:32:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:33:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:33:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:34:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:34:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:35:35 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:35:35 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:35:35 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:35:35 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:35:35 [INFO] 172.20.0.1 - - [03/Aug/2025 11:35:35] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:35:35 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:35:35 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:35:35 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:35:35 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:35:35 [INFO] 172.20.0.1 - - [03/Aug/2025 11:35:35] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:35:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:35:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:36:33 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:33 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:33 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:36:33 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:36:33 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:33] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:36:33 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:33 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:33 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:36:33 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:36:33 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:33] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:36:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:36:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:36:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:36:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:36:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:36:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:36:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:37:31 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:37:31 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:37:31 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:37:31 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:37:31 [INFO] 172.20.0.1 - - [03/Aug/2025 11:37:31] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:37:31 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:37:31 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:37:31 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:37:31 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:37:31 [INFO] 172.20.0.1 - - [03/Aug/2025 11:37:31] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:37:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:37:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:38:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:38:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:38:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:38:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:38:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:38:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:38:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:38:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:38:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:38:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:38:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:38:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:38:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:38:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:39:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:39:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:40:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:40:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:41:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:41:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:42:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:42:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:43:44 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:43:44 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:43:44 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:44] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:43:44 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:43:44 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:43:44 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:44] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:43:44 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:43:44 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:43:44 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:44] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:43:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:44:10 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:44:10 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:44:10 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:10] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:44:10 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:44:10 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:44:10 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:10] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:44:10 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] SMED File DEBUG: SJIS read completed, length: 842
+2025-08-03 11:44:10 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content length: 842
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
+2025-08-03 11:44:10 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:10] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:44:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:45:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:45:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:46:32 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:46:32 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:46:32 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:32] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:46:32 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:46:32 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:46:32 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:32] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:46:32 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:46:32 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:46:32 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:32] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:46:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:47:01 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:47:01 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:47:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:01] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:47:01 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:47:01 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:47:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:01] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:47:01 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:47:01 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:47:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:01] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:47:49 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/MAINMENU
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/MAINMENU
+2025-08-03 11:47:49 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
+2025-08-03 11:47:49 [INFO] SMED File DEBUG: SJIS read completed, length: 904
+2025-08-03 11:47:49 [INFO] SMED File DEBUG: Japanese part Unicode: [12513, 12452, 12531, 12531, 12513]
+2025-08-03 11:47:49 [INFO] SMED File DEBUG: Proper Japanese characters detected with SJIS
+2025-08-03 11:47:49 [INFO] Successfully loaded SMED content from DISK01/SMED/MAINMENU
+2025-08-03 11:47:49 [INFO] FINAL RESPONSE DEBUG: Content length: 904
+2025-08-03 11:47:49 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP ÉÅÉCÉìÉìÉÅÉjÉÖÅ[   "'
+2025-08-03 11:47:49 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e41535020e383a1e382a4e383b3e383b3e383a1e3838be383a5e383bc20202022
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 904
+2025-08-03 11:47:49 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:49] "GET /api/smed/content/DISK01/SMED/MAINMENU HTTP/1.1" 200 -
+2025-08-03 11:47:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:48:22 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:48:22 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:48:22 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:48:22 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:48:22 [INFO] 172.20.0.1 - - [03/Aug/2025 11:48:22] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:48:22 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:48:22 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:48:22 [INFO] SMED File DEBUG: SJIS read completed, length: 877
+2025-08-03 11:48:22 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
+2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content length: 877
+2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
+2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
+CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
+2025-08-03 11:48:22 [INFO] 172.20.0.1 - - [03/Aug/2025 11:48:22] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
+2025-08-03 11:48:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:48:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:04 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:04] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:05 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:05] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:07 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:07] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:09 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:09] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:11] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:13 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:13] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:15 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:15] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:17 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:17] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:19 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:19] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:21 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:21] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:23 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:23] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:25 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:25] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:27 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:27] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:29 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:29] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:31 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:31] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:33 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:33] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:35 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:35] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:37 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:37] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:39 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:39] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:41 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:41] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:43 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:43] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:45 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:45] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:47 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:47] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:49 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:49] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:51 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:51] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:53] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:55 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:55] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:57 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:57] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:49:59 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:59] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:01] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:03 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:03] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:05 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:05] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:07 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:07] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:09 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:09] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:11] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:13 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:13] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:15 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:15] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:17 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:17] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:19 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:19] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:21 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:21] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:23 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:23] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:25 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:25] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:50:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:51:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:51:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:52:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:52:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:53:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:53:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:54:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:54:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:55:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:55:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:56:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:56:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:57:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:57:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:58:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:58:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 11:59:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:59:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:00:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:00:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:01:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:01:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:02:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:02:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:03:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:03:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:04:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:04:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:05:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:05:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:06:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:06:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:07:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:07:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:08:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:08:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:09:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:09:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:10:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:10:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:11:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:11:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:12:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:12:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:13:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:13:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:14:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:14:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:15:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:15:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:16:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:16:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:17:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:17:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:18:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:18:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:19:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:19:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:20:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:20:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:21:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:21:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:22:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:22:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:23:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:23:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:24:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:24:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:25:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:25:58] "GET /api/logs HTTP/1.1" 200 -
+2025-08-03 12:26:29 [INFO] 127.0.0.1 - - [03/Aug/2025 12:26:29] "[33mGET /api/catalog/layout HTTP/1.1[0m" 404 -

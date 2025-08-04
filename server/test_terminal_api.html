@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Terminal API</title>
+</head>
+<body>
+    <h1>ASP Terminal API Test</h1>
+    <button onclick="testCommand()">Test CALL Command</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCommand() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Sending command...';
+            
+            try {
+                const response = await fetch('/api/asp-command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        command: 'CALL PGM-MSGSAMPLEBROWSERMENU.TESTLIB,VOL-DISK01',
+                        user: 'ASPUSER'
+                    }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    resultDiv.innerHTML = `
+                        <h3>SUCCESS!</h3>
+                        <p><strong>Command:</strong> ${result.command}</p>
+                        <p><strong>Success:</strong> ${result.success}</p>
+                        <p><strong>Output:</strong></p>
+                        <pre>${result.output}</pre>
+                    `;
+                } else {
+                    const error = await response.text();
+                    resultDiv.innerHTML = `
+                        <h3>ERROR!</h3>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Error:</strong> ${error}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>NETWORK ERROR!</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

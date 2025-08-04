@@ -41,11 +41,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Import layout API module
+try:
+    from layout_api import register_layout_routes
+    LAYOUT_API_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Layout API module not available: {e}")
+    LAYOUT_API_AVAILABLE = False
+
 app = Flask(__name__)
 CORS(app, origins=['http://localhost:3005', 'http://localhost:3000', 'http://localhost:3007', 'http://localhost:3006'])
 
 # Initialize SocketIO for WebSocket support
 socketio = SocketIO(app, cors_allowed_origins=['http://localhost:3005', 'http://localhost:3000', 'http://localhost:3007', 'http://localhost:3006'])
+
+# Register layout API routes
+if LAYOUT_API_AVAILABLE:
+    register_layout_routes(app)
 
 # ?? ??
 VOLUME_ROOT = "/home/aspuser/app/volume"
@@ -2152,7 +2164,8 @@ def execute_program():
     if not user_id:
         return jsonify({'error': 'User ID required'}), 400
     
-    if user_id not in accounts:
+    # Allow workstation users (starting with WS) without account verification
+    if not user_id.startswith('WS') and user_id not in accounts:
         return jsonify({'error': 'Invalid user ID'}), 401
     
     try:
@@ -2170,7 +2183,7 @@ def execute_program():
                 })
         
         # ?? ???? ?? (?? ???)
-        program = data.get('program') or accounts[user_id].get('pgm', 'PGM1')
+        program = data.get('program') or (accounts.get(user_id, {}).get('pgm', 'PGM1') if not user_id.startswith('WS') else 'PGM1')
         
         if multi_executor and multi_executor.java_available:
             logger.info(f"Executing default Java program: {program}")

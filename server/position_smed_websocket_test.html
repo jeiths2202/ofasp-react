@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Position-based SMED WebSocket Test Client</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .button:hover { background: #0056b3; }
+        .log { background: #f8f9fa; padding: 10px; border-radius: 3px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; }
+        .input-group { margin: 10px 0; }
+        .input-group label { display: inline-block; width: 120px; }
+        .input-group input, .input-group select { padding: 5px; border: 1px solid #ddd; border-radius: 3px; }
+        .status { padding: 5px 10px; border-radius: 3px; font-weight: bold; }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .subscribed { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Position-based SMED WebSocket Test Client</h1>
+        
+        <!-- Connection Status -->
+        <div class="section">
+            <h3>Connection Status</h3>
+            <span id="connectionStatus" class="status disconnected">Disconnected</span>
+            <button class="button" onclick="connect()">Connect</button>
+            <button class="button" onclick="disconnect()">Disconnect</button>
+        </div>
+        
+        <!-- Subscription Management -->
+        <div class="section">
+            <h3>Map Subscription</h3>
+            <div class="input-group">
+                <label>Map Name:</label>
+                <input type="text" id="mapName" value="EMPLOYEE_FORM" placeholder="Enter map name">
+            </div>
+            <div class="input-group">
+                <label>Terminal ID:</label>
+                <input type="text" id="terminalId" value="TERM001" placeholder="Enter terminal ID">
+            </div>
+            <button class="button" onclick="subscribe()">Subscribe</button>
+            <button class="button" onclick="unsubscribe()">Unsubscribe</button>
+            <span id="subscriptionStatus" class="status"></span>
+        </div>
+        
+        <!-- Display Data Test -->
+        <div class="section">
+            <h3>Test Position SMED Display</h3>
+            <div class="input-group">
+                <label>Encoding:</label>
+                <select id="encoding">
+                    <option value="utf-8">UTF-8</option>
+                    <option value="sjis">SJIS</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Field Data:</label>
+                <input type="text" id="fieldData" value="田中太郎,開発部,東京" placeholder="Comma-separated field data">
+            </div>
+            <button class="button" onclick="sendDisplayData()">Send Display Data</button>
+        </div>
+        
+        <!-- Update Data Test -->
+        <div class="section">
+            <h3>Test Position SMED Updates</h3>
+            <div class="input-group">
+                <label>Update Row:</label>
+                <input type="number" id="updateRow" value="2" min="1">
+            </div>
+            <div class="input-group">
+                <label>Update Col:</label>
+                <input type="number" id="updateCol" value="10" min="1">
+            </div>
+            <div class="input-group">
+                <label>Update Value:</label>
+                <input type="text" id="updateValue" value="更新データ" placeholder="Updated value">
+            </div>
+            <button class="button" onclick="sendUpdateData()">Send Update</button>
+        </div>
+        
+        <!-- Key Event Test -->
+        <div class="section">
+            <h3>Test Key Events</h3>
+            <button class="button" onclick="sendKeyEvent('F1')">F1</button>
+            <button class="button" onclick="sendKeyEvent('F3')">F3</button>
+            <button class="button" onclick="sendKeyEvent('ENTER')">ENTER</button>
+            <button class="button" onclick="sendKeyEvent('TAB')">TAB</button>
+            <button class="button" onclick="sendKeyEvent('F12')">F12</button>
+        </div>
+        
+        <!-- Message Log -->
+        <div class="section">
+            <h3>Message Log</h3>
+            <button class="button" onclick="clearLog()">Clear Log</button>
+            <div id="messageLog" class="log"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        let isConnected = false;
+        let currentSubscription = null;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString();
+            const logDiv = document.getElementById('messageLog');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> <span style="color: ${type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue'};">[${type.toUpperCase()}]</span> ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateConnectionStatus(connected) {
+            isConnected = connected;
+            const statusElement = document.getElementById('connectionStatus');
+            if (connected) {
+                statusElement.textContent = 'Connected';
+                statusElement.className = 'status connected';
+            } else {
+                statusElement.textContent = 'Disconnected';
+                statusElement.className = 'status disconnected';
+                updateSubscriptionStatus(null);
+            }
+        }
+
+        function updateSubscriptionStatus(subscribed) {
+            const statusElement = document.getElementById('subscriptionStatus');
+            if (subscribed) {
+                statusElement.textContent = `Subscribed to ${subscribed}`;
+                statusElement.className = 'status subscribed';
+                currentSubscription = subscribed;
+            } else {
+                statusElement.textContent = '';
+                statusElement.className = 'status';
+                currentSubscription = null;
+            }
+        }
+
+        function connect() {
+            if (socket && isConnected) {
+                log('Already connected', 'warning');
+                return;
+            }
+
+            socket = io('http://localhost:5000');
+
+            socket.on('connect', () => {
+                log('Connected to WebSocket server', 'success');
+                updateConnectionStatus(true);
+            });
+
+            socket.on('disconnect', () => {
+                log('Disconnected from WebSocket server', 'warning');
+                updateConnectionStatus(false);
+            });
+
+            // Position SMED event handlers
+            socket.on('position_smed_subscribed', (data) => {
+                log(`Subscribed to map: ${data.map_name}`, 'success');
+                updateSubscriptionStatus(data.map_name);
+            });
+
+            socket.on('position_smed_unsubscribed', (data) => {
+                log(`Unsubscribed from map: ${data.map_name}`, 'success');
+                updateSubscriptionStatus(null);
+            });
+
+            socket.on('position_smed_display_received', (data) => {
+                log(`Display data received for ${data.map_name}: ${JSON.stringify(data.field_data)}`, 'info');
+            });
+
+            socket.on('position_smed_display_confirmed', (data) => {
+                log(`Display data confirmed for ${data.map_name}`, 'success');
+            });
+
+            socket.on('position_smed_update_received', (data) => {
+                log(`Update data received for ${data.map_name}: ${data.updates.length} updates`, 'info');
+            });
+
+            socket.on('position_smed_update_confirmed', (data) => {
+                log(`Update confirmed for ${data.map_name}: ${data.update_count} updates`, 'success');
+            });
+
+            socket.on('position_smed_key_event_response', (data) => {
+                log(`Key event response: ${data.key} -> ${data.action} (${data.message})`, 'info');
+            });
+
+            socket.on('position_smed_key_event_broadcast', (data) => {
+                log(`Key event broadcast: ${data.key} in ${data.map_name}`, 'info');
+            });
+
+            socket.on('position_smed_error', (data) => {
+                log(`Position SMED error: ${data.error} (${data.event_type})`, 'error');
+            });
+
+            socket.on('connect_error', (error) => {
+                log(`Connection error: ${error.message}`, 'error');
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateConnectionStatus(false);
+                log('Disconnected', 'info');
+            }
+        }
+
+        function subscribe() {
+            if (!isConnected) {
+                log('Not connected to server', 'error');
+                return;
+            }
+
+            const mapName = document.getElementById('mapName').value;
+            const terminalId = document.getElementById('terminalId').value;
+
+            if (!mapName) {
+                log('Map name is required', 'error');
+                return;
+            }
+
+            socket.emit('position_smed_subscribe', {
+                map_name: mapName,
+                terminal_id: terminalId,
+                user: 'test_user'
+            });
+
+            log(`Subscribing to map: ${mapName}`, 'info');
+        }
+
+        function unsubscribe() {
+            if (!isConnected || !currentSubscription) {
+                log('Not subscribed to any map', 'error');
+                return;
+            }
+
+            socket.emit('position_smed_unsubscribe', {
+                map_name: currentSubscription,
+                terminal_id: document.getElementById('terminalId').value
+            });
+
+            log(`Unsubscribing from map: ${currentSubscription}`, 'info');
+        }
+
+        function sendDisplayData() {
+            if (!isConnected) {
+                log('Not connected to server', 'error');
+                return;
+            }
+
+            const mapName = document.getElementById('mapName').value;
+            const encoding = document.getElementById('encoding').value;
+            const fieldDataStr = document.getElementById('fieldData').value;
+            const fieldData = fieldDataStr.split(',').map(s => s.trim());
+
+            const data = {
+                map_name: mapName,
+                map_data: [
+                    { row: 1, col: 1, length: 20 },
+                    { row: 2, col: 1, length: 15 },
+                    { row: 3, col: 1, length: 10 }
+                ],
+                field_data: fieldData,
+                terminal_id: document.getElementById('terminalId').value,
+                encoding: encoding,
+                timestamp: new Date().toISOString()
+            };
+
+            socket.emit('position_smed_display', data);
+            log(`Sending display data for ${mapName}`, 'info');
+        }
+
+        function sendUpdateData() {
+            if (!isConnected) {
+                log('Not connected to server', 'error');
+                return;
+            }
+
+            const mapName = document.getElementById('mapName').value;
+            const row = parseInt(document.getElementById('updateRow').value);
+            const col = parseInt(document.getElementById('updateCol').value);
+            const value = document.getElementById('updateValue').value;
+            const encoding = document.getElementById('encoding').value;
+
+            const data = {
+                map_name: mapName,
+                updates: [{
+                    row: row,
+                    col: col,
+                    length: value.length,
+                    value: value
+                }],
+                terminal_id: document.getElementById('terminalId').value,
+                encoding: encoding,
+                timestamp: new Date().toISOString()
+            };
+
+            socket.emit('position_smed_update', data);
+            log(`Sending update data for ${mapName} at (${row}, ${col})`, 'info');
+        }
+
+        function sendKeyEvent(key) {
+            if (!isConnected) {
+                log('Not connected to server', 'error');
+                return;
+            }
+
+            const mapName = document.getElementById('mapName').value;
+
+            const data = {
+                map_name: mapName,
+                key: key,
+                terminal_id: document.getElementById('terminalId').value,
+                user: 'test_user',
+                wsname: 'WSNAME00',
+                field_values: {
+                    'field1': '田中太郎',
+                    'field2': '開発部'
+                },
+                cursor_position: { row: 2, col: 10 },
+                timestamp: new Date().toISOString()
+            };
+
+            socket.emit('position_smed_key_event', data);
+            log(`Sending key event: ${key} for ${mapName}`, 'info');
+        }
+
+        function clearLog() {
+            document.getElementById('messageLog').innerHTML = '';
+        }
+
+        // Auto-connect on page load
+        window.onload = function() {
+            log('Position-based SMED WebSocket Test Client loaded', 'info');
+            log('Click "Connect" to start testing', 'info');
+        };
+    </script>
+</body>
+</html>

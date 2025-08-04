@@ -1,0 +1,5 @@
+            01 OUT1.
+               03 PNO      PIC 9(5).
+               03 PNAME    PIC X(28).
+               03 PTRAIL   PIC X(05).
+               03 FILLER   PIC X(42).

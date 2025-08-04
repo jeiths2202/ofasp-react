@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenASP Web Terminal - Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background-color: #0c0c0c;
+            color: #00ff00;
+            overflow: hidden;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        input:focus,
+        button:focus,
+        div:focus {
+            outline: 1px solid #00ff00;
+            outline-offset: 2px;
+        }
+        
+        button:hover:not(:disabled) {
+            filter: brightness(1.2);
+            transition: filter 0.2s;
+        }
+        
+        input {
+            transition: border-color 0.2s;
+        }
+        
+        input:focus {
+            border-color: #00ff00 !important;
+        }
+        
+        .terminal-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .terminal-output::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        .terminal-output::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        .terminal-output::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .terminal-cursor {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #333;
+            border-top: 2px solid #00ff00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .employee-data-viewer:focus {
+            outline: 2px solid #00ff00;
+            outline-offset: -2px;
+        }
+        
+        table tr:hover {
+            transform: scale(1.01);
+            transition: transform 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Mock WebSocket implementation for demo
+        class MockWebSocket {
+            constructor(url) {
+                this.url = url;
+                this.readyState = WebSocket.CONNECTING;
+                this.onopen = null;
+                this.onmessage = null;
+                this.onerror = null;
+                this.onclose = null;
+                
+                // Simulate connection
+                setTimeout(() => {
+                    this.readyState = WebSocket.OPEN;
+                    if (this.onopen) this.onopen();
+                }, 1000);
+            }
+            
+            send(data) {
+                const message = JSON.parse(data);
+                
+                if (message.data && message.data.includes('MSGSAMPLEBROWSERMENU')) {
+                    // Simulate MSGSAMPLEBROWSERMENU response
+                    setTimeout(() => {
+                        const smedResponse = {
+                            "type": "smed_map",
+                            "map_name": "BROWSE_MENU",
+                            "title": "==== Employee Data List ====",
+                            "subtitle": "Employee Data Browser",
+                            "headers": ["EmpID", "Name", "Dept", "Salary", "HireDate", "Status"],
+                            "page_info": { "current": 1, "total": 1 },
+                            "function_keys": "F1=Prev F2=Next F3=Quit",
+                            "status": "Data displayed",
+                            "data": [
+                                { "id": "100001", "name": "John Smith", "dept": "IT", "salary": "$3,500", "hire_date": "2022-01-01", "status": "ACTIVE" },
+                                { "id": "100002", "name": "Jane Doe", "dept": "HR", "salary": "$2,800", "hire_date": "2021-06-15", "status": "ACTIVE" },
+                                { "id": "100003", "name": "Mike Johnson", "dept": "IT", "salary": "$4,200", "hire_date": "2020-03-01", "status": "ACTIVE" },
+                                { "id": "100004", "name": "Sarah Williams", "dept": "FIN", "salary": "$3,800", "hire_date": "2023-02-01", "status": "ACTIVE" },
+                                { "id": "100005", "name": "Robert Brown", "dept": "OPS", "salary": "$3,200", "hire_date": "2019-08-15", "status": "ACTIVE" }
+                            ]
+                        };
+                        
+                        if (this.onmessage) {
+                            this.onmessage({ data: JSON.stringify(smedResponse) });
+                        }
+                    }, 500);
+                } else {
+                    // Echo command back
+                    setTimeout(() => {
+                        if (this.onmessage) {
+                            this.onmessage({ data: `Command executed: ${message.data}` });
+                        }
+                    }, 200);
+                }
+            }
+            
+            close() {
+                this.readyState = WebSocket.CLOSED;
+                if (this.onclose) this.onclose({ wasClean: true });
+            }
+        }
+        
+        // Replace WebSocket for demo
+        window.WebSocket = MockWebSocket;
+        MockWebSocket.CONNECTING = 0;
+        MockWebSocket.OPEN = 1;
+        MockWebSocket.CLOSING = 2;
+        MockWebSocket.CLOSED = 3;
+        
+        // Include the React components (inline for demo)
+        const { useState, useEffect, useRef, useCallback } = React;
+        
+        // WebSocket Service
+        class WebSocketService {
+            constructor(url) {
+                this.url = url;
+                this.ws = null;
+                this.handlers = {};
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                this.reconnectDelay = 1000;
+                this.isConnecting = false;
+            }
+            
+            connect(handlers) {
+                return new Promise((resolve, reject) => {
+                    if (this.isConnecting || (this.ws && this.ws.readyState === WebSocket.CONNECTING)) {
+                        reject(new Error('Connection already in progress'));
+                        return;
+                    }
+                    
+                    this.isConnecting = true;
+                    this.handlers = handlers;
+                    
+                    try {
+                        this.ws = new WebSocket(this.url);
+                        
+                        this.ws.onopen = () => {
+                            console.log('WebSocket connected');
+                            this.isConnecting = false;
+                            this.reconnectAttempts = 0;
+                            this.handlers.onConnect?.();
+                            resolve();
+                        };
+                        
+                        this.ws.onmessage = (event) => {
+                            this.handleMessage(event.data);
+                        };
+                        
+                        this.ws.onerror = (error) => {
+                            console.error('WebSocket error:', error);
+                            this.isConnecting = false;
+                            this.handlers.onError?.('WebSocket connection error');
+                            reject(error);
+                        };
+                        
+                        this.ws.onclose = (event) => {
+                            console.log('WebSocket disconnected:', event.code, event.reason);
+                            this.isConnecting = false;
+                            this.handlers.onDisconnect?.();
+                        };
+                        
+                    } catch (error) {
+                        this.isConnecting = false;
+                        reject(error);
+                    }
+                });
+            }
+            
+            handleMessage(rawData) {
+                try {
+                    const message = JSON.parse(rawData);
+                    
+                    switch (message.type) {
+                        case 'smed_map':
+                            if (this.isValidSMEDMapData(message)) {
+                                this.handlers.onSMEDMap?.(message);
+                            } else {
+                                console.warn('Invalid SMED map data received:', message);
+                                this.handlers.onError?.('Invalid SMED map data format');
+                            }
+                            break;
+                        case 'terminal_output':
+                            this.handlers.onTerminalOutput?.(message.data);
+                            break;
+                        case 'error':
+                            this.handlers.onError?.(message.data);
+                            break;
+                        case 'status':
+                            this.handlers.onStatusUpdate?.(message.data);
+                            break;
+                        default:
+                            console.warn('Unknown message type:', message.type);
+                            this.handlers.onTerminalOutput?.(rawData);
+                    }
+                } catch (error) {
+                    this.handlers.onTerminalOutput?.(rawData);
+                }
+            }
+            
+            isValidSMEDMapData(data) {
+                return (
+                    data &&
+                    typeof data.type === 'string' &&
+                    typeof data.map_name === 'string' &&
+                    typeof data.title === 'string' &&
+                    Array.isArray(data.headers) &&
+                    Array.isArray(data.data) &&
+                    data.page_info &&
+                    typeof data.page_info.current === 'number' &&
+                    typeof data.page_info.total === 'number'
+                );
+            }
+            
+            sendCommand(command) {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({
+                        type: 'command',
+                        data: command,
+                        timestamp: new Date().toISOString()
+                    }));
+                } else {
+                    console.warn('WebSocket not connected, cannot send command:', command);
+                    this.handlers.onError?.('WebSocket not connected');
+                }
+            }
+            
+            sendMSGSampleBrowserMenuCommand() {
+                this.sendCommand('CALL MSGSAMPLEBROWSERMENU');
+            }
+            
+            disconnect() {
+                if (this.ws) {
+                    this.ws.close(1000, 'Client disconnect');
+                    this.ws = null;
+                }
+                this.handlers = {};
+                this.reconnectAttempts = 0;
+            }
+            
+            isConnected() {
+                return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
+            }
+            
+            getConnectionState() {
+                if (!this.ws) return 'DISCONNECTED';
+                
+                switch (this.ws.readyState) {
+                    case WebSocket.CONNECTING: return 'CONNECTING';
+                    case WebSocket.OPEN: return 'CONNECTED';
+                    case WebSocket.CLOSING: return 'CLOSING';
+                    case WebSocket.CLOSED: return 'DISCONNECTED';
+                    default: return 'UNKNOWN';
+                }
+            }
+        }
+        
+        // Employee Data Viewer Component
+        const EmployeeDataViewer = ({ smedData, isVisible, onClose }) => {
+            const [animationClass, setAnimationClass] = useState('');
+            
+            useEffect(() => {
+                if (smedData) {
+                    setAnimationClass('animate-fadeIn');
+                    const timer = setTimeout(() => setAnimationClass(''), 500);
+                    return () => clearTimeout(timer);
+                }
+            }, [smedData]);
+            
+            if (!isVisible || !smedData) {
+                return null;
+            }
+            
+            const handleKeyPress = (event) => {
+                if (event.key === 'Escape' && onClose) {
+                    onClose();
+                }
+            };
+            
+            return (
+                <div 
+                    className="employee-data-viewer"
+                    onKeyDown={handleKeyPress}
+                    tabIndex={0}
+                    style={{
+                        position: 'fixed',
+                        top: '10%',
+                        left: '10%',
+                        right: '10%',
+                        bottom: '10%',
+                        backgroundColor: '#1a1a1a',
+                        border: '2px solid #00ff00',
+                        borderRadius: '8px',
+                        padding: '20px',
+                        zIndex: 1000,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        fontFamily: 'monospace',
+                        color: '#00ff00',
+                        overflow: 'hidden'
+                    }}
+                >
+                    <div className="header-section" style={{ marginBottom: '15px' }}>
+                        <div className="title-bar" style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            borderBottom: '1px solid #00ff00',
+                            paddingBottom: '10px'
+                        }}>
+                            <div>
+                                <h2 style={{ 
+                                    margin: 0, 
+                                    fontSize: '18px', 
+                                    fontWeight: 'bold',
+                                    color: '#00ffff'
+                                }}>
+                                    {smedData.title}
+                                </h2>
+                                <div style={{ fontSize: '14px', color: '#ffff00' }}>
+                                    {smedData.subtitle}
+                                </div>
+                            </div>
+                            <button
+                                onClick={onClose}
+                                style={{
+                                    background: '#ff3030',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    padding: '5px 10px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                Close
+                            </button>
+                        </div>
+                        
+                        <div className="status-bar" style={{ 
+                            marginTop: '10px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '12px'
+                        }}>
+                            <span>Page {smedData.page_info.current} of {smedData.page_info.total}</span>
+                            <span>{smedData.status}</span>
+                        </div>
+                    </div>
+                    
+                    <div className={`data-section ${animationClass}`} style={{ 
+                        flex: 1,
+                        overflow: 'auto',
+                        border: '1px solid #333',
+                        borderRadius: '4px'
+                    }}>
+                        <table style={{
+                            width: '100%',
+                            borderCollapse: 'collapse',
+                            fontSize: '13px'
+                        }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#333' }}>
+                                    {smedData.headers.map((header, index) => (
+                                        <th key={index} style={{
+                                            padding: '8px 12px',
+                                            textAlign: 'left',
+                                            borderBottom: '2px solid #00ff00',
+                                            color: '#ffff00',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {header}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {smedData.data.map((record, index) => (
+                                    <tr key={`${record.id}-${index}`} style={{
+                                        backgroundColor: index % 2 === 0 ? '#2a2a2a' : '#1a1a1a',
+                                        transition: 'background-color 0.2s'
+                                    }}>
+                                        <td style={{ 
+                                            padding: '6px 12px', 
+                                            borderBottom: '1px solid #333',
+                                            color: '#00ffff'
+                                        }}>
+                                            {record.id}
+                                        </td>
+                                        <td style={{ 
+                                            padding: '6px 12px', 
+                                            borderBottom: '1px solid #333',
+                                            color: '#ffffff'
+                                        }}>
+                                            {record.name}
+                                        </td>
+                                        <td style={{ 
+                                            padding: '6px 12px', 
+                                            borderBottom: '1px solid #333',
+                                            color: '#ffff00'
+                                        }}>
+                                            {record.dept}
+                                        </td>
+                                        <td style={{ 
+                                            padding: '6px 12px', 
+                                            borderBottom: '1px solid #333',
+                                            color: '#00ff80',
+                                            textAlign: 'right'
+                                        }}>
+                                            {record.salary}
+                                        </td>
+                                        <td style={{ 
+                                            padding: '6px 12px', 
+                                            borderBottom: '1px solid #333',
+                                            color: '#ff8040'
+                                        }}>
+                                            {record.hire_date}
+                                        </td>
+                                        <td style={{ 
+                                            padding: '6px 12px', 
+                                            borderBottom: '1px solid #333',
+                                            color: record.status === 'ACTIVE' ? '#00ff00' : '#ff6060'
+                                        }}>
+                                            {record.status}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        
+                        {smedData.data.length === 0 && (
+                            <div style={{
+                                textAlign: 'center',
+                                padding: '40px',
+                                color: '#666',
+                                fontSize: '14px'
+                            }}>
+                                No employee records found
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="footer-section" style={{
+                        marginTop: '15px',
+                        padding: '10px',
+                        backgroundColor: '#333',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        textAlign: 'center',
+                        color: '#ffff00'
+                    }}>
+                        {smedData.function_keys} | ESC=Close
+                    </div>
+                </div>
+            );
+        };
+        
+        // Main App Component
+        const App = () => {
+            const [wsService] = useState(() => new WebSocketService('ws://localhost:8080/terminal'));
+            const [isConnected, setIsConnected] = useState(false);
+            const [currentInput, setCurrentInput] = useState('');
+            const [terminalLines, setTerminalLines] = useState([]);
+            const [smedData, setSmedData] = useState(null);
+            const [showEmployeeViewer, setShowEmployeeViewer] = useState(false);
+            const [connectionStatus, setConnectionStatus] = useState('DISCONNECTED');
+            const [isConnecting, setIsConnecting] = useState(false);
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [loginForm, setLoginForm] = useState({
+                username: '',
+                workstation: '',
+                password: ''
+            });
+            const [loginError, setLoginError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            
+            const terminalRef = useRef(null);
+            const inputRef = useRef(null);
+            const lineIdCounter = useRef(0);
+            
+            const addTerminalLine = useCallback((content, type = 'output') => {
+                const newLine = {
+                    id: `line-${++lineIdCounter.current}`,
+                    content,
+                    timestamp: new Date(),
+                    type
+                };
+                
+                setTerminalLines(prev => [...prev, newLine]);
+            }, []);
+            
+            const scrollToBottom = useCallback(() => {
+                if (terminalRef.current) {
+                    terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+                }
+            }, []);
+            
+            useEffect(() => {
+                scrollToBottom();
+            }, [terminalLines, scrollToBottom]);
+            
+            const handleLogin = useCallback(async (event) => {
+                event.preventDefault();
+                
+                if (!loginForm.username.trim() || !loginForm.workstation.trim() || !loginForm.password.trim()) {
+                    setLoginError('All fields are required');
+                    return;
+                }
+                
+                setIsLoading(true);
+                setLoginError('');
+                
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    setIsAuthenticated(true);
+                    setLoginForm({ username: '', workstation: '', password: '' });
+                } catch (error) {
+                    setLoginError('Authentication failed. Please try again.');
+                } finally {
+                    setIsLoading(false);
+                }
+            }, [loginForm]);
+            
+            const handleConnect = useCallback(async () => {
+                if (isConnecting || isConnected) return;
+                
+                setIsConnecting(true);
+                addTerminalLine('Connecting to OpenASP Terminal...', 'system');
+                
+                const handlers = {
+                    onConnect: () => {
+                        setIsConnected(true);
+                        setConnectionStatus('CONNECTED');
+                        setIsConnecting(false);
+                        addTerminalLine('Connected to OpenASP Terminal', 'system');
+                    },
+                    
+                    onDisconnect: () => {
+                        setIsConnected(false);
+                        setConnectionStatus('DISCONNECTED');
+                        setIsConnecting(false);
+                        addTerminalLine('Disconnected from OpenASP Terminal', 'system');
+                    },
+                    
+                    onTerminalOutput: (data) => {
+                        addTerminalLine(data, 'output');
+                    },
+                    
+                    onSMEDMap: (data) => {
+                        setSmedData(data);
+                        setShowEmployeeViewer(true);
+                        addTerminalLine(`SMED Map received: ${data.map_name} (${data.data.length} records)`, 'system');
+                    },
+                    
+                    onError: (error) => {
+                        addTerminalLine(`Error: ${error}`, 'error');
+                    },
+                    
+                    onStatusUpdate: (status) => {
+                        addTerminalLine(`Status: ${status}`, 'system');
+                    }
+                };
+                
+                try {
+                    await wsService.connect(handlers);
+                } catch (error) {
+                    setIsConnecting(false);
+                    addTerminalLine(`Connection failed: ${error}`, 'error');
+                }
+            }, [isConnecting, isConnected, wsService, addTerminalLine]);
+            
+            const handleSendCommand = useCallback(() => {
+                if (!currentInput.trim() || !isConnected) return;
+                
+                const command = currentInput.trim();
+                addTerminalLine(`> ${command}`, 'input');
+                
+                if (command.toUpperCase().includes('MSGSAMPLEBROWSERMENU') || 
+                    command.toUpperCase().includes('CALL MSGSAMPLEBROWSERMENU')) {
+                    wsService.sendMSGSampleBrowserMenuCommand();
+                } else {
+                    wsService.sendCommand(command);
+                }
+                
+                setCurrentInput('');
+            }, [currentInput, isConnected, wsService, addTerminalLine]);
+            
+            const executeQuickCommand = useCallback((command) => {
+                if (!isConnected) {
+                    addTerminalLine('Not connected to terminal', 'error');
+                    return;
+                }
+                
+                addTerminalLine(`> ${command}`, 'input');
+                
+                if (command === 'MSGSAMPLEBROWSERMENU') {
+                    wsService.sendMSGSampleBrowserMenuCommand();
+                } else {
+                    wsService.sendCommand(command);
+                }
+            }, [isConnected, wsService, addTerminalLine]);
+            
+            const getStatusColor = (status) => {
+                switch (status) {
+                    case 'CONNECTED': return '#00ff00';
+                    case 'CONNECTING': return '#ffff00';
+                    case 'DISCONNECTED': return '#ff6060';
+                    default: return '#666';
+                }
+            };
+            
+            const formatTimestamp = (timestamp) => {
+                return timestamp.toLocaleTimeString();
+            };
+            
+            // Login Form
+            if (!isAuthenticated) {
+                return (
+                    <div className="workstation-auth" style={{
+                        height: '100vh',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#0c0c0c',
+                        color: '#00ff00',
+                        fontFamily: 'Consolas, Monaco, "Courier New", monospace'
+                    }}>
+                        <div className="auth-container" style={{
+                            backgroundColor: '#1a1a1a',
+                            border: '2px solid #00ff00',
+                            borderRadius: '8px',
+                            padding: '40px',
+                            minWidth: '400px',
+                            maxWidth: '500px'
+                        }}>
+                            <div className="auth-header" style={{
+                                textAlign: 'center',
+                                marginBottom: '30px'
+                            }}>
+                                <h1 style={{
+                                    margin: '0 0 10px 0',
+                                    color: '#00ffff',
+                                    fontSize: '24px'
+                                }}>
+                                    OpenASP Terminal Demo
+                                </h1>
+                                <p style={{
+                                    margin: 0,
+                                    color: '#ffff00',
+                                    fontSize: '14px'
+                                }}>
+                                    Employee Data Browser Demo
+                                </p>
+                            </div>
+                            
+                            <form onSubmit={handleLogin} style={{ width: '100%' }}>
+                                <div className="form-group" style={{ marginBottom: '20px' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        marginBottom: '5px',
+                                        color: '#00ff00',
+                                        fontSize: '14px'
+                                    }}>
+                                        Username:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={loginForm.username}
+                                        onChange={(e) => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+                                        disabled={isLoading}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            backgroundColor: '#0c0c0c',
+                                            border: '1px solid #333',
+                                            borderRadius: '4px',
+                                            color: '#00ff00',
+                                            fontSize: '14px',
+                                            fontFamily: 'inherit'
+                                        }}
+                                        placeholder="demo"
+                                    />
+                                </div>
+                                
+                                <div className="form-group" style={{ marginBottom: '20px' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        marginBottom: '5px',
+                                        color: '#00ff00',
+                                        fontSize: '14px'
+                                    }}>
+                                        Workstation:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={loginForm.workstation}
+                                        onChange={(e) => setLoginForm(prev => ({ ...prev, workstation: e.target.value }))}
+                                        disabled={isLoading}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            backgroundColor: '#0c0c0c',
+                                            border: '1px solid #333',
+                                            borderRadius: '4px',
+                                            color: '#00ff00',
+                                            fontSize: '14px',
+                                            fontFamily: 'inherit'
+                                        }}
+                                        placeholder="WS001"
+                                    />
+                                </div>
+                                
+                                <div className="form-group" style={{ marginBottom: '20px' }}>
+                                    <label style={{
+                                        display: 'block',
+                                        marginBottom: '5px',
+                                        color: '#00ff00',
+                                        fontSize: '14px'
+                                    }}>
+                                        Password:
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={loginForm.password}
+                                        onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                                        disabled={isLoading}
+                                        style={{
+                                            width: '100%',
+                                            padding: '10px',
+                                            backgroundColor: '#0c0c0c',
+                                            border: '1px solid #333',
+                                            borderRadius: '4px',
+                                            color: '#00ff00',
+                                            fontSize: '14px',
+                                            fontFamily: 'inherit'
+                                        }}
+                                        placeholder="password"
+                                    />
+                                </div>
+                                
+                                {loginError && (
+                                    <div style={{
+                                        padding: '10px',
+                                        backgroundColor: '#330000',
+                                        border: '1px solid #ff6060',
+                                        borderRadius: '4px',
+                                        color: '#ff6060',
+                                        fontSize: '14px',
+                                        marginBottom: '20px'
+                                    }}>
+                                        {loginError}
+                                    </div>
+                                )}
+                                
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        backgroundColor: isLoading ? '#666' : '#006600',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '16px',
+                                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                                        fontFamily: 'inherit'
+                                    }}
+                                >
+                                    {isLoading ? 'Authenticating...' : 'Login (Any values accepted)'}
+                                </button>
+                            </form>
+                            
+                            <div style={{
+                                marginTop: '30px',
+                                padding: '15px',
+                                backgroundColor: '#2a2a2a',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                color: '#999'
+                            }}>
+                                <strong style={{ color: '#ffff00' }}>Demo Instructions:</strong><br/>
+                                • Use any username, workstation, and password<br/>
+                                • After login, click "Connect" to simulate WebSocket connection<br/>
+                                • Click "Employee Browser" to see MSGSAMPLEBROWSERMENU output<br/>
+                                • This is a complete working demo of the terminal system
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+            
+            // Main Terminal Interface
+            return (
+                <div className="asp-cli-terminal" style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100vh',
+                    backgroundColor: '#0c0c0c',
+                    color: '#00ff00',
+                    fontFamily: 'Consolas, Monaco, "Courier New", monospace',
+                    fontSize: '14px'
+                }}>
+                    <div className="terminal-header" style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '10px 15px',
+                        backgroundColor: '#1a1a1a',
+                        borderBottom: '2px solid #333'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <h3 style={{ margin: 0, color: '#00ffff' }}>OpenASP Web Terminal - Demo</h3>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                fontSize: '12px'
+                            }}>
+                                <div style={{
+                                    width: '8px',
+                                    height: '8px',
+                                    borderRadius: '50%',
+                                    backgroundColor: getStatusColor(connectionStatus)
+                                }}></div>
+                                <span style={{ color: getStatusColor(connectionStatus) }}>
+                                    {connectionStatus}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            {!isConnected ? (
+                                <button
+                                    onClick={handleConnect}
+                                    disabled={isConnecting}
+                                    style={{
+                                        padding: '5px 15px',
+                                        backgroundColor: isConnecting ? '#666' : '#006600',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: isConnecting ? 'not-allowed' : 'pointer',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    {isConnecting ? 'Connecting...' : 'Connect'}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => wsService.disconnect()}
+                                    style={{
+                                        padding: '5px 15px',
+                                        backgroundColor: '#cc3300',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    Disconnect
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {isConnected && (
+                        <div className="quick-commands" style={{
+                            padding: '8px 15px',
+                            backgroundColor: '#2a2a2a',
+                            borderBottom: '1px solid #333',
+                            display: 'flex',
+                            gap: '10px',
+                            flexWrap: 'wrap'
+                        }}>
+                            <span style={{ fontSize: '12px', color: '#999' }}>Quick Commands:</span>
+                            <button
+                                onClick={() => executeQuickCommand('MSGSAMPLEBROWSERMENU')}
+                                style={{
+                                    padding: '3px 8px',
+                                    backgroundColor: '#004400',
+                                    color: '#00ff00',
+                                    border: '1px solid #006600',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '11px'
+                                }}
+                            >
+                                Employee Browser
+                            </button>
+                            <button
+                                onClick={() => executeQuickCommand('HELP')}
+                                style={{
+                                    padding: '3px 8px',
+                                    backgroundColor: '#004444',
+                                    color: '#00ffff',
+                                    border: '1px solid #006666',
+                                    borderRadius: '3px',
+                                    cursor: 'pointer',
+                                    fontSize: '11px'
+                                }}
+                            >
+                                Help
+                            </button>
+                        </div>
+                    )}
+                    
+                    <div
+                        ref={terminalRef}
+                        className="terminal-output"
+                        style={{
+                            flex: 1,
+                            padding: '15px',
+                            overflowY: 'auto',
+                            backgroundColor: '#0c0c0c',
+                            lineHeight: '1.4'
+                        }}
+                    >
+                        {terminalLines.map((line) => (
+                            <div
+                                key={line.id}
+                                style={{
+                                    marginBottom: '2px',
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '10px'
+                                }}
+                            >
+                                <span style={{
+                                    fontSize: '10px',
+                                    color: '#666',
+                                    minWidth: '60px',
+                                    flexShrink: 0
+                                }}>
+                                    {formatTimestamp(line.timestamp)}
+                                </span>
+                                <span style={{
+                                    color: line.type === 'input' ? '#ffff00' :
+                                           line.type === 'error' ? '#ff6060' :
+                                           line.type === 'system' ? '#00ffff' : '#00ff00',
+                                    wordBreak: 'break-word'
+                                }}>
+                                    {line.content}
+                                </span>
+                            </div>
+                        ))}
+                        
+                        {terminalLines.length === 0 && (
+                            <div style={{ color: '#666', fontStyle: 'italic' }}>
+                                Welcome to OpenASP Web Terminal Demo. Click "Connect" to start.
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="terminal-input" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px 15px',
+                        backgroundColor: '#1a1a1a',
+                        borderTop: '1px solid #333'
+                    }}>
+                        <span style={{ marginRight: '10px', color: '#ffff00' }}>{'>'}</span>
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={currentInput}
+                            onChange={(e) => setCurrentInput(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSendCommand()}
+                            disabled={!isConnected}
+                            placeholder={isConnected ? "Enter command..." : "Connect to start typing"}
+                            style={{
+                                flex: 1,
+                                padding: '8px',
+                                backgroundColor: '#0c0c0c',
+                                color: '#00ff00',
+                                border: '1px solid #333',
+                                borderRadius: '4px',
+                                fontSize: '14px',
+                                fontFamily: 'inherit'
+                            }}
+                        />
+                        <button
+                            onClick={handleSendCommand}
+                            disabled={!isConnected || !currentInput.trim()}
+                            style={{
+                                marginLeft: '10px',
+                                padding: '8px 15px',
+                                backgroundColor: isConnected && currentInput.trim() ? '#006600' : '#666',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: isConnected && currentInput.trim() ? 'pointer' : 'not-allowed',
+                                fontSize: '12px'
+                            }}
+                        >
+                            Send
+                        </button>
+                    </div>
+                    
+                    <EmployeeDataViewer
+                        smedData={smedData}
+                        isVisible={showEmployeeViewer}
+                        onClose={() => {
+                            setShowEmployeeViewer(false);
+                            setSmedData(null);
+                        }}
+                    />
+                </div>
+            );
+        };
+        
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

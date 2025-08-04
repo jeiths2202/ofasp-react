@@ -1,0 +1,13 @@
+2025-07-20 07:44:06,773 - conversion_service - INFO - EbcdicConverter initialized with codepage path: /home/aspuser/app/ofasp-refactor/public/codepages
+2025-07-20 07:44:06,775 - api_service - INFO - Flask application initialized with configuration
+2025-07-20 07:44:06,778 - api_service - INFO - Starting conversion service on 0.0.0.0:3003
+ * Serving Flask app 'src.api.app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3003
+ * Running on http://172.20.0.2:3003
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [20/Jul/2025 07:44:16] "[33mGET / HTTP/1.1[0m" 404 -
+127.0.0.1 - - [23/Jul/2025 16:03:29] "[33mPOST /scan-directory HTTP/1.1[0m" 404 -
+Terminated

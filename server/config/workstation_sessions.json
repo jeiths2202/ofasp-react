@@ -1,0 +1,26 @@
+{
+  "sessions": {
+    "ws_WSNAME00_2d35ba19": {
+      "session_id": "ws_WSNAME00_2d35ba19",
+      "wsname": "WSNAME00",
+      "user_id": "admin",
+      "terminal_id": "WSNAME00",
+      "status": "ON",
+      "display_mode": "legacy",
+      "encoding": "sjis",
+      "login_time": "2025-07-31T16:03:33.973415+00:00",
+      "last_activity": "2025-07-31T16:03:33.973438+00:00",
+      "smed_subscriptions": [],
+      "websocket_rooms": [],
+      "properties": {}
+    }
+  },
+  "workstation_sessions": {
+    "WSNAME00": "ws_WSNAME00_2d35ba19"
+  },
+  "user_sessions": {
+    "admin": [
+      "ws_WSNAME00_2d35ba19"
+    ]
+  }
+}

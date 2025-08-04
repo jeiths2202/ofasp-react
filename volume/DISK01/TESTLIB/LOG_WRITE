@@ -1,0 +1,60 @@
+PGM
+// LOG_WRITE - ログ書き込みCL
+// システムログファイルへの書き込み
+
+// 変数宣言
+VAR &LOGMSG,CHAR,100
+VAR &JOBNAME,CHAR,10
+VAR &USER,CHAR,10
+VAR &TIMESTAMP,CHAR,20
+
+// ログファイル作成（追加モード用）
+CRTFILE FILE(TESTLIB/SYSLOG) RECLEN(132) RECTYPE(VB) VOL(DISK01)
+
+// ジョブ情報取得
+&JOBNAME := @JOBNAME
+&USER := @USER
+
+// ファイルオープン（追加モード）
+OPNFILE FILE(TESTLIB/SYSLOG) MODE(*APPEND)
+
+// ログ開始
+&TIMESTAMP := @DATE || ' ' || @TIME
+&LOGMSG := &TIMESTAMP || ' [' || &JOBNAME || '] ' || &USER || ' - ログ処理開始'
+WRTFILE FILE(TESTLIB/SYSLOG) DATA(&LOGMSG)
+
+// 処理ログ１
+&TIMESTAMP := @DATE || ' ' || @TIME
+&LOGMSG := &TIMESTAMP || ' [' || &JOBNAME || '] ' || &USER || ' - データベース接続完了'
+WRTFILE FILE(TESTLIB/SYSLOG) DATA(&LOGMSG)
+
+// 処理ログ２
+&TIMESTAMP := @DATE || ' ' || @TIME
+&LOGMSG := &TIMESTAMP || ' [' || &JOBNAME || '] ' || &USER || ' - バッチ処理実行中'
+WRTFILE FILE(TESTLIB/SYSLOG) DATA(&LOGMSG)
+
+// Javaプログラム呼び出し
+CALL PGM(BatchProcessor) PARM('DAILY' 'RUN')
+
+// 処理ログ３
+&TIMESTAMP := @DATE || ' ' || @TIME
+&LOGMSG := &TIMESTAMP || ' [' || &JOBNAME || '] ' || &USER || ' - バッチ処理完了'
+WRTFILE FILE(TESTLIB/SYSLOG) DATA(&LOGMSG)
+
+// ログ終了
+&TIMESTAMP := @DATE || ' ' || @TIME
+&LOGMSG := &TIMESTAMP || ' [' || &JOBNAME || '] ' || &USER || ' - ログ処理終了'
+WRTFILE FILE(TESTLIB/SYSLOG) DATA(&LOGMSG)
+
+// ファイルクローズ
+CLSFILE FILE(TESTLIB/SYSLOG)
+
+MSG 'ログ書き込みが完了しました'
+
+WHEN ABNORMAL
+    &TIMESTAMP := @DATE || ' ' || @TIME
+    &LOGMSG := &TIMESTAMP || ' [ERROR] ' || @PGMEC
+    WRTFILE FILE(TESTLIB/SYSLOG) DATA(&LOGMSG)
+    CLSFILE FILE(TESTLIB/SYSLOG)
+    RETURN @PGMEC
+END

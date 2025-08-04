@@ -1,0 +1,336 @@
+import java.io.*;
+import java.nio.file.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+import java.util.*;
+
+/**
+ * MSGSampleBrowserMenuClean - OpenASP compliant SMED browsing system
+ * 
+ * Follows OpenASP JSON communication protocol:
+ * - Reads JSON input from stdin
+ * - Outputs JSON response with display_map action
+ * - Uses BROWSE_MENU SMED map for proper rendering
+ */
+public class MSGSampleBrowserMenuClean {
+    
+    private static final String DATA_FILE = "/home/aspuser/app/volume/DISK01/TESTLIB/EMPLOYEE.UTF8.DAT";
+    private static final String MAP_NAME = "BROWSE_MENU";
+    private static final int RECORDS_PER_PAGE = 10;
+    
+    private List<EmployeeRecord> allRecords;
+    private int currentPage = 1;
+    private int totalPages = 0;
+    private int totalRecords = 0;
+    
+    /**
+     * Employee record structure
+     */
+    private static class EmployeeRecord {
+        private String id, name, department, salary, hireDate, status;
+        
+        public EmployeeRecord(String line) {
+            try {
+                // Try CSV format first: E001,Name,Department,Position,Age,HireDate
+                if (line.contains(",")) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 6) {
+                        this.id = parts[0].trim();
+                        this.name = parts[1].trim();
+                        this.department = parts[2].trim();
+                        this.salary = parts[3].trim();
+                        this.hireDate = parts[5].trim();
+                        this.status = parts[4].trim();
+                    } else {
+                        System.err.println("Invalid CSV format (" + parts.length + " parts): " + line);
+                        initializeEmptyFields();
+                    }
+                } else {
+                    // Fixed-length format: E001Name.....................Dept... PositionAgeHireDate.......
+                    if (line.length() >= 60) {
+                        this.id = line.substring(0, 4).trim();
+                        this.name = line.substring(4, 20).trim();
+                        this.department = line.substring(20, 30).trim();
+                        this.salary = line.substring(30, 35).trim();
+                        this.hireDate = line.substring(35, 45).trim();
+                        this.status = line.substring(45, 60).trim();
+                    } else {
+                        System.err.println("Line too short for fixed format (" + line.length() + "): " + line);
+                        initializeEmptyFields();
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing line: " + line);
+                System.err.println("Exception: " + e.getMessage());
+                initializeEmptyFields();
+            }
+        }
+        
+        private void initializeEmptyFields() {
+            this.id = this.name = this.department = this.salary = this.hireDate = this.status = "";
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            MSGSampleBrowserMenuClean browser = new MSGSampleBrowserMenuClean();
+            
+            // Read JSON input from stdin (OpenASP standard)
+            String inputJson = "";
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                StringBuilder inputBuilder = new StringBuilder();
+                String line;
+                
+                // Try to read input with timeout
+                if (reader.ready() || System.in.available() > 0) {
+                    while ((line = reader.readLine()) != null && !line.isEmpty()) {
+                        inputBuilder.append(line);
+                    }
+                    inputJson = inputBuilder.toString();
+                }
+                
+                // If no input received, create default input
+                if (inputJson.isEmpty()) {
+                    inputJson = "{\"program\": \"MSGSAMPLEBROWSERMENU\", \"library\": \"TESTLIB\", \"volume\": \"DISK01\", \"user\": \"system\"}";
+                }
+                
+                System.err.println("MSGSampleBrowserMenu received input: " + inputJson);
+            } catch (Exception e) {
+                System.err.println("Input reading error: " + e.getMessage());
+                inputJson = "{\"program\": \"MSGSAMPLEBROWSERMENU\", \"library\": \"TESTLIB\", \"volume\": \"DISK01\", \"user\": \"system\"}";
+            }
+            
+            // Parse input parameters
+            String program = browser.extractJsonValue(inputJson, "program");
+            String library = browser.extractJsonValue(inputJson, "library");
+            String volume = browser.extractJsonValue(inputJson, "volume");
+            String user = browser.extractJsonValue(inputJson, "user");
+            
+            // Load employee data and prepare response
+            browser.loadEmployeeData();
+            browser.calculatePagination();
+            
+            // Generate OpenASP compliant JSON response
+            browser.generateOpenASPResponse(program, library, volume, user, inputJson);
+            
+        } catch (Exception e) {
+            // Error response in OpenASP format
+            System.out.println("{\"action\": \"error\", \"message\": \"Employee browser error: " + e.getMessage() + "\"}");
+            System.err.println("Error in MSGSampleBrowserMenuClean: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Generate OpenASP compliant JSON response with SMED map display request
+     */
+    private void generateOpenASPResponse(String program, String library, String volume, String user, String inputJson) {
+        StringBuilder response = new StringBuilder();
+        response.append("{");
+        
+        // Request SMED map display
+        response.append("\"action\": \"display_map\",");
+        response.append("\"map_file\": \"").append(MAP_NAME).append("\",");
+        
+        // Populate SMED map fields with employee data
+        response.append("\"fields\": {");
+        populateMapFields(response);
+        response.append("},");
+        
+        // System messages
+        response.append("\"messages\": [");
+        response.append("\"Employee Data Browser - OpenASP System\",");
+        response.append("\"Data loaded: ").append(totalRecords).append(" records\",");
+        response.append("\"Page ").append(currentPage).append(" of ").append(totalPages).append("\"");
+        response.append("],");
+        
+        // Navigation and control
+        response.append("\"next_action\": \"wait_input\",");
+        response.append("\"function_keys\": {");
+        response.append("\"F1\": \"previous_page\",");
+        response.append("\"F2\": \"next_page\",");
+        response.append("\"F3\": \"exit_program\"");
+        response.append("},");
+        
+        // Page information
+        response.append("\"page_info\": {");
+        response.append("\"current\": ").append(currentPage).append(",");
+        response.append("\"total\": ").append(totalPages).append(",");
+        response.append("\"records_per_page\": ").append(RECORDS_PER_PAGE).append(",");
+        response.append("\"total_records\": ").append(totalRecords);
+        response.append("}");
+        
+        response.append("}");
+        
+        // Output JSON response to OpenASP system
+        System.out.println(response.toString());
+    }
+    
+    /**
+     * Populate SMED map fields with employee data
+     */
+    private void populateMapFields(StringBuilder response) {
+        int startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
+        int endIndex = Math.min(startIndex + RECORDS_PER_PAGE, totalRecords);
+        
+        boolean firstField = true;
+        
+        // Populate employee data fields (EMP1 through EMP10)
+        for (int i = 0; i < RECORDS_PER_PAGE; i++) {
+            int recordIndex = startIndex + i;
+            String empNum = String.valueOf(i + 1);
+            
+            if (recordIndex < totalRecords) {
+                EmployeeRecord record = allRecords.get(recordIndex);
+                
+                // Add employee data to respective SMED fields
+                if (!firstField) response.append(",");
+                response.append("\"EMP").append(empNum).append("_ID\": \"").append(escapeJson(record.id)).append("\",");
+                response.append("\"EMP").append(empNum).append("_NAME\": \"").append(escapeJson(record.name)).append("\",");
+                response.append("\"EMP").append(empNum).append("_DEPT\": \"").append(escapeJson(record.department)).append("\",");
+                response.append("\"EMP").append(empNum).append("_SALARY\": \"").append(escapeJson(record.salary)).append("\",");
+                response.append("\"EMP").append(empNum).append("_HIREDATE\": \"").append(escapeJson(record.hireDate)).append("\",");
+                response.append("\"EMP").append(empNum).append("_STATUS\": \"").append(escapeJson(record.status)).append("\"");
+                
+                firstField = false;
+            } else {
+                // Empty fields for unused employee slots
+                if (!firstField) response.append(",");
+                response.append("\"EMP").append(empNum).append("_ID\": \"\",");
+                response.append("\"EMP").append(empNum).append("_NAME\": \"\",");
+                response.append("\"EMP").append(empNum).append("_DEPT\": \"\",");
+                response.append("\"EMP").append(empNum).append("_SALARY\": \"\",");
+                response.append("\"EMP").append(empNum).append("_HIREDATE\": \"\",");
+                response.append("\"EMP").append(empNum).append("_STATUS\": \"\"");
+                
+                firstField = false;
+            }
+        }
+        
+        // Update dynamic fields
+        if (!firstField) response.append(",");
+        response.append("\"PAGEINFO\": \"Page ").append(currentPage).append(" / ").append(totalPages).append("\",");
+        response.append("\"STATUSMSG\": \"Status: Data displayed - ").append(totalRecords).append(" records total\"");
+    }
+    
+    /**
+     * Load employee data from EMPLOYEE.FB with multiple encoding support
+     */
+    private void loadEmployeeData() throws IOException {
+        allRecords = new ArrayList<>();
+        
+        Path dataPath = Paths.get(DATA_FILE);
+        if (!Files.exists(dataPath)) {
+            throw new FileNotFoundException("Data file not found: " + DATA_FILE);
+        }
+        
+        // Check file size - ensure it's not empty or too small
+        long fileSize = Files.size(dataPath);
+        if (fileSize < 10) {
+            throw new IOException("Data file too small: " + fileSize + " bytes");
+        }
+        
+        System.err.println("Loading employee data from: " + DATA_FILE + " (size: " + fileSize + " bytes)");
+        
+        List<String> lines = null;
+        
+        // Try UTF-8 first (for .fixed files)
+        try {
+            lines = Files.readAllLines(dataPath, StandardCharsets.UTF_8);
+            System.err.println("Successfully read file with UTF-8 encoding");
+        } catch (Exception e) {
+            System.err.println("UTF-8 reading failed: " + e.getMessage());
+            
+            // Try SJIS encoding (for Japanese .FB files)
+            try {
+                lines = Files.readAllLines(dataPath, Charset.forName("Shift_JIS"));
+                System.err.println("Successfully read file with Shift_JIS encoding");
+            } catch (Exception e2) {
+                System.err.println("Shift_JIS reading failed: " + e2.getMessage());
+                
+                // Try ISO-8859-1 as last resort
+                try {
+                    lines = Files.readAllLines(dataPath, StandardCharsets.ISO_8859_1);
+                    System.err.println("Successfully read file with ISO-8859-1 encoding");
+                } catch (Exception e3) {
+                    throw new IOException("Failed to read file with UTF-8, Shift_JIS, or ISO-8859-1 encoding. Original error: " + e.getMessage());
+                }
+            }
+        }
+        
+        if (lines == null || lines.isEmpty()) {
+            throw new IOException("No data found in file: " + DATA_FILE);
+        }
+        
+        // Parse CSV or line-based records
+        if (lines.size() == 1 && lines.get(0).length() > 80) {
+            // Single line with multiple 80-char fixed records
+            String dataLine = lines.get(0);
+            int recordLength = 80;
+            for (int i = 0; i < dataLine.length(); i += recordLength) {
+                if (i + recordLength <= dataLine.length()) {
+                    String record = dataLine.substring(i, i + recordLength);
+                    if (record.trim().length() > 0) {
+                        allRecords.add(new EmployeeRecord(record));
+                    }
+                }
+            }
+        } else {
+            // Multi-line format or regular CSV
+            for (String line : lines) {
+                if (line.trim().length() > 0) {
+                    allRecords.add(new EmployeeRecord(line));
+                }
+            }
+        }
+        
+        totalRecords = allRecords.size();
+        System.err.println("Loaded " + totalRecords + " employee records");
+    }
+    
+    private void calculatePagination() {
+        totalPages = (int) Math.ceil((double) totalRecords / RECORDS_PER_PAGE);
+        if (totalPages == 0) totalPages = 1;
+    }
+    
+    /**
+     * Extract value from JSON string (simple parser)
+     */
+    private String extractJsonValue(String json, String key) {
+        try {
+            String searchKey = "\"" + key + "\":";
+            int startIndex = json.indexOf(searchKey);
+            if (startIndex == -1) {
+                return "";
+            }
+            
+            startIndex += searchKey.length();
+            // Skip whitespace and quotes
+            while (startIndex < json.length() && (json.charAt(startIndex) == ' ' || json.charAt(startIndex) == '"')) {
+                startIndex++;
+            }
+            
+            int endIndex = startIndex;
+            while (endIndex < json.length() && json.charAt(endIndex) != '"' && json.charAt(endIndex) != ',' && json.charAt(endIndex) != '}') {
+                endIndex++;
+            }
+            
+            return json.substring(startIndex, endIndex);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+    
+    /**
+     * Escape JSON special characters
+     */
+    private String escapeJson(String str) {
+        if (str == null) return "";
+        return str.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace("\t", "\\t");
+    }
+}

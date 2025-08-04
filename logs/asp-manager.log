@@ -1,0 +1,36 @@
+
+> asp-manager@0.1.0 start
+> BROWSER=none PORT=3007 DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start
+
+(node:13576) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:13576) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view asp-manager in the browser.
+
+  Local:            http://localhost:3007
+  On Your Network:  http://172.20.0.2:3007
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Terminated
+Proxy error: Could not proxy request /config/catalog.json from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /config/catalog.json from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /config/catalog.json from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+
+Proxy error: Could not proxy request /config/catalog.json from localhost:3007 to http://localhost:3008.
+See https://nodejs.org/api/errors.html#errors_common_system_errors for more information (ECONNREFUSED).
+

@@ -1,0 +1,3 @@
+2025-07-29 08:08:58,091 - conversion_service - INFO - EbcdicConverter initialized with codepage path: /home/aspuser/public/codepages
+2025-07-29 08:08:58,093 - api_service - INFO - Flask application initialized with configuration
+2025-07-29 08:08:58,097 - api_service - INFO - Starting conversion service on 0.0.0.0:8001

@@ -1,0 +1,279 @@
+{
+  "program_data": {
+    "program_id": "MAIN001",
+    "program_name": "MAIN001",
+    "class_name": "MAIN001",
+    "package": "com.openasp.main",
+    "naming_convention": "8BYTE",
+    "program_type": "8BYTE_JAVA",
+    "catalog_location": "DISK01.JAVA.MAIN001",
+    "smed_map": "DISK01.SMED.MAIN001"
+  },
+  "screen_fields": {
+    "title_line": {
+      "cobol_name": "WS-TITLE-LINE",
+      "java_name": "TITLE_LINE",
+      "value": "=== 管理メニュー ===",
+      "type": "static_final_string",
+      "max_length": 30,
+      "encoding": "SJIS"
+    },
+    "option_1": {
+      "cobol_name": "WS-OPTION-1",
+      "java_name": "OPTION_1",
+      "value": "１）参照",
+      "type": "static_final_string",
+      "max_length": 20,
+      "encoding": "SJIS"
+    },
+    "option_2": {
+      "cobol_name": "WS-OPTION-2", 
+      "java_name": "OPTION_2",
+      "value": "２）追加",
+      "type": "static_final_string",
+      "max_length": 20,
+      "encoding": "SJIS"
+    },
+    "option_3": {
+      "cobol_name": "WS-OPTION-3",
+      "java_name": "OPTION_3", 
+      "value": "３）更新",
+      "type": "static_final_string",
+      "max_length": 20,
+      "encoding": "SJIS"
+    },
+    "option_4": {
+      "cobol_name": "WS-OPTION-4",
+      "java_name": "OPTION_4",
+      "value": "４）削除", 
+      "type": "static_final_string",
+      "max_length": 20,
+      "encoding": "SJIS"
+    },
+    "selection_prompt": {
+      "cobol_name": "WS-SELECTION-PROMPT",
+      "java_name": "SELECTION_PROMPT",
+      "value": "選択：",
+      "type": "static_final_string",
+      "max_length": 20,
+      "encoding": "SJIS"
+    },
+    "message_line": {
+      "cobol_name": "WS-MESSAGE-LINE",
+      "java_name": "wsMessageLine",
+      "value": "",
+      "type": "string",
+      "max_length": 50,
+      "encoding": "SJIS"
+    }
+  },
+  "input_fields": {
+    "user_selection": {
+      "cobol_name": "WS-USER-SELECTION",
+      "java_name": "wsUserSelection",
+      "value": "",
+      "type": "string",
+      "max_length": 1,
+      "valid_values": ["1", "2", "3", "4"]
+    }
+  },
+  "control_fields": {
+    "valid_option": {
+      "cobol_name": "WS-VALID-OPTION",
+      "java_name": "wsValidOption",
+      "cobol_type": "PIC X(1)",
+      "java_type": "boolean",
+      "default_value": false,
+      "true_value": "Y",
+      "false_value": "N"
+    },
+    "program_to_call": {
+      "cobol_name": "WS-PROGRAM-TO-CALL",
+      "java_name": "wsProgramToCall",
+      "type": "string",
+      "max_length": 8,
+      "possible_values": ["INQUIRY1", "CREATE1", "UPDATE1", "DELETE1"]
+    },
+    "retry_count": {
+      "cobol_name": "WS-RETRY-COUNT",
+      "java_name": "wsRetryCount",
+      "cobol_type": "PIC 9(2)",
+      "java_type": "int",
+      "default_value": 0,
+      "max_value": 3
+    },
+    "max_retries": {
+      "cobol_name": "WS-MAX-RETRIES",
+      "java_name": "MAX_RETRIES",
+      "cobol_type": "PIC 9(2)",
+      "java_type": "static_final_int",
+      "value": 3
+    },
+    "destination_type": {
+      "cobol_name": "DESTINATION-TYPE",
+      "java_name": "DESTINATION_TYPE",
+      "cobol_type": "PIC X(20)",
+      "java_type": "static_final_string",
+      "value": "DSP"
+    },
+    "encoding_type": {
+      "cobol_name": "WS-ENCODING-TYPE", 
+      "java_name": "ENCODING_TYPE",
+      "cobol_type": "PIC X(10)",
+      "java_type": "static_final_string",
+      "value": "SJIS"
+    }
+  },
+  "message_fields": {
+    "error_message": {
+      "cobol_name": "WS-ERROR-MESSAGE",
+      "java_name": "wsErrorMessage",
+      "type": "string",
+      "max_length": 50,
+      "encoding": "SJIS",
+      "possible_values": ["無効な選択です。1-4を入力してください"]
+    },
+    "status_message": {
+      "cobol_name": "WS-STATUS-MESSAGE",
+      "java_name": "wsStatusMessage", 
+      "type": "string",
+      "max_length": 50,
+      "encoding": "SJIS",
+      "possible_values": [
+        "参照処理を開始します",
+        "追加処理を開始します", 
+        "更新処理を開始します",
+        "削除処理を開始します"
+      ]
+    }
+  },
+  "program_calls": {
+    "inquiry1": {
+      "option": "1",
+      "program_name": "INQUIRY1",
+      "java_method": "callInquiry1()",
+      "status_message": "参照処理を開始します"
+    },
+    "create1": {
+      "option": "2", 
+      "program_name": "CREATE1",
+      "java_method": "callCreate1()",
+      "status_message": "追加処理を開始します"
+    },
+    "update1": {
+      "option": "3",
+      "program_name": "UPDATE1", 
+      "java_method": "callUpdate1()",
+      "status_message": "更新処理を開始します"
+    },
+    "delete1": {
+      "option": "4",
+      "program_name": "DELETE1",
+      "java_method": "callDelete1()",
+      "status_message": "削除処理を開始します"
+    }
+  },
+  "display_file_info": {
+    "file_name": "MAIN001",
+    "organization": "DISPLAY FILE", 
+    "destination": "DSP",
+    "encoding": "SJIS",
+    "websocket_service": "WebSocketDisplayService",
+    "smed_maps": [
+      "MAIN001-MAP",
+      "MAIN001-INPUT", 
+      "MAIN001-ERROR",
+      "MAIN001-STATUS",
+      "MAIN001-CALL-ERROR"
+    ]
+  },
+  "japanese_text_data": {
+    "title": "=== 管理メニュー ===",
+    "options": [
+      "１）参照",
+      "２）追加", 
+      "３）更新",
+      "４）削除"
+    ],
+    "prompts": [
+      "選択：",
+      "選択を入力してください (1-4):"
+    ],
+    "messages": [
+      "参照処理を開始します",
+      "追加処理を開始します",
+      "更新処理を開始します", 
+      "削除処理を開始します",
+      "無効な選択です。1-4を入力してください",
+      "最大試行回数に達しました",
+      "プログラムが正常に実行されました"
+    ],
+    "error_messages": [
+      "エラー: {message}",
+      "再試行してください ({current} / {max})",
+      "プログラム呼び出しエラー: {program}",
+      "リターンコード: {code}",
+      "プログラム実行エラー: {error}"
+    ]
+  },
+  "validation_rules": {
+    "user_selection": {
+      "required": true,
+      "type": "string",
+      "length": 1,
+      "valid_values": ["1", "2", "3", "4"],
+      "error_message": "無効な選択です。1-4を入力してください"
+    },
+    "retry_logic": {
+      "max_retries": 3,
+      "increment_on_error": true,
+      "reset_on_success": false,
+      "max_exceeded_message": "最大試行回数に達しました"
+    }
+  },
+  "return_codes": {
+    "success": 0,
+    "invalid_selection": -1,
+    "call_error": -999,
+    "program_specific": "Varies by called program"
+  },
+  "encoding_conversion": {
+    "internal_encoding": "UTF-8",
+    "display_encoding": "SJIS", 
+    "conversion_methods": [
+      "convertMenuToSjis(List<String> content)",
+      "convertToSjisEncoding(String utf8Text)"
+    ],
+    "encoding_service": "EncodingService (autowired)"
+  },
+  "websocket_integration": {
+    "service_interface": "WebSocketDisplayService",
+    "methods": [
+      "initializeConnection(String terminalId)",
+      "closeConnection(String terminalId)",
+      "sendDisplay(Map<String, Object> displayData)", 
+      "waitForInput(Map<String, Object> inputRequest)"
+    ],
+    "display_data_keys": [
+      "map_name",
+      "destination_type",
+      "encoding", 
+      "terminal_id",
+      "program_name",
+      "content",
+      "timestamp"
+    ]
+  },
+  "call_service_integration": {
+    "service_interface": "CallService",
+    "method": "callProgram(String programName, Map<String, Object> context)",
+    "context_keys": [
+      "terminal_id",
+      "calling_program",
+      "encoding",
+      "destination_type", 
+      "timestamp",
+      "program_type"
+    ]
+  }
+}

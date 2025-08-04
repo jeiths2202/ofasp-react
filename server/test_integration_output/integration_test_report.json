@@ -1,0 +1,70 @@
+{
+  "test_suite": "COBOL to Java Position-based SMED Conversion",
+  "test_date": "2025-07-31T15:30:00Z",
+  "test_environment": {
+    "python_version": "3.10.18 (main, Jul 22 2025, 01:42:43) [GCC 12.2.0]",
+    "test_directory": "/home/aspuser/app/server/test_integration_output",
+    "converter_version": "1.0.0"
+  },
+  "test_results": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "success_rate": "100%"
+  },
+  "test_details": [
+    {
+      "test_name": "Basic COBOL to Java conversion",
+      "status": "PASSED",
+      "description": "Validates complete conversion pipeline"
+    },
+    {
+      "test_name": "Position map validation",
+      "status": "PASSED",
+      "description": "Validates position-based field mapping"
+    },
+    {
+      "test_name": "Java class validation",
+      "status": "PASSED",
+      "description": "Validates generated Java class structure"
+    },
+    {
+      "test_name": "WebSocket event simulation",
+      "status": "PASSED",
+      "description": "Validates WebSocket event structures"
+    },
+    {
+      "test_name": "Encoding conversion",
+      "status": "PASSED",
+      "description": "Validates UTF-8 ↔ SJIS conversion"
+    },
+    {
+      "test_name": "Interactive mode simulation",
+      "status": "PASSED",
+      "description": "Validates interactive DESTINATION processing"
+    }
+  ],
+  "generated_files": [
+    "test_basic.data.json",
+    "test_basic.conversion_report.json",
+    "test_basic.map.json",
+    "test_basic.java"
+  ],
+  "summary": {
+    "conversion_features_tested": [
+      "COBOL AST parsing",
+      "Position-based map generation",
+      "Java WebSocket class generation",
+      "SJIS/UTF-8 encoding conversion",
+      "Interactive DESTINATION processing",
+      "WebSocket event handling"
+    ],
+    "compliance": {
+      "position_based_rendering": true,
+      "websocket_integration": true,
+      "encoding_conversion": true,
+      "interactive_mode": true,
+      "legacy_compatibility": true
+    }
+  }
+}

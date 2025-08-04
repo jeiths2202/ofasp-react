@@ -1,0 +1,73 @@
+2025-08-01 00:51:31 [WARNING] Failed to load sessions: name 'active_terminals' is not defined
+2025-08-01 00:51:31 [WARNING] Encoding API not available: HTTPConnectionPool(host='localhost', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x797140938d30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+2025-08-01 00:51:31 [INFO] OpenASP API Server v0.5.1 starting...
+2025-08-01 00:51:31 [INFO] Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
+2025-08-01 00:51:31 [INFO] Fixed configuration loading and error handling
+2025-08-01 00:51:31 [INFO] SMED directory: /home/aspuser/app/public/SMED_FILES
+2025-08-01 00:51:31 [INFO] Account file: /home/aspuser/app/src/account.json
+2025-08-01 00:51:31 [INFO] SMED-PGM file: /home/aspuser/app/src/smed_pgm.json
+2025-08-01 00:51:31 [INFO] MAP-PGM file: /home/aspuser/app/src/map_pgm.json
+2025-08-01 00:51:31 [INFO] JAR file: /home/aspuser/app/server/java_jars/ofasp.jar
+2025-08-01 00:51:31 [INFO] Loaded 4 user accounts
+2025-08-01 00:51:31 [INFO] Loaded SMED-PGM config: 20 valid maps
+2025-08-01 00:51:31 [INFO]   MENU: JAVA -> com.openasp.menu.MenuProgram
+2025-08-01 00:51:31 [INFO]   LOGO: JAVA -> com.openasp.login.LoginProgram
+2025-08-01 00:51:31 [INFO]   PGM1: JAVA -> com.openasp.core.PGM1
+2025-08-01 00:51:31 [INFO]   PGM2: JAVA -> com.openasp.core.PGM2
+2025-08-01 00:51:31 [INFO]   EIGYO001: JAVA -> com.openasp.eigyo.EIGYO001
+2025-08-01 00:51:31 [INFO]   EIGYO002: JAVA -> com.openasp.eigyo.EIGYO002
+2025-08-01 00:51:31 [INFO]   NOHINO001: COBOL -> /home/aspuser/app/server/cobol_modules/NOHIN001.so
+2025-08-01 00:51:31 [INFO]   NOHINO002: SHELL -> /home/aspuser/app/server/shell_modules/NOHIN002.sh
+2025-08-01 00:51:31 [INFO]   ZAIKO001: COBOL -> /home/aspuser/app/server/cobol_modules/ZAIKO001.so
+2025-08-01 00:51:31 [INFO]   BATCH001: SHELL -> /home/aspuser/app/server/shell_modules/BATCH001.sh
+2025-08-01 00:51:31 [INFO]   URIAGE001: JAVA -> com.openasp.uriage.URIAGE001
+2025-08-01 00:51:31 [INFO]   REPORT001: SHELL -> /home/aspuser/app/server/shell_modules/REPORT001.sh
+2025-08-01 00:51:31 [INFO]   USER001: JAVA -> com.openasp.user.UserManagement
+2025-08-01 00:51:31 [INFO]   SYSTEM001: JAVA -> com.openasp.system.SystemInfo
+2025-08-01 00:51:31 [INFO]   LOGOUT: JAVA -> com.openasp.system.LogoutProgram
+2025-08-01 00:51:31 [INFO]   MAIN001: JAVA -> com.openasp.sample.PGM000
+2025-08-01 00:51:31 [INFO]   MENU001: JAVA -> com.openasp.sample.PGM001
+2025-08-01 00:51:31 [INFO]   MENU003: JAVA -> com.openasp.sample.PGM002
+2025-08-01 00:51:31 [INFO]   MENU004: JAVA -> com.openasp.sample.PGM003
+2025-08-01 00:51:31 [INFO]   MENU005: JAVA -> com.openasp.sample.PGM004
+2025-08-01 00:51:31 [INFO] ? Configuration loaded successfully
+2025-08-01 00:51:31 [INFO] ?? SMED Files: 1
+2025-08-01 00:51:31 [INFO] ?? User Accounts: 4
+2025-08-01 00:51:31 [INFO] ???  SMED-PGM Maps: 20
+2025-08-01 00:51:31 [INFO] ? Java Available: True
+2025-08-01 00:51:31 [INFO] ?? JAR File: /home/aspuser/app/server/java_jars/ofasp.jar (EXISTS)
+2025-08-01 00:51:31 [INFO] ?? OpenASP SMED API Server ready!
+2025-08-01 00:51:31 [INFO] ?? WebSocket support enabled for real-time terminal communication
+2025-08-01 00:51:31 [WARNING] Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+ * Serving Flask app 'api_server'
+ * Debug mode: off
+2025-08-01 00:51:31 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://172.20.0.2:8000
+2025-08-01 00:51:31 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-01 00:51:33 [INFO] 172.20.0.1 - - [01/Aug/2025 00:51:33] "GET /socket.io/?EIO=4&transport=polling&t=PXZ7Du9 HTTP/1.1" 200 -
+http://localhost:8000 is not an accepted origin. (further occurrences of this error will be logged with level INFO)
+2025-08-01 00:51:33 [ERROR] http://localhost:8000 is not an accepted origin. (further occurrences of this error will be logged with level INFO)
+2025-08-01 00:51:33 [INFO] 172.20.0.1 - - [01/Aug/2025 00:51:33] "[31m[1mPOST /socket.io/?EIO=4&transport=polling&t=PXZ7DuN&sid=NkpYtKfgv2Fikwi9AAAA HTTP/1.1[0m" 400 -
+2025-08-01 00:51:33 [INFO] 172.20.0.1 - - [01/Aug/2025 00:51:33] "[31m[1mGET /socket.io/?EIO=4&transport=websocket&sid=NkpYtKfgv2Fikwi9AAAA HTTP/1.1[0m" 400 -
+2025-08-01 00:51:33 [INFO] 172.20.0.1 - - [01/Aug/2025 00:51:33] "[31m[1mPOST /socket.io/?EIO=4&transport=polling&t=PXZ7Duk&sid=NkpYtKfgv2Fikwi9AAAA HTTP/1.1[0m" 400 -
+2025-08-01 00:51:34 [INFO] Received ASP command request: CALL PGM-MSGSAMPLEBROWSERMENU.TESTLIB,VOL-DISK01 from user: ASPUSER
+2025-08-01 00:51:34 [INFO] [INFO] ASP_COMMAND: Executing command: CALL PGM-MSGSAMPLEBROWSERMENU.TESTLIB,VOL-DISK01
+2025-08-01 00:51:34 [INFO] Executing ASP command: CALL PGM-MSGSAMPLEBROWSERMENU.TESTLIB,VOL-DISK01 for user: ASPUSER
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "GET /socket.io/?transport=polling&EIO=4&t=1754009494.543067 HTTP/1.1" 200 -
+2025-08-01 00:51:34 [INFO] [WEBSOCKET] Client connected: 7Dz4odiKA2qLi-X5AAAC
+2025-08-01 00:51:34 [INFO] [WEBSOCKET] Connection details: {'session_id': '7Dz4odiKA2qLi-X5AAAC', 'origin': 'unknown', 'user_agent': 'python-requests/2.32.4', 'remote_addr': '127.0.0.1', 'timestamp': '2025-08-01T00:51:34.551442'}
+2025-08-01 00:51:34 [INFO] [INFO] WEBSOCKET: Client connected
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "POST /socket.io/?transport=polling&EIO=4&sid=9isy6IpMQQzgpADXAAAB HTTP/1.1" 200 -
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "GET /socket.io/?transport=polling&EIO=4&sid=9isy6IpMQQzgpADXAAAB&t=1754009494.5492094 HTTP/1.1" 200 -
+2025-08-01 00:51:34 [INFO] [HUB_CLIENT_REG] Hub client registration received: 7Dz4odiKA2qLi-X5AAAC
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "POST /socket.io/?transport=polling&EIO=4&sid=9isy6IpMQQzgpADXAAAB HTTP/1.1" 200 -
+2025-08-01 00:51:34 [INFO] [HUB_CLIENT_REG] Registration data: {'client_type': 'hub_client', 'client_id': 'hub_client_134244406246032', 'capabilities': ['smed_data_transmission'], 'timestamp': '2025-08-01T00:51:34.556271'}
+2025-08-01 00:51:34 [INFO] [HUB_CLIENT_REG] Client registered successfully: hub_client_134244406246032
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "GET /socket.io/?transport=polling&EIO=4&sid=9isy6IpMQQzgpADXAAAB&t=1754009494.5549135 HTTP/1.1" 200 -
+2025-08-01 00:51:34 [INFO] [INFO] HUB_CLIENT: Hub client registered: hub_client_134244406246032
+2025-08-01 00:51:34 [INFO] ASP command completed successfully
+2025-08-01 00:51:34 [INFO] [INFO] ASP_COMMAND: Command completed successfully: CALL PGM-MSGSAMPLEBROWSERMENU.TESTLIB,VOL-DISK01
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "POST /api/asp-command HTTP/1.1" 200 -
+2025-08-01 00:51:34 [INFO] 127.0.0.1 - - [01/Aug/2025 00:51:34] "HEAD /asp_terminal_simple.html HTTP/1.1" 200 -

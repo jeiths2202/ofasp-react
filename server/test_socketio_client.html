@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO WebSocket Test Client</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+        .status.connecting { background: #fff3cd; color: #856404; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .smed-display {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            border-radius: 4px;
+            min-height: 400px;
+            white-space: pre;
+            overflow: auto;
+        }
+        
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .field-item {
+            background: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        
+        .controls {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Socket.IO WebSocket Test Client for MSGSAMPLEBROWSERMENU</h1>
+    
+    <div class="container">
+        <h2>Connection Controls</h2>
+        <div class="controls">
+            <label>
+                Server URL: 
+                <input type="text" id="serverUrl" value="http://localhost:8000" style="width: 200px;">
+            </label>
+            <label>
+                Terminal ID: 
+                <input type="text" id="terminalId" value="webui" style="width: 100px;">
+            </label>
+            <label>
+                Username: 
+                <input type="text" id="username" value="testuser" style="width: 100px;">
+            </label>
+            <br>
+            <button id="connectBtn" onclick="connectToServer()">Connect</button>
+            <button id="disconnectBtn" onclick="disconnectFromServer()" disabled>Disconnect</button>
+            <button id="registerBtn" onclick="registerTerminal()" disabled>Register Terminal</button>
+            <button id="testBtn" onclick="testConnection()" disabled>Test Connection</button>
+            <button id="clearLogBtn" onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div id="connectionStatus" class="status disconnected">Disconnected</div>
+    </div>
+    
+    <div class="container">
+        <h2>SMED Data Display</h2>
+        <div id="smedDisplay" class="smed-display">
+            No SMED data received yet.
+            
+            Waiting for WebSocket connection and data from Java programs...
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Received Fields</h2>
+        <div id="fieldsContainer" class="field-grid">
+            <div class="field-item">No fields received yet</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Connection Log</h2>
+        <div id="logContainer" class="log">WebSocket test client initialized.\nWaiting for connection...\n</div>
+    </div>
+
+    <script>
+        let socket = null;
+        let isConnected = false;
+        let isRegistered = false;
+        
+        function log(message) {
+            const timestamp = new Date().toISOString();
+            const logContainer = document.getElementById('logContainer');
+            logContainer.textContent += `[${timestamp}] ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateStatus(status, className) {
+            const statusEl = document.getElementById('connectionStatus');
+            statusEl.textContent = status;
+            statusEl.className = `status ${className}`;
+        }
+        
+        function updateButtons() {
+            document.getElementById('connectBtn').disabled = isConnected;
+            document.getElementById('disconnectBtn').disabled = !isConnected;
+            document.getElementById('registerBtn').disabled = !isConnected || isRegistered;
+            document.getElementById('testBtn').disabled = !isConnected;
+        }
+        
+        function connectToServer() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            log(`Attempting to connect to: ${serverUrl}`);
+            updateStatus('Connecting...', 'connecting');
+            
+            try {
+                socket = io(serverUrl, {
+                    transports: ['websocket', 'polling'],
+                    autoConnect: true,
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000
+                });
+                
+                socket.on('connect', () => {
+                    log(`✓ Connected to server with session ID: ${socket.id}`);
+                    updateStatus(`Connected (${socket.id})`, 'connected');
+                    isConnected = true;
+                    updateButtons();
+                });
+                
+                socket.on('disconnect', (reason) => {
+                    log(`✗ Disconnected: ${reason}`);
+                    updateStatus('Disconnected', 'disconnected');
+                    isConnected = false;
+                    isRegistered = false;
+                    updateButtons();
+                });
+                
+                socket.on('connect_error', (error) => {
+                    log(`✗ Connection error: ${error.message}`);
+                    updateStatus('Connection Error', 'disconnected');
+                    isConnected = false;
+                    updateButtons();
+                });
+                
+                socket.on('terminal_registered', (data) => {
+                    log(`✓ Terminal registered successfully: ${JSON.stringify(data)}`);
+                    isRegistered = true;
+                    updateButtons();
+                });
+                
+                socket.on('registration_response', (data) => {
+                    log(`Registration response: ${JSON.stringify(data)}`);
+                    if (data.data?.success || data.success) {
+                        isRegistered = true;
+                        updateButtons();
+                    }
+                });
+                
+                socket.on('smed_display', (data) => {
+                    log(`✓ SMED display data received: ${JSON.stringify(data, null, 2)}`);
+                    displaySMEDData(data);
+                });
+                
+                socket.onAny((eventName, ...args) => {
+                    log(`Event received [${eventName}]: ${JSON.stringify(args)}`);
+                });
+                
+            } catch (error) {
+                log(`✗ Connection failed: ${error.message}`);
+                updateStatus('Connection Failed', 'disconnected');
+            }
+        }
+        
+        function disconnectFromServer() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            isConnected = false;
+            isRegistered = false;
+            updateButtons();
+            log('Disconnected from server');
+        }
+        
+        function registerTerminal() {
+            if (!socket || !isConnected) {
+                log('✗ Cannot register - not connected');
+                return;
+            }
+            
+            const terminalId = document.getElementById('terminalId').value;
+            const username = document.getElementById('username').value;
+            
+            const registrationData = {
+                terminal_id: terminalId,
+                user: username,
+                username: username,
+                workstation: terminalId,
+                sessionId: socket.id,
+                timestamp: new Date().toISOString()
+            };
+            
+            log(`Registering terminal with data: ${JSON.stringify(registrationData)}`);
+            socket.emit('register_terminal', registrationData);
+        }
+        
+        function testConnection() {
+            if (!socket || !isConnected) {
+                log('✗ Cannot test - not connected');
+                return;
+            }
+            
+            const terminalId = document.getElementById('terminalId').value;
+            
+            // Send test via HTTP API
+            fetch(`http://localhost:8000/api/terminals/test/${terminalId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                log(`Test connection result: ${JSON.stringify(data, null, 2)}`);
+            })
+            .catch(error => {
+                log(`✗ Test connection failed: ${error.message}`);
+            });
+        }
+        
+        function displaySMEDData(data) {
+            const display = document.getElementById('smedDisplay');
+            const fieldsContainer = document.getElementById('fieldsContainer');
+            
+            // Clear previous display
+            display.textContent = '';
+            fieldsContainer.innerHTML = '';
+            
+            try {
+                // Display map file info
+                display.textContent += `Map File: ${data.map_file || 'Unknown'}\n`;
+                display.textContent += `Action: ${data.action || 'Unknown'}\n`;
+                display.textContent += `Timestamp: ${data.timestamp || 'Unknown'}\n`;
+                display.textContent += `Terminal ID: ${data.terminal_id || 'Unknown'}\n`;
+                display.textContent += '\n' + '='.repeat(60) + '\n\n';
+                
+                // Display fields
+                const fields = data.fields || {};
+                const fieldKeys = Object.keys(fields).sort();
+                
+                if (fieldKeys.length === 0) {
+                    display.textContent += 'No fields received\n';
+                    fieldsContainer.innerHTML = '<div class="field-item">No fields received</div>';
+                    return;
+                }
+                
+                // Create terminal-like display
+                display.textContent += `SMED Field Data (${fieldKeys.length} fields):\n\n`;
+                
+                fieldKeys.forEach(key => {
+                    const value = fields[key];
+                    display.textContent += `${key.padEnd(20)}: ${value}\n`;
+                    
+                    // Also add to fields grid
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'field-item';
+                    fieldDiv.innerHTML = `<strong>${key}</strong><br>${value}`;
+                    fieldsContainer.appendChild(fieldDiv);
+                });
+                
+                // Special handling for employee data
+                const empFields = fieldKeys.filter(key => key.startsWith('EMP'));
+                if (empFields.length > 0) {
+                    display.textContent += '\n' + '-'.repeat(60) + '\n';
+                    display.textContent += 'EMPLOYEE DATA BROWSER\n';
+                    display.textContent += '-'.repeat(60) + '\n';
+                    
+                    // Group by employee number
+                    const employees = {};
+                    empFields.forEach(key => {
+                        const match = key.match(/^EMP(\d+)_(.+)$/);
+                        if (match) {
+                            const empNum = match[1];
+                            const fieldType = match[2];
+                            if (!employees[empNum]) employees[empNum] = {};
+                            employees[empNum][fieldType] = fields[key];
+                        }
+                    });
+                    
+                    Object.keys(employees).sort().forEach(empNum => {
+                        const emp = employees[empNum];
+                        display.textContent += `Employee ${empNum}:\n`;
+                        display.textContent += `  ID: ${emp.ID || 'N/A'}\n`;
+                        display.textContent += `  Name: ${emp.NAME || 'N/A'}\n`;
+                        display.textContent += `  Dept: ${emp.DEPT || 'N/A'}\n`;
+                        display.textContent += `  Salary: ${emp.SALARY || 'N/A'}\n`;
+                        display.textContent += `  Hire Date: ${emp.HIREDATE || 'N/A'}\n`;
+                        display.textContent += `  Status: ${emp.STATUS || 'N/A'}\n\n`;
+                    });
+                }
+                
+            } catch (error) {
+                display.textContent = `Error displaying SMED data: ${error.message}\n\nRaw data:\n${JSON.stringify(data, null, 2)}`;
+                log(`✗ Error displaying SMED data: ${error.message}`);
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('logContainer').textContent = 'Log cleared.\n';
+        }
+        
+        // Initialize
+        log('Socket.IO WebSocket test client ready');
+        log('Click "Connect" to start testing the WebSocket connection');
+        updateButtons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+[2025-07-27 13:57:42] [JOB_SUBMITTED] Job QUICKTEST submitted successfully
+[2025-07-27 14:58:55] [JOB_STARTED] Job QUICKTEST started execution
+[2025-07-27 14:58:55] [JOB_INFO] Executing CL program: EMPREAD_CL
+[2025-07-27 14:58:55] [JOB_OUTPUT] [INFO] Starting CL script execution
+--------------------------------------------------
+[INFO] Found 3 instructions
+
+[1/3] [SKIP] Unknown command: MSG
+[INFO] Parameters: {'"EMPREAD_CL STARTING..."': None}
+
+[2/3] [EXEC] CALL PGM(TESTPGM),PARM()
+[ERROR] PGM parameter is required.
+[USAGE] CALL PGM-<program>[.<library>][,PARA-(<parameters>)][,VOL-<volume>]
+[WARN] Command returned PGMEC=999
+
+[3/3] [SKIP] Unknown command: MSG
+[INFO] Parameters: {'"EMPREAD_CL COMPLETED SUCCESSFULLY"': None}
+
+--------------------------------------------------
+[INFO] Execution complete. Failed: 1/3
+
+[2025-07-27 14:58:55] [JOB_ERROR] CL program execution failed: 1 instructions failed
+[2025-07-27 14:58:55] [JOB_ERROR] Job QUICKTEST failed

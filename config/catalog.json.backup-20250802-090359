@@ -1,0 +1,878 @@
+{
+  "DISK01": {
+    "TESTLIB": {
+      "EMPLOYEE.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "Employee master file",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "EMPLOYEE_SJIS.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "Employee master file (SJIS encoded)",
+        "CREATED": "2025-07-30T10:00:00Z",
+        "UPDATED": "2025-07-30T10:00:00Z"
+      },
+      "PAYROLL.VB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "VB",
+        "RECLEN": 256,
+        "ENCODING": "utf-8",
+        "DESCRIPTION": "Payroll data file",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "LOGOPGM1": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.menu.MainMenu",
+        "JARFILE": "menu-programs.jar",
+        "DESCRIPTION": "Main menu program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "PAYROLL01": {
+        "TYPE": "PGM",
+        "PGMTYPE": "COBOL",
+        "PGMNAME": "PAYROLL01",
+        "SOURCEFILE": "PAYROLL01.cbl",
+        "EXECUTABLE": "PAYROLL01",
+        "DESCRIPTION": "Monthly payroll calculation",
+        "VERSION": "2.1",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "MAINMENU": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MAINMENU",
+        "DESCRIPTION": "SMED map: MAINMENU",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T01:32:15.412519Z",
+        "UPDATED": "2025-07-22T01:32:15.412533Z"
+      },
+      "CUSTINQ": {
+        "TYPE": "MAP",
+        "MAPTYPE": "HTML",
+        "MAPFILE": "CUSTINQ.html",
+        "DESCRIPTION": "Customer inquiry screen",
+        "RESPONSIVE": true,
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "NEWPROGRAM": {
+        "TYPE": "PGM",
+        "CREATED": "2025-07-21T06:27:53.247399Z",
+        "UPDATED": "2025-07-21T06:27:53.247399Z",
+        "PGMTYPE": "JAVA",
+        "VERSION": "1.5",
+        "PGMNAME": "NEWPROGRAM",
+        "DESCRIPTION": "Test program",
+        "JARFILE": "NEWPROGRAM.jar"
+      },
+      "NEWMAP": {
+        "TYPE": "MAP",
+        "CREATED": "2025-07-21T06:28:07.885211Z",
+        "UPDATED": "2025-07-21T06:28:07.885211Z",
+        "MAPTYPE": "HTML",
+        "ROWS": 30,
+        "COLS": 120,
+        "DESCRIPTION": "Test map screen",
+        "MAPFILE": "NEWMAP.html",
+        "RESPONSIVE": true
+      },
+      "TestProgram": {
+        "TYPE": "PGM",
+        "CREATED": "2025-07-21T07:29:47.889315Z",
+        "UPDATED": "2025-07-21T07:29:47.889315Z",
+        "PGMTYPE": "JAVA",
+        "VERSION": "1.0",
+        "PGMNAME": "TestProgram",
+        "DESCRIPTION": "Sample ASP Java Program for CALL testing",
+        "JARFILE": "TestProgram.jar",
+        "MAP": "MAINMENU"
+      },
+      "EnhancedTestProgram": {
+        "TYPE": "PGM",
+        "CREATED": "2025-07-21T09:04:29.408589Z",
+        "UPDATED": "2025-07-21T09:04:29.408589Z",
+        "PGMTYPE": "JAVA",
+        "VERSION": "1.0",
+        "PGMNAME": "EnhancedTestProgram",
+        "DESCRIPTION": "Enhanced ASP Java Program with Phase 2 features",
+        "JARFILE": "EnhancedTestProgram.jar"
+      },
+      "test_shell": {
+        "TYPE": "PGM",
+        "CREATED": "2025-07-21T09:46:17.516107Z",
+        "UPDATED": "2025-07-21T09:46:17.516107Z",
+        "PGMTYPE": "SHELL",
+        "VERSION": "1.0",
+        "PGMNAME": "test_shell.sh",
+        "DESCRIPTION": "Test shell program",
+        "SHELLFILE": "test_shell.sh"
+      },
+      "MAIN001": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MAIN001",
+        "DESCRIPTION": "SMED map: MAIN001",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T13:28:49.396796Z",
+        "UPDATED": "2025-07-22T13:28:49.396836Z"
+      },
+      "MENU001": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MENU001",
+        "DESCRIPTION": "SMED map: MENU001",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T08:42:29.871440Z",
+        "UPDATED": "2025-07-22T08:42:29.871449Z"
+      },
+      "MENU003": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MENU003",
+        "DESCRIPTION": "SMED map: MENU003",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T08:42:29.888664Z",
+        "UPDATED": "2025-07-22T08:42:29.888673Z"
+      },
+      "MENU004": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MENU004",
+        "DESCRIPTION": "SMED map: MENU004",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T08:42:29.902722Z",
+        "UPDATED": "2025-07-22T08:42:29.902732Z"
+      },
+      "MENU005": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MENU005",
+        "DESCRIPTION": "SMED map: MENU005",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T08:42:29.917399Z",
+        "UPDATED": "2025-07-22T08:42:29.917410Z"
+      },
+      "MENU006": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MENU006",
+        "DESCRIPTION": "SMED map: MENU006",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T08:42:29.929681Z",
+        "UPDATED": "2025-07-22T08:42:29.929691Z"
+      },
+      "MENU007": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MENU007",
+        "DESCRIPTION": "SMED map: MENU007",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T08:42:29.942843Z",
+        "UPDATED": "2025-07-22T08:42:29.942853Z"
+      },
+      "test.java": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "test.java",
+        "DESCRIPTION": "SMED map: test.java",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-22T13:36:39.864226Z",
+        "UPDATED": "2025-07-22T13:36:39.864239Z"
+      },
+      "PGM000": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.sample.PGM000",
+        "CLASSFILE": "com/openasp/sample/PGM000.class",
+        "DESCRIPTION": "Main control program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-22T14:05:15.283400Z",
+        "UPDATED": "2025-07-22T14:05:15.283416Z"
+      },
+      "PGM004": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.sample.PGM004",
+        "CLASSFILE": "com/openasp/sample/PGM004.class",
+        "DESCRIPTION": "Update search program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-22T14:05:15.303216Z",
+        "UPDATED": "2025-07-22T14:05:15.303228Z"
+      },
+      "PGM002": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.sample.PGM002",
+        "CLASSFILE": "com/openasp/sample/PGM002.class",
+        "DESCRIPTION": "Employee add program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-22T14:05:15.321355Z",
+        "UPDATED": "2025-07-22T14:05:15.321386Z"
+      },
+      "PGM003": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.sample.PGM003",
+        "CLASSFILE": "com/openasp/sample/PGM003.class",
+        "DESCRIPTION": "Employee add confirm program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-22T14:05:15.339143Z",
+        "UPDATED": "2025-07-22T14:05:15.339154Z"
+      },
+      "PGM001": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.sample.PGM001",
+        "CLASSFILE": "com/openasp/sample/PGM001.class",
+        "DESCRIPTION": "Employee inquiry program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-22T14:05:15.355814Z",
+        "UPDATED": "2025-07-22T14:05:15.355825Z"
+      },
+      "CUINP001": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "CUINP001",
+        "CLASSFILE": "CUINP001.class",
+        "DESCRIPTION": "Customer data input program for FB format SAM files",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-24T17:04:00.000000Z",
+        "UPDATED": "2025-07-24T17:04:00.000000Z"
+      },
+      "CUSTOMER.SAM001": {
+        "TYPE": "DATASET",
+        "CREATED": "2025-07-24T17:07:39.168118Z",
+        "UPDATED": "2025-07-24T17:57:25.374656Z",
+        "RECTYPE": "FB",
+        "RECLEN": 128,
+        "ENCODING": "utf-8",
+        "DESCRIPTION": "CUSTOMER.SAM001 dataset"
+      },
+      "test_job": {
+        "TYPE": "PGM",
+        "PGMTYPE": "SHELL",
+        "PGMNAME": "test_job.sh",
+        "SHELLFILE": "test_job.sh",
+        "DESCRIPTION": "Test job for SMBJOB/REFJOB demonstration",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T10:00:00Z",
+        "UPDATED": "2025-07-25T10:00:00Z"
+      },
+      "long_job": {
+        "TYPE": "PGM",
+        "PGMTYPE": "SHELL",
+        "PGMNAME": "long_job.sh",
+        "SHELLFILE": "long_job.sh",
+        "DESCRIPTION": "Long running job for demonstration",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T10:01:00Z",
+        "UPDATED": "2025-07-25T10:01:00Z"
+      },
+      "EMPINQ": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "EMPINQ",
+        "SOURCEFILE": "EMPINQ.cl",
+        "DESCRIPTION": "Employee inquiry CL command processor",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "EMPADD": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "EMPADD",
+        "SOURCEFILE": "EMPADD.cl",
+        "DESCRIPTION": "Employee add CL command processor",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "EMPUPD": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "EMPUPD",
+        "SOURCEFILE": "EMPUPD.cl",
+        "DESCRIPTION": "Employee update CL command processor",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "EMPDEL": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "EMPDEL",
+        "SOURCEFILE": "EMPDEL.cl",
+        "DESCRIPTION": "Employee delete CL command processor",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "BACKUP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "BACKUP",
+        "SOURCEFILE": "BACKUP.cl",
+        "DESCRIPTION": "Database backup CL procedure",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "RESTORE": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "RESTORE",
+        "SOURCEFILE": "RESTORE.cl",
+        "DESCRIPTION": "Database restore CL procedure",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "SYSCLEAN": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "SYSCLEAN",
+        "SOURCEFILE": "SYSCLEAN.cl",
+        "DESCRIPTION": "System cleanup CL procedure",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "LONGJOB": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "LONGJOB",
+        "SOURCEFILE": "LONGJOB.cl",
+        "DESCRIPTION": "Long running job CL (3+ minutes) for resource monitoring test",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "REPORT": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "REPORT",
+        "SOURCEFILE": "REPORT.cl",
+        "DESCRIPTION": "Report generation CL procedure",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "FILEUTIL": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "FILEUTIL",
+        "SOURCEFILE": "FILEUTIL.cl",
+        "DESCRIPTION": "File utility CL commands (CRTFILE/DLTFILE operations)",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "EMPFILEJAVA": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.file.EmployeeFileProcessor",
+        "CLASSFILE": "com/openasp/file/EmployeeFileProcessor.class",
+        "DESCRIPTION": "Employee file I/O processor for EMPLOYEE.FB dataset",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-25T14:00:00Z",
+        "UPDATED": "2025-07-25T14:00:00Z"
+      },
+      "TESTCL": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "TESTCL",
+        "SOURCEFILE": "TESTCL",
+        "DESCRIPTION": "Fujitsu ASP Test CL Program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      },
+      "TESTJP_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "TESTJP_ASP",
+        "SOURCEFILE": "TESTJP_ASP",
+        "DESCRIPTION": "日本語メッセージを含むFujitsu ASP CLテストプログラム",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      },
+      "HelloASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "HelloASP",
+        "CLASSFILE": "HelloASP.class",
+        "DESCRIPTION": "Hello ASP message display Java program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T15:42:00Z",
+        "UPDATED": "2025-07-27T15:42:00Z"
+      },
+      "HELLOASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "HelloASP",
+        "CLASSFILE": "HelloASP.class",
+        "DESCRIPTION": "Hello ASP message display Java program (uppercase alias)",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T15:42:00Z",
+        "UPDATED": "2025-07-27T15:42:00Z"
+      },
+      "TESTCL1": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "TESTCL1",
+        "SOURCEFILE": "TESTCL1",
+        "DESCRIPTION": "Test CL program that calls HelloASP Java program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T15:42:00Z",
+        "UPDATED": "2025-07-27T15:42:00Z"
+      },
+      "FILEUTIL_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "FILEUTIL_ASP",
+        "SOURCEFILE": "FILEUTIL_ASP",
+        "DESCRIPTION": "Fujitsu ASP File Utility CL (no DSP commands)",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T02:00:00Z",
+        "UPDATED": "2025-07-26T02:00:00Z"
+      },
+      "DATAPROC_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "DATAPROC_ASP",
+        "SOURCEFILE": "DATAPROC_ASP",
+        "DESCRIPTION": "Fujitsu ASP Data Processing CL (no DSP commands)",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T02:00:00Z",
+        "UPDATED": "2025-07-26T02:00:00Z"
+      },
+      "DAILY_BATCH": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "DAILY_BATCH",
+        "SOURCEFILE": "DAILY_BATCH",
+        "DESCRIPTION": "日次バッチ処理 - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T03:00:00Z",
+        "UPDATED": "2025-07-26T03:00:00Z"
+      },
+      "SYSTEM_CHECK": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "SYSTEM_CHECK",
+        "SOURCEFILE": "SYSTEM_CHECK",
+        "DESCRIPTION": "システムチェック - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T03:00:00Z",
+        "UPDATED": "2025-07-26T03:00:00Z"
+      },
+      "DATA_INIT": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "DATA_INIT",
+        "SOURCEFILE": "DATA_INIT",
+        "DESCRIPTION": "データ初期化 - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T03:00:00Z",
+        "UPDATED": "2025-07-26T03:00:00Z"
+      },
+      "FILEWRITE_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "FILEWRITE_ASP",
+        "SOURCEFILE": "FILEWRITE_ASP",
+        "DESCRIPTION": "ファイル書き込みサンプル - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T01:00:00Z",
+        "UPDATED": "2025-07-27T01:00:00Z"
+      },
+      "EMPLOYEE_WRITE": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "EMPLOYEE_WRITE",
+        "SOURCEFILE": "EMPLOYEE_WRITE",
+        "DESCRIPTION": "社員データ書き込み - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T01:00:00Z",
+        "UPDATED": "2025-07-27T01:00:00Z"
+      },
+      "REPORT_WRITE": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "REPORT_WRITE",
+        "SOURCEFILE": "REPORT_WRITE",
+        "DESCRIPTION": "レポート出力 - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T01:00:00Z",
+        "UPDATED": "2025-07-27T01:00:00Z"
+      },
+      "LOG_WRITE": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "LOG_WRITE",
+        "SOURCEFILE": "LOG_WRITE",
+        "DESCRIPTION": "ログ書き込み - Fujitsu ASP CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T01:00:00Z",
+        "UPDATED": "2025-07-27T01:00:00Z"
+      },
+      "EMPREAD_CL": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "EMPREAD_CL",
+        "SOURCEFILE": "EMPREAD_CL",
+        "DESCRIPTION": "Employee file read CL - calls TESTPGM",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T02:00:00Z",
+        "UPDATED": "2025-07-27T02:00:00Z"
+      },
+      "TESTPGM": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "TESTPGM",
+        "CLASSFILE": "TESTPGM.class",
+        "DESCRIPTION": "Employee data reader Java program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-27T02:00:00Z",
+        "UPDATED": "2025-07-27T02:00:00Z"
+      },
+      "MSGSample": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "MSGSample",
+        "CLASSFILE": "MSGSample.class",
+        "JARFILE": "MSGSample.jar",
+        "DESCRIPTION": "COBOL to Java converted program - Fujitsu ASP display file demonstration",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-28T10:00:00Z",
+        "UPDATED": "2025-07-28T10:00:00Z"
+      },
+      "MSGSAMPLE": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "MSGSample",
+        "CLASSFILE": "MSGSample.class",
+        "JARFILE": "MSGSample.jar",
+        "DESCRIPTION": "COBOL to Java converted program - Fujitsu ASP display file demonstration (uppercase alias)",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-28T10:00:00Z",
+        "UPDATED": "2025-07-28T10:00:00Z"
+      },
+      "SAMDATA": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "utf-8",
+        "DESCRIPTION": "Sequential access method data file for MSGSample program",
+        "CREATED": "2025-07-28T10:00:00Z",
+        "UPDATED": "2025-07-28T10:00:00Z"
+      },
+      "TESTMSG_CL": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "TESTMSG_CL",
+        "SOURCEFILE": "TESTMSG_CL",
+        "DESCRIPTION": "Test CL program for MSGSample execution",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-28T10:00:00Z",
+        "UPDATED": "2025-07-28T10:00:00Z"
+      },
+      "MSGSAMP1": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MSGSAMP1",
+        "DESCRIPTION": "SMED map for MSGSample display file output",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-28T10:00:00Z",
+        "UPDATED": "2025-07-28T10:00:00Z"
+      },
+      "MSGSAMPLEBROWSERMENU": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "MSGSampleBrowserMenuClean",
+        "CLASSFILE": "MSGSampleBrowserMenuClean.class",
+        "DESCRIPTION": "Enhanced SMED-based Japanese employee data browser using BROWSE_MENU map architecture",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-28T18:00:00Z",
+        "UPDATED": "2025-07-28T18:00:00Z"
+      },
+      "BROWSE_MENU": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "BROWSE_MENU",
+        "DESCRIPTION": "SMED architecture compliant browsing map with proper ITEM field definitions and Japanese text support",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-07-28T18:00:00Z",
+        "UPDATED": "2025-07-28T18:00:00Z"
+      },
+      "MSGSAMPLEBROWSERMENUJSON": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "MSGSampleBrowserMenuJSON",
+        "CLASSFILE": "MSGSampleBrowserMenuJSON.class",
+        "DESCRIPTION": "Simplified JSON-based employee data browser - 5 employees only",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-31T12:00:00Z",
+        "UPDATED": "2025-07-31T12:00:00Z"
+      },
+      "EMPLOYEE_TEST.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "Test employee dataset for simplified browser - 5 records",
+        "CREATED": "2025-07-31T12:00:00Z",
+        "UPDATED": "2025-07-31T12:00:00Z"
+      },
+      "EMP.INFO": {
+        "TYPE": "DATASET",
+        "CREATED": "2025-08-01T11:56:56.055480Z",
+        "UPDATED": "2025-08-01T11:56:56.055480Z",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "Employee Information File"
+      }
+    },
+    "PRODLIB": {
+      "CUSTOMER.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 120,
+        "ENCODING": "utf-8",
+        "DESCRIPTION": "Customer master file",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "BILLING": {
+        "TYPE": "PGM",
+        "PGMTYPE": "SHELL",
+        "PGMNAME": "billing.sh",
+        "DESCRIPTION": "Monthly billing process",
+        "VERSION": "1.5",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      },
+      "SALES.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 100,
+        "ENCODING": "utf-8",
+        "DESCRIPTION": "Sales data file with mixed English/Japanese content",
+        "CREATED": "2025-07-25T12:00:00Z",
+        "UPDATED": "2025-07-25T12:00:00Z"
+      },
+      "REPORT.VB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "VB",
+        "RECLEN": 256,
+        "ENCODING": "utf-8",
+        "DESCRIPTION": "Report output file with variable length records",
+        "CREATED": "2025-07-25T12:00:00Z",
+        "UPDATED": "2025-07-25T12:00:00Z"
+      },
+      "TESTCL": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "TESTCL",
+        "SOURCEFILE": "TESTCL",
+        "DESCRIPTION": "Fujitsu ASP Test CL Program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      },
+      "BACKUP_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "BACKUP_ASP",
+        "SOURCEFILE": "BACKUP_ASP",
+        "DESCRIPTION": "Fujitsu ASP Backup CL Program",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      },
+      "REPORT_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "REPORT_ASP",
+        "SOURCEFILE": "REPORT_ASP",
+        "DESCRIPTION": "Fujitsu ASP Report Generation CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      },
+      "CLEANUP_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "CLEANUP_ASP",
+        "SOURCEFILE": "CLEANUP_ASP",
+        "DESCRIPTION": "Fujitsu ASP System Cleanup CL",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      },
+      "LONGRUN_ASP": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "LONGRUN_ASP",
+        "SOURCEFILE": "LONGRUN_ASP",
+        "DESCRIPTION": "Fujitsu ASP Long Running Job CL (3+ minutes)",
+        "VERSION": "1.0",
+        "CREATED": "2025-07-26T01:00:00Z",
+        "UPDATED": "2025-07-26T01:00:00Z"
+      }
+    },
+    "XMLLIB": {
+      "MITDSP": {
+        "TYPE": "COPYBOOK",
+        "COPYBOOKTYPE": "COBOL",
+        "SOURCEFILE": "MITDSP",
+        "DESCRIPTION": "Standard message definition copybook for Fujitsu ASP COBOLG SMED maps",
+        "ENCODING": "shift_jis",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-01T12:00:00Z",
+        "UPDATED": "2025-08-01T12:00:00Z"
+      },
+      "EMPLECPY": {
+        "TYPE": "COPYBOOK",
+        "COPYBOOKTYPE": "COBOL",
+        "SOURCEFILE": "EMPLECPY",
+        "DESCRIPTION": "Employee Record COPYBOOK - Fixed Block record structure for EMP.INFO dataset",
+        "ENCODING": "shift_jis",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-01T12:00:00Z",
+        "UPDATED": "2025-08-01T12:00:00Z"
+      }
+    },
+    "JAVA": {
+      "MAIN001": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "MAIN001",
+        "CLASSFILE": "MAIN001.class",
+        "SOURCEFILE": "MAIN001.java",
+        "DESCRIPTION": "MAIN001 for ASP system execution - 8-byte naming convention compliant",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-01T16:30:00Z",
+        "UPDATED": "2025-08-01T16:45:00Z",
+        "ORIGINAL_SOURCE": "MAIN001.cob",
+        "ENCODING": "UTF-8",
+        "NAMING_CONVENTION": "8BYTE",
+        "CLASS_NAME": "MAIN001",
+        "PROGRAM_TYPE": "8BYTE_JAVA",
+        "JAPANESE_SUPPORT": true,
+        "MAIN_METHOD": true,
+        "ASP_READY": true,
+        "DEPENDENCIES": "NONE",
+        "EXECUTION_MODE": "STANDALONE"
+      },
+      "SUB001": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "com.openasp.sub.SUB001",
+        "CLASSFILE": "com/openasp/sub/SUB001.class",
+        "SOURCEFILE": "SUB001.java",
+        "DESCRIPTION": "SUB001 - Employee Information Display Program - 8-byte naming convention compliant",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-01T16:30:00Z",
+        "UPDATED": "2025-08-01T16:45:00Z",
+        "ORIGINAL_SOURCE": "SUB001.cob",
+        "ENCODING": "UTF-8",
+        "NAMING_CONVENTION": "8BYTE",
+        "CLASS_NAME": "com.openasp.sub.SUB001",
+        "PROGRAM_TYPE": "8BYTE_JAVA",
+        "JAPANESE_SUPPORT": true,
+        "MAIN_METHOD": true,
+        "ASP_READY": true,
+        "DEPENDENCIES": "NONE",
+        "EXECUTION_MODE": "STANDALONE"
+      }
+    },
+    "COB": {},
+    "CL": {},
+    "SMED": {
+      "MAIN001": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "MAIN001",
+        "DESCRIPTION": "SMED map: MAIN001 - Main menu map for Japanese management interface",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-08-01T12:00:00Z",
+        "UPDATED": "2025-08-01T12:00:00Z"
+      },
+      "SUB001": {
+        "TYPE": "MAP",
+        "MAPTYPE": "SMED",
+        "MAPFILE": "SUB001",
+        "DESCRIPTION": "SMED map: SUB001 - Employee information display map",
+        "ROWS": 24,
+        "COLS": 80,
+        "CREATED": "2025-08-01T12:00:00Z",
+        "UPDATED": "2025-08-01T12:00:00Z"
+      }
+    }
+  },
+  "DISK02": {
+    "BACKUPLIB": {
+      "DAILY_BACKUP": {
+        "TYPE": "JOB",
+        "JOBTYPE": "BATCH",
+        "SCHEDULE": "DAILY",
+        "COMMAND": "backup_daily.sh",
+        "DESCRIPTION": "Daily backup job",
+        "CREATED": "2025-07-21T10:00:00Z",
+        "UPDATED": "2025-07-21T10:00:00Z"
+      }
+    }
+  },
+  "LOG": {
+    "LEVEL": "DEBUG",
+    "AVAILABLE_LEVELS": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR"],
+    "COMPONENTS": {
+      "WEBSOCKET_HUB": "DEBUG",
+      "JAVA_CALL": "DEBUG", 
+      "WEB_TERMINAL": "DEBUG",
+      "SMED_PROCESSING": "DEBUG",
+      "MAIN001": "TRACE",
+      "SUB001": "DEBUG",
+      "CALL_FUNCTION": "TRACE"
+    },
+    "OUTPUT": {
+      "CONSOLE": true,
+      "FILE": "/tmp/asp_debug.log",
+      "MAX_SIZE": "10MB",
+      "ROTATE": true
+    },
+    "TIMESTAMP_FORMAT": "yyyy-MM-dd HH:mm:ss.SSS",
+    "INCLUDE_THREAD": true,
+    "INCLUDE_SOURCE": true,
+    "CREATED": "2025-08-01T18:00:00Z",
+    "UPDATED": "2025-08-01T18:00:00Z"
+  }
+}

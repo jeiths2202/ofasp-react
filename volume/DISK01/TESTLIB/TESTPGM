@@ -1,0 +1,11 @@
+#!/bin/bash
+# TESTPGM wrapper script for Fujitsu ASP
+
+# Set classpath
+export CLASSPATH=/home/aspuser/app/volume/DISK01/TESTLIB:$CLASSPATH
+
+# Run Java program
+java com.openasp.testlib.TESTPGM "$@"
+
+# Return the exit code
+exit $?

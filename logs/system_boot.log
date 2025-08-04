@@ -1,0 +1,97 @@
+[2025-07-20 06:44:34] ==========================================
+[2025-07-20 06:44:34] OpenASP System Boot 시작
+[2025-07-20 06:44:34] ==========================================
+[2025-07-20 06:44:34] 기존 실행중인 서비스 확인...
+[2025-07-20 06:44:34] 1. ASP Manager 시작 중...
+[2025-07-20 06:44:34] ASP Manager 시작됨 (PID: 16613)
+[2025-07-20 06:44:34] 2. OpenASP Refactor 시작 중...
+[2025-07-20 06:44:35] OpenASP Refactor 시작됨 (PID: 16621)
+[2025-07-20 06:44:35] 3. Main React App 시작 중...
+[2025-07-20 06:44:35] Main React App 시작됨 (PID: 16633)
+[2025-07-20 06:44:35] 4. API Server 시작 중...
+[2025-07-20 06:44:35] API Server 시작됨 (PID: 16645)
+[2025-07-20 06:44:35] 5. EBCDIC Conversion Service 시작 중...
+[2025-07-20 06:44:35] EBCDIC Conversion Service 시작됨 (PID: 16658)
+[2025-07-20 06:44:35] 서비스들의 시작을 대기 중...
+[2025-07-20 06:44:40] ==========================================
+[2025-07-20 06:44:40] 서비스 상태 확인
+[2025-07-20 06:44:40] ==========================================
+[2025-07-20 06:44:40] ✗ ASP-Manager (포트 3000): 연결 실패
+[2025-07-20 06:44:40] ✗ OFASP-Refactor (포트 3005): 연결 실패
+[2025-07-20 06:44:40] ✗ Main-App (포트 3007): 연결 실패
+[2025-07-20 06:44:40] ✗ API-Server (포트 5000): 연결 실패
+[2025-07-20 06:44:40] ✗ EBCDIC-Service (포트 8080): 연결 실패
+[2025-07-20 06:44:40] 
+[2025-07-20 06:44:40] 실행 중인 프로세스:
+[2025-07-20 06:44:40]   aspuser    16645 16.5  0.1 113084 32480 ?        S    06:44   0:00 python api_server.py
+[2025-07-20 06:44:40]   aspuser    16658 16.3  0.1  36252 29644 ?        S    06:44   0:00 python main.py
+[2025-07-20 06:44:40]   aspuser    16692  0.0  0.0   2580  1536 ?        S    06:44   0:00 sh -c BROWSER=none PORT=3007 DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start
+[2025-07-20 06:44:40]   aspuser    16693  0.0  0.0   2580  1536 ?        S    06:44   0:00 sh -c BROWSER=none react-scripts start
+[2025-07-20 06:44:40]   aspuser    16694  3.8  0.2 396616 45036 ?        Sl   06:44   0:00 node /home/aspuser/app/ofasp-refactor/node_modules/.bin/react-scripts start
+[2025-07-20 06:44:40]   aspuser    16695  3.8  0.2 396548 45152 ?        Sl   06:44   0:00 node /home/aspuser/app/asp-manager/node_modules/.bin/react-scripts start
+[2025-07-20 06:44:40]   aspuser    16696  0.0  0.0   2580  1536 ?        S    06:44   0:00 sh -c react-scripts start
+[2025-07-20 06:44:40]   aspuser    16697  4.2  0.2 396540 45440 ?        Sl   06:44   0:00 node /home/aspuser/app/node_modules/.bin/react-scripts start
+[2025-07-20 06:44:40]   aspuser    16716 95.3  0.9 795888 157028 ?       Rl   06:44   0:04 /usr/bin/node /home/aspuser/app/ofasp-refactor/node_modules/react-scripts/scripts/start.js
+[2025-07-20 06:44:40]   aspuser    16717 95.5  1.0 808804 171236 ?       Dl   06:44   0:04 /usr/bin/node /home/aspuser/app/asp-manager/node_modules/react-scripts/scripts/start.js
+[2025-07-20 06:44:40]   aspuser    16722 95.3  0.9 795648 154784 ?       Rl   06:44   0:04 /usr/bin/node /home/aspuser/app/node_modules/react-scripts/scripts/start.js
+[2025-07-20 06:44:40] 
+[2025-07-20 06:44:40] ==========================================
+[2025-07-20 06:44:40] OpenASP System Boot 완료
+[2025-07-20 06:44:40] ==========================================
+[2025-07-20 06:44:40] 웹 인터페이스 접속 주소:
+[2025-07-20 06:44:40]   - ASP Manager:     http://localhost:3000
+[2025-07-20 06:44:40]   - OFASP Refactor:  http://localhost:3005
+[2025-07-20 06:44:40]   - Main App:        http://localhost:3007
+[2025-07-20 06:44:40]   - API Server:      http://localhost:5000
+[2025-07-20 06:44:40]   - EBCDIC Service:  http://localhost:8080
+[2025-07-20 06:44:40] 
+[2025-07-20 06:44:40] 시스템 정지: ./down.sh
+[2025-07-20 06:44:40] 로그 확인: tail -f /home/aspuser/app/logs/system_boot.log
+[2025-07-20 06:44:40] ==========================================
+[2025-07-20 06:47:14] ==========================================
+[2025-07-20 06:47:14] OpenASP System Boot 시작
+[2025-07-20 06:47:14] ==========================================
+[2025-07-20 06:47:14] 기존 실행중인 서비스 확인...
+[2025-07-20 06:47:14] 1. ASP Manager 시작 중...
+[2025-07-20 06:47:14] ASP Manager 시작됨 (PID: 17346)
+[2025-07-20 06:47:14] 2. OpenASP Refactor 시작 중...
+[2025-07-20 06:47:14] OpenASP Refactor 시작됨 (PID: 17353)
+[2025-07-20 06:47:14] 3. Main React App 시작 중...
+[2025-07-20 06:47:14] Main React App 시작됨 (PID: 17365)
+[2025-07-20 06:47:14] 4. API Server 시작 중...
+[2025-07-20 06:47:14] API Server 시작됨 (PID: 17377)
+[2025-07-20 06:47:14] 5. EBCDIC Conversion Service 시작 중...
+[2025-07-20 06:47:14] EBCDIC Conversion Service 시작됨 (PID: 17390)
+[2025-07-20 06:47:14] 서비스들의 시작을 대기 중...
+[2025-07-20 06:47:19] ==========================================
+[2025-07-20 06:47:19] 서비스 상태 확인
+[2025-07-20 06:47:19] ==========================================
+[2025-07-20 06:47:19] ✗ ASP-Manager (포트 3000): 연결 실패
+[2025-07-20 06:47:19] ✗ OFASP-Refactor (포트 3005): 연결 실패
+[2025-07-20 06:47:19] ✗ Main-App (포트 3007): 연결 실패
+[2025-07-20 06:47:20] ✗ API-Server (포트 8000): 연결 실패
+[2025-07-20 06:47:20] ✗ EBCDIC-Service (포트 8080): 연결 실패
+[2025-07-20 06:47:20] 
+[2025-07-20 06:47:20] 실행 중인 프로세스:
+[2025-07-20 06:47:20]   aspuser    17377 11.8  0.2  39352 32788 ?        S    06:47   0:00 python api_server.py
+[2025-07-20 06:47:20]   aspuser    17390 11.6  0.1  36252 30348 ?        S    06:47   0:00 python main.py
+[2025-07-20 06:47:20]   aspuser    17414  0.0  0.0   2580  1408 ?        S    06:47   0:00 sh -c BROWSER=none react-scripts start
+[2025-07-20 06:47:20]   aspuser    17415  0.0  0.0   2580  1536 ?        S    06:47   0:00 sh -c react-scripts start
+[2025-07-20 06:47:20]   aspuser    17416  2.3  0.2 396616 45696 ?        Sl   06:47   0:00 node /home/aspuser/app/node_modules/.bin/react-scripts start
+[2025-07-20 06:47:20]   aspuser    17417  2.5  0.2 396540 45824 ?        Sl   06:47   0:00 node /home/aspuser/app/ofasp-refactor/node_modules/.bin/react-scripts start
+[2025-07-20 06:47:20]   aspuser    17437  118  1.1 11502648 190012 ?     Rl   06:47   0:05 /usr/bin/node /home/aspuser/app/node_modules/react-scripts/scripts/start.js
+[2025-07-20 06:47:20]   aspuser    17438  116  1.1 11507748 192924 ?     Rl   06:47   0:05 /usr/bin/node /home/aspuser/app/ofasp-refactor/node_modules/react-scripts/scripts/start.js
+[2025-07-20 06:47:20] 
+[2025-07-20 06:47:20] ==========================================
+[2025-07-20 06:47:20] OpenASP System Boot 완료
+[2025-07-20 06:47:20] ==========================================
+[2025-07-20 06:47:20] 웹 인터페이스 접속 주소:
+[2025-07-20 06:47:20]   - ASP Manager:     http://localhost:3000
+[2025-07-20 06:47:20]   - OFASP Refactor:  http://localhost:3005
+[2025-07-20 06:47:20]   - Main App:        http://localhost:3007
+[2025-07-20 06:47:20]   - API Server:      http://localhost:8000
+[2025-07-20 06:47:20]   - EBCDIC Service:  http://localhost:8080
+[2025-07-20 06:47:20] 
+[2025-07-20 06:47:20] 시스템 정지: ./down.sh
+[2025-07-20 06:47:20] 로그 확인: tail -f /home/aspuser/app/logs/system_boot.log
+[2025-07-20 06:47:20] ==========================================

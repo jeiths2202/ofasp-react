@@ -1,0 +1,26 @@
+      * EMPLECPY - Employee Record COPYBOOK
+      * 8-byte English name: EMPLECPY
+      * Fixed Block record structure for EMP.INFO dataset
+      * Record length: 80 bytes
+       
+      * Employee Information Record Layout
+       01  EMPLOYEE-RECORD.
+           05  EMP-ID              PIC X(5).
+           05  EMP-NAME            PIC X(20).
+           05  EMP-EMAIL           PIC X(20).
+           05  EMP-FILLER          PIC X(35).
+       
+      * Working storage for employee processing
+       01  WS-EMPLOYEE-WORK.
+           05  WS-EMP-ID           PIC X(5).
+           05  WS-EMP-NAME         PIC X(20).
+           05  WS-EMP-EMAIL        PIC X(20).
+           05  WS-RECORD-COUNT     PIC 9(3) VALUE ZERO.
+           05  WS-EOF-FLAG         PIC X VALUE 'N'.
+           05  WS-FILE-STATUS      PIC XX.
+       
+      * Display formatting fields
+       01  WS-DISPLAY-FIELDS.
+           05  WS-HEADER-LINE      PIC X(80).
+           05  WS-DATA-LINE        PIC X(80).
+           05  WS-SEPARATOR-LINE   PIC X(80) VALUE ALL '-'.

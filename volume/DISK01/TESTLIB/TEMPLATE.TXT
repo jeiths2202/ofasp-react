@@ -1,0 +1,5 @@
+社員番号: &EMPNO&
+氏名: &NAME&
+部署: &DEPT&
+役職: &TITLE&
+入社日: &DATE&

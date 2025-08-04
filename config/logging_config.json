@@ -1,0 +1,30 @@
+{
+  "LEVEL": "DEBUG",
+  "AVAILABLE_LEVELS": [
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "WARN",
+    "ERROR"
+  ],
+  "COMPONENTS": {
+    "WEBSOCKET_HUB": "DEBUG",
+    "JAVA_CALL": "DEBUG",
+    "WEB_TERMINAL": "DEBUG",
+    "SMED_PROCESSING": "DEBUG",
+    "MAIN001": "TRACE",
+    "SUB001": "DEBUG",
+    "CALL_FUNCTION": "TRACE"
+  },
+  "OUTPUT": {
+    "CONSOLE": true,
+    "FILE": "/tmp/asp_debug.log",
+    "MAX_SIZE": "10MB",
+    "ROTATE": true
+  },
+  "TIMESTAMP_FORMAT": "yyyy-MM-dd HH:mm:ss.SSS",
+  "INCLUDE_THREAD": true,
+  "INCLUDE_SOURCE": true,
+  "CREATED": "2025-08-01T18:00:00Z",
+  "UPDATED": "2025-08-01T18:00:00Z"
+}

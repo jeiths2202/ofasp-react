@@ -1,0 +1,218 @@
+{
+  "map_name": "SUB001",
+  "title": "社員情報照会",
+  "rows": 24,
+  "cols": 80,
+  "fields": [
+    {
+      "row": 1,
+      "col": 30,
+      "text": "社員情報照会",
+      "type": "static"
+    },
+    {
+      "row": 4,
+      "col": 5,
+      "text": "社員番号",
+      "type": "static"
+    },
+    {
+      "row": 4,
+      "col": 15,
+      "text": "社員名",
+      "type": "static"
+    },
+    {
+      "row": 4,
+      "col": 40,
+      "text": "e-mail",
+      "type": "static"
+    },
+    {
+      "row": 6,
+      "col": 5,
+      "text": "00001",
+      "type": "data"
+    },
+    {
+      "row": 6,
+      "col": 15,
+      "text": "田中太郎",
+      "type": "data"
+    },
+    {
+      "row": 6,
+      "col": 40,
+      "text": "tanaka@company.co.jp",
+      "type": "data"
+    },
+    {
+      "row": 7,
+      "col": 5,
+      "text": "00002",
+      "type": "data"
+    },
+    {
+      "row": 7,
+      "col": 15,
+      "text": "佐藤花子",
+      "type": "data"
+    },
+    {
+      "row": 7,
+      "col": 40,
+      "text": "sato@company.co.jp",
+      "type": "data"
+    },
+    {
+      "row": 8,
+      "col": 5,
+      "text": "00003",
+      "type": "data"
+    },
+    {
+      "row": 8,
+      "col": 15,
+      "text": "鈴木一郎",
+      "type": "data"
+    },
+    {
+      "row": 8,
+      "col": 40,
+      "text": "suzuki@company.co.jp",
+      "type": "data"
+    },
+    {
+      "row": 9,
+      "col": 5,
+      "text": "00004",
+      "type": "data"
+    },
+    {
+      "row": 9,
+      "col": 15,
+      "text": "高橋美咲",
+      "type": "data"
+    },
+    {
+      "row": 9,
+      "col": 40,
+      "text": "takahashi@company.co",
+      "type": "data"
+    },
+    {
+      "row": 10,
+      "col": 5,
+      "text": "00005",
+      "type": "data"
+    },
+    {
+      "row": 10,
+      "col": 15,
+      "text": "渡辺健太",
+      "type": "data"
+    },
+    {
+      "row": 10,
+      "col": 40,
+      "text": "watanabe@company.co.",
+      "type": "data"
+    },
+    {
+      "row": 11,
+      "col": 5,
+      "text": "00006",
+      "type": "data"
+    },
+    {
+      "row": 11,
+      "col": 15,
+      "text": "伊藤由美",
+      "type": "data"
+    },
+    {
+      "row": 11,
+      "col": 40,
+      "text": "ito@company.co.jp",
+      "type": "data"
+    },
+    {
+      "row": 12,
+      "col": 5,
+      "text": "00007",
+      "type": "data"
+    },
+    {
+      "row": 12,
+      "col": 15,
+      "text": "山田正雄",
+      "type": "data"
+    },
+    {
+      "row": 12,
+      "col": 40,
+      "text": "yamada@company.co.jp",
+      "type": "data"
+    },
+    {
+      "row": 13,
+      "col": 5,
+      "text": "00008",
+      "type": "data"
+    },
+    {
+      "row": 13,
+      "col": 15,
+      "text": "中村良子",
+      "type": "data"
+    },
+    {
+      "row": 13,
+      "col": 40,
+      "text": "nakamura@company.co.",
+      "type": "data"
+    },
+    {
+      "row": 14,
+      "col": 5,
+      "text": "00009",
+      "type": "data"
+    },
+    {
+      "row": 14,
+      "col": 15,
+      "text": "小林直樹",
+      "type": "data"
+    },
+    {
+      "row": 14,
+      "col": 40,
+      "text": "kobayashi@company.co",
+      "type": "data"
+    },
+    {
+      "row": 15,
+      "col": 5,
+      "text": "00010",
+      "type": "data"
+    },
+    {
+      "row": 15,
+      "col": 15,
+      "text": "加藤真理",
+      "type": "data"
+    },
+    {
+      "row": 15,
+      "col": 40,
+      "text": "kato@company.co.jp",
+      "type": "data"
+    },
+    {
+      "row": 23,
+      "col": 5,
+      "text": "F3 (終了画面)  F8 (前画面)  F1 (初期画面)",
+      "type": "static"
+    }
+  ]
+}

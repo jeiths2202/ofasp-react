@@ -1,0 +1,27 @@
+[
+  {
+    "row": 1,
+    "col": 1,
+    "length": 20
+  },
+  {
+    "row": 1,
+    "col": 23,
+    "length": 10
+  },
+  {
+    "row": 1,
+    "col": 35,
+    "length": 15
+  },
+  {
+    "row": 1,
+    "col": 52,
+    "length": 8
+  },
+  {
+    "row": 1,
+    "col": 62,
+    "length": 20
+  }
+]

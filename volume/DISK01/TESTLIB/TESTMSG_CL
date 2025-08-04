@@ -1,0 +1,33 @@
+PGM
+    /* Test CL program to execute MSGSample Java program */
+    /* Demonstrates COBOL to Java converted program execution */
+    
+    DCL        VAR(&MSGTEXT) TYPE(*CHAR) LEN(80)
+    DCL        VAR(&JOBNAME) TYPE(*CHAR) LEN(10)
+    
+    /* Display start message */
+    CHGVAR     VAR(&MSGTEXT) VALUE('Starting MSGSample program test...')
+    SNDPGMMSG  MSG(&MSGTEXT)
+    
+    /* Call the MSGSample Java program */
+    CALL       PGM(MSGSAMPLE) /* Uses uppercase alias */
+    
+    /* Check if program executed successfully */
+    MONMSG     MSGID(CPF0000) EXEC(DO)
+        CHGVAR     VAR(&MSGTEXT) VALUE('Error executing MSGSample program')
+        SNDPGMMSG  MSG(&MSGTEXT)
+        GOTO       CMDLBL(ERROR)
+    ENDDO
+    
+    /* Display completion message */
+    CHGVAR     VAR(&MSGTEXT) VALUE('MSGSample program completed successfully')
+    SNDPGMMSG  MSG(&MSGTEXT)
+    
+    GOTO       CMDLBL(END)
+    
+ERROR:
+    CHGVAR     VAR(&MSGTEXT) VALUE('MSGSample test failed - check JOBLOG')
+    SNDPGMMSG  MSG(&MSGTEXT)
+    
+END:
+ENDPGM

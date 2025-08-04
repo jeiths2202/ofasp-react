@@ -1,0 +1,3 @@
+[2025-07-25 19:41:11] [JOB_STARTED] Job TEST001 started execution
+[2025-07-25 19:41:11] [JOB_SUBMITTED] Job TEST001 submitted successfully
+[2025-07-25 19:41:11] [JOB_EXEC] Executing: bash /home/aspuser/app/volume/DISK01/TESTLIB/test_job.sh param1

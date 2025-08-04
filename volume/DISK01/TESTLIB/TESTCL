@@ -1,0 +1,13 @@
+// TESTCL - Fujitsu ASP Test CL Program
+// Simple test CL for demonstration
+
+// Display message
+MSG "Starting TESTCL execution"
+
+// Create a test file
+CRTFILE FILE(TESTLIB/TESTDATA) RECLEN(80) RECTYPE(FB) VOL(DISK01)
+
+// Display completion message
+MSG "TESTCL execution completed"
+
+// End of CL
