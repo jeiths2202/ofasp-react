@@ -230,6 +230,112 @@ console.log('Hook Opportunities:', analysis.hookOpportunities);
 console.log('Performance Issues:', analysis.performanceIssues);
 ```
 
+## Phase 4 WebSocket Connection Management APIs
+
+### 新しいAPI追加 (New APIs Added)
+
+#### 1. WebSocket Manager
+**場所**: `/ofasp-refactor/src/utils/webSocketManager.ts`
+**機能**: Robust WebSocket connection management with auto-reconnection
+**使用法**:
+```typescript
+import { WebSocketManager } from '../utils/webSocketManager';
+
+const wsManager = new WebSocketManager({
+  url: 'ws://localhost:8080/websocket',
+  reconnectInterval: 3000,
+  maxReconnectAttempts: 10,
+  messageQueueSize: 100
+});
+
+// Connect
+await wsManager.connect();
+
+// Subscribe to events
+const unsubscribe = wsManager.on('message', (data) => {
+  console.log('Received:', data);
+});
+
+// Send message
+wsManager.send({
+  type: 'command',
+  data: { action: 'execute' },
+  priority: 'high'
+});
+
+// Get statistics
+const stats = wsManager.getStatistics();
+```
+
+#### 2. WebSocket Connection Hook
+**場所**: `/ofasp-refactor/src/hooks/useWebSocketConnection.ts`
+**機能**: React hook for WebSocket integration with component lifecycle
+**使用法**:
+```typescript
+import { useWebSocketConnection } from '../hooks/useWebSocketConnection';
+
+const { 
+  connectionState, 
+  isConnected, 
+  sendMessage, 
+  subscribe 
+} = useWebSocketConnection('ws://localhost:8080/websocket', {
+  autoConnect: true,
+  retryOnMount: true
+});
+
+// Subscribe to events
+useEffect(() => {
+  const unsubscribe = subscribe('terminal_output', (data) => {
+    console.log('Terminal output:', data);
+  });
+  return unsubscribe;
+}, [subscribe]);
+
+// Send command
+const handleSendCommand = () => {
+  sendMessage({
+    type: 'terminal_input',
+    data: { command: 'ls -la' },
+    priority: 'medium'
+  });
+};
+```
+
+#### 3. WebSocket Hub Manager
+**場所**: `/ofasp-refactor/src/utils/webSocketHub.ts`
+**機能**: Multiple WebSocket connection management and load balancing
+**使用法**:
+```typescript
+import { WebSocketHub } from '../utils/webSocketHub';
+
+const hub = new WebSocketHub({
+  maxConnections: 10,
+  loadBalancing: 'round_robin'
+});
+
+// Register connections
+hub.registerConnection('main', wsManager1, { priority: 1, tags: ['primary'] });
+hub.registerConnection('backup', wsManager2, { priority: 2, tags: ['secondary'] });
+
+// Broadcast message
+hub.broadcast({
+  type: 'system_alert',
+  data: { message: 'System maintenance' },
+  priority: 'high'
+});
+
+// Send with load balancing
+const connectionId = hub.sendWithLoadBalancing({
+  type: 'user_command',
+  data: { command: 'process_data' },
+  priority: 'medium'
+}, ['primary']);
+
+// Get hub statistics
+const hubStats = hub.getStatistics();
+```
+
 ## 1. Duplicate MD Files
 
 ### Exact Duplicates (same MD5 hash):
