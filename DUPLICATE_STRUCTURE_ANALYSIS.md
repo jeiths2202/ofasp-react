@@ -155,6 +155,81 @@ delegator.registerMultipleCellHandlers([
 const stats = delegator.getStatistics();
 ```
 
+## Phase 3 Component Complexity Analysis APIs
+
+### 新しいAPI追加 (New APIs Added)
+
+#### 1. Component Splitter Utility
+**場所**: `/ofasp-refactor/src/utils/componentSplitter.ts`
+**機能**: Component complexity analysis and responsibility-based splitting
+**使用法**:
+```typescript
+import { ComponentSplitter } from '../utils/componentSplitter';
+
+const splitter = new ComponentSplitter({
+  componentName: 'MyComponent',
+  maxLinesPerComponent: 150,
+  maxStateVariables: 8
+});
+
+// Complexity analysis
+const metrics = splitter.analyzeComplexity(sourceCode);
+
+// Split suggestions
+const splits = splitter.splitByResponsibility(sourceCode);
+
+// Hook extraction suggestions
+const hooks = splitter.suggestHookExtractions(sourceCode);
+
+// Split feasibility score
+const { score, recommendation } = splitter.calculateSplitScore(metrics);
+```
+
+#### 2. Component Optimization Hook
+**場所**: `/ofasp-refactor/src/hooks/useComponentOptimization.ts`
+**機能**: Performance optimization with memoization and render tracking
+**使用法**:
+```typescript
+import { useComponentOptimization } from '../hooks/useComponentOptimization';
+
+const { 
+  optimizedHandlers, 
+  renderStats, 
+  memoizedValue, 
+  getOptimizationReport 
+} = useComponentOptimization('ComponentName');
+
+// Debounced handler
+const debouncedHandler = optimizedHandlers.debounce(handleInput, 300);
+
+// Throttled handler
+const throttledHandler = optimizedHandlers.throttle(handleScroll, 100);
+
+// Memoized expensive calculation
+const result = memoizedValue(() => expensiveCalculation(), [deps]);
+
+// Get optimization report
+const report = getOptimizationReport();
+```
+
+#### 3. React Refactor Tools
+**場所**: `/ofasp-refactor/src/utils/reactRefactorTools.ts`
+**機能**: React component analysis and refactoring suggestions
+**使用法**:
+```typescript
+import { ReactRefactorTools } from '../utils/reactRefactorTools';
+
+const refactorHelper = new ReactRefactorTools();
+
+// Component analysis
+const analysis = refactorHelper.analyzeComponent(sourceCode, 'ComponentName');
+
+console.log('Complexity Score:', analysis.complexityScore);
+console.log('Refactor Suggestions:', analysis.suggestions);
+console.log('Hook Opportunities:', analysis.hookOpportunities);
+console.log('Performance Issues:', analysis.performanceIssues);
+```
+
 ## 1. Duplicate MD Files
 
 ### Exact Duplicates (same MD5 hash):
