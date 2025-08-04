@@ -76,6 +76,85 @@ setupBeforeUnload({ user: 'admin' });
 - **設定可能**: ハードコーディング排除、設定ベース
 - **テスト可能**: 単体テスト対応設計
 
+## Phase 2 Event Handler Management APIs
+
+### 新しいAPI追加 (New APIs Added)
+
+#### 1. Event Handler Registry System
+**場所**: `/ofasp-refactor/src/utils/eventHandlerRegistry.ts`
+**機能**: Centralized event handler management with deduplication
+**使用法**:
+```typescript
+import { eventHandlerRegistry } from '../utils/eventHandlerRegistry';
+
+// Single handler registration
+const handlerId = eventHandlerRegistry.registerHandler('click', handler, {
+  id: 'custom_id',
+  description: 'Button click handler'
+});
+
+// WebSocket handler registration
+const wsHandlerId = eventHandlerRegistry.registerWebSocketHandler(
+  'message', handler, 'componentId', 'WebSocket message handler'
+);
+
+// Bulk registration
+const handlerIds = eventHandlerRegistry.registerComponentHandlers('MyComponent', [
+  { event: 'click', handler: clickHandler },
+  { event: 'focus', handler: focusHandler }
+]);
+
+// Statistics
+const stats = eventHandlerRegistry.getStatistics();
+```
+
+#### 2. Event Handler Hook
+**場所**: `/ofasp-refactor/src/hooks/useEventHandlers.ts`
+**機能**: React hook for component event handler management
+**使用法**:
+```typescript
+import { useEventHandlers } from '../hooks/useEventHandlers';
+
+const { registerHandler, registerWebSocketHandler, cleanup } = 
+  useEventHandlers('ComponentName');
+
+// Register handlers
+const handlerId = registerHandler('click', handleClick, {
+  description: 'Main button click'
+});
+
+const wsHandlerId = registerWebSocketHandler('message', handleMessage);
+
+// Automatic cleanup on unmount
+```
+
+#### 3. Grid Event Delegation System
+**場所**: `/ofasp-refactor/src/utils/gridEventDelegation.ts`
+**機能**: Event delegation for large grids (24x80 = 1,920 cells)
+**使用法**:
+```typescript
+import { GridEventDelegation } from '../utils/gridEventDelegation';
+
+const delegator = new GridEventDelegation(containerElement, {
+  gridRows: 24,
+  gridCols: 80
+});
+
+// Register cell click handler
+delegator.registerCellHandler('click', (position, event) => {
+  console.log(`Clicked cell: ${position.row}, ${position.col}`);
+});
+
+// Multiple handlers
+delegator.registerMultipleCellHandlers([
+  { eventType: 'click', handler: handleCellClick },
+  { eventType: 'focus', handler: handleCellFocus }
+]);
+
+// Statistics
+const stats = delegator.getStatistics();
+```
+
 ## 1. Duplicate MD Files
 
 ### Exact Duplicates (same MD5 hash):
