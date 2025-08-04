@@ -3,6 +3,79 @@
 ## Overview
 The `/home/aspuser/app/ofasp-refactor` directory contains significant duplication and nested redundancy that's making the project structure confusing. This report identifies the duplications and provides recommendations for cleanup.
 
+## Phase 1 Memory Leak Prevention APIs
+
+### 新しいAPI追加 (New APIs Added)
+
+#### 1. Memory Leak Detector API
+**場所**: `/ofasp-refactor/src/utils/memoryLeakDetector.ts`
+**機能**: Timer and event listener tracking with automatic cleanup
+**使用法**:
+```typescript
+import { memoryLeakDetector } from '../utils/memoryLeakDetector';
+
+// Timer registration
+const timerId = memoryLeakDetector.registerInterval(() => {
+  console.log('Timer tick');
+}, 1000, 'Description');
+
+// Event listener registration  
+const cleanup = memoryLeakDetector.addEventListener(element, 'click', handler);
+
+// Diagnostics
+const stats = memoryLeakDetector.getDiagnostics();
+```
+
+#### 2. Timer Management Hook
+**場所**: `/ofasp-refactor/src/hooks/useTimerManager.ts`
+**機能**: React hook for safe timer management
+**使用法**:
+```typescript
+import { useTimerManager } from '../hooks/useTimerManager';
+
+const { startSystemTimer, stopSystemTimer, cleanup } = useTimerManager();
+
+// Start system timer
+startSystemTimer(() => updateTime(), 1000);
+
+// Automatic cleanup on unmount
+```
+
+#### 3. Command History Hook  
+**場所**: `/ofasp-refactor/src/hooks/useCommandHistory.ts`
+**機能**: Bounded command history with memory safety
+**使用法**:
+```typescript
+import { useCommandHistory } from '../hooks/useCommandHistory';
+
+const { history, addCommand, clearHistory } = useCommandHistory({
+  maxHistorySize: 100
+});
+
+// Add command with automatic size limiting
+addCommand({ command: 'test', output: 'result', success: true });
+```
+
+#### 4. Browser Events Hook
+**場所**: `/ofasp-refactor/src/hooks/useBrowserEvents.ts`  
+**機能**: Safe browser event management with cleanup
+**使用法**:
+```typescript
+import { useBrowserEvents } from '../hooks/useBrowserEvents';
+
+const { setupBeforeUnload, cleanup } = useBrowserEvents();
+
+// Setup page unload cleanup
+setupBeforeUnload({ user: 'admin' });
+```
+
+### API設計原則
+- **再利用性**: 全て独立したモジュールとして設計
+- **型安全性**: 完全なTypeScript対応
+- **メモリ安全**: 自動クリーンアップ機能内蔵
+- **設定可能**: ハードコーディング排除、設定ベース
+- **テスト可能**: 単体テスト対応設計
+
 ## 1. Duplicate MD Files
 
 ### Exact Duplicates (same MD5 hash):
