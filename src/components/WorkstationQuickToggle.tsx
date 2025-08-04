@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { PowerIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
-import webSocketService from '../services/websocketService';
+import webSocketService from './websocketService';
 import { WorkstationQuickToggleProps, WorkstationStatus } from '../types/workstation';
 
 const WorkstationQuickToggle: React.FC<WorkstationQuickToggleProps> = ({

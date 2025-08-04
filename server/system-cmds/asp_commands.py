@@ -26,7 +26,11 @@ VOLUME_ROOT = "/home/aspuser/app/volume"
 CONFIG_ROOT = "/home/aspuser/app/config"
 PROFILE_DIR = os.path.join(CONFIG_ROOT, "profiles")
 SYSVAL_FILE = os.path.join(CONFIG_ROOT, "system_values.json")
-CATALOG_FILE = "/home/aspuser/app/asp-manager/public/config/catalog.json"
+# Import centralized catalog configuration - no hardcoding
+import sys
+sys.path.append('/home/aspuser/app/config')
+from catalog_config import get_catalog_path
+CATALOG_FILE = get_catalog_path()
 JOB_LOG_DIR = os.path.join(VOLUME_ROOT, "JOBLOG")
 
 # Initialize configuration directories

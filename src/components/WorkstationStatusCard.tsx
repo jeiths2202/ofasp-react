@@ -7,7 +7,7 @@ import {
   XCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
-import webSocketService from '../services/websocketService';
+import webSocketService from './websocketService';
 
 interface WorkstationStatusCardProps {
   wsname: string;

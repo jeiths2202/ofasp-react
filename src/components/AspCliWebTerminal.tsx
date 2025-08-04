@@ -62,7 +62,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   // Load volume list via Python API
   const loadAvailableVolumes = async () => {
     try {
-      // Python aspcli.py WRKVOL 명령 호출
+      // Python aspcli.py WRKVOLコマンド呼び出し
       const response = await fetch('http://localhost:8000/api/asp-command', {
         method: 'POST',
         headers: {
@@ -118,7 +118,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   // Load library list via Python API
   const loadLibrariesForVolume = async (volume: string) => {
     try {
-      // Python aspcli.py WRKLIB 명령 호출
+      // Python aspcli.py WRKLIBコマンド呼び出し
       const response = await fetch('http://localhost:8000/api/asp-command', {
         method: 'POST',
         headers: {
@@ -168,7 +168,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     }
   };
 
-  // WRKVOL 출력에서 볼륨 목록 파싱
+  // WRKVOL出力からボリュームリストを解析
   const parseVolumesFromOutput = (output: string): string[] => {
     const lines = output.split('\n');
     const volumes: string[] = [];
@@ -183,7 +183,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     return volumes;
   };
 
-  // WRKLIB 출력에서 라이브러리 목록 파싱
+  // WRKLIB出力からライブラリリストを解析
   const parseLibrariesFromOutput = (output: string, volume: string): string[] => {
     const lines = output.split('\n');
     const libraries: string[] = [];
@@ -205,7 +205,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     return libraries;
   };
 
-  // Props 변경 시 시스템 정보 업데이트
+  // Props変更時にシステム情報を更新
   useEffect(() => {
     if (user) {
       setSystemInfo(prev => ({
@@ -218,7 +218,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
   // Get user login info and load initial data
   useEffect(() => {
     const getUserInfo = () => {
-      // props로 user가 전달되면 그것을 우선 사용
+      // propsでuserが渡された場合はそれを優先使用
       if (user) {
         setSystemInfo(prev => ({
           ...prev,
@@ -248,16 +248,16 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     loadAvailableVolumes();
   }, [user]);
 
-  // Simplified WebSocket Hub 연결 초기화
+  // Simplified WebSocket Hub接続初期化
   useEffect(() => {
     const initializeHub = async () => {
       try {
         console.log('[WebSocket Hub] Initializing Hub connection...');
         
-        // Hub 서버에 연결
+        // Hubサーバーに接続
         webSocketService.connect('http://localhost:8000');
         
-        // Hub 연결 성공 시
+        // Hub接続成功時
         const handleHubConnected = async () => {
           console.log('[WebSocket Hub] Connected to Hub, registering...');
           setHubConnectionStatus('connected');
@@ -268,7 +268,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           
           webSocketService.registerWithHub(terminalId, username, wsname);
           
-          // Hub 연결 성공 메시지를 서버 로그로 전송
+          // Hub接続成功メッセージをサーバーログに送信
           const hubConnectionEntry: CommandHistory = {
             command: 'WebSocket Hub Connection',
             output: `Connected to WebSocket Hub v2.0 - Terminal: ${terminalId}, User: ${username}, Workstation: ${wsname}`,
@@ -282,7 +282,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           }
         };
 
-        // Hub 연결 해제 시
+        // Hub接続解除時
         const handleHubDisconnected = () => {
           console.log('[WebSocket Hub] Disconnected from Hub');
           setHubConnectionStatus('disconnected');
@@ -418,7 +418,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
     }
   };
 
-  // Simplified WebSocket Hub 이벤트 핸들러 - 단일 이벤트만 처리
+  // Simplified WebSocket Hubイベントハンドラー - 単一イベントのみ処理
   useEffect(() => {
     console.log('[WebSocket Hub] Setting up Hub event handlers...');
     
@@ -431,7 +431,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       });
       
       try {
-        // Hub에서 받은 데이터 구조 로깅
+        // Hubから受信したデータ構造をログ出力
         console.log('[WebSocket Hub] Received data structure:', {
           type: data.type,
           has_data: !!data.data,
@@ -488,7 +488,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
               
               console.log('[WebSocket Hub] Fields with values mapped:', processedFields.filter((f: any) => f.value).length);
               
-              // SMED 맵 표시
+              // SMEDマップ表示
               const smedData = {
                 map_name: data.map_file || 'MENU',
                 fields: processedFields,
@@ -521,7 +521,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
           setShowSmedMap(true);
         }
         
-        // SMED Map 수신 메시지를 서버 로그로 전송
+        // SMED Map受信メッセージをサーバーログに送信
         const smedReceivedEntry: CommandHistory = {
           command: 'WebSocket Hub SMED',
           output: `SMED Map received via Hub: ${data.map_file || 'BROWSE_MENU'} (${processedFields.length} fields) - Hub v${data.hub_metadata?.source || '2.0'}`,
@@ -537,7 +537,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       } catch (error) {
         console.error('[WebSocket Hub] Error processing SMED data:', error);
         
-        // Hub SMED 처리 오류 메시지를 서버 로그로 전송
+        // Hub SMED処理エラーメッセージをサーバーログに送信
         const errorEntry: CommandHistory = {
           command: 'WebSocket Hub Error',
           output: `Hub SMED processing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -552,13 +552,13 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       }
     };
 
-    // Hub 상태 변경 핸들러
+    // Hub状態変更ハンドラー
     const handleHubStatus = (data: any) => {
       console.log('[WebSocket Hub] Hub status update:', data);
-      // Hub 상태 정보를 터미널에 표시할 수 있음
+      // Hub状態情報をターミナルに表示可能
     };
 
-    // Command confirmation 핸들러
+    // Command confirmationハンドラー
     const handleCommandConfirmation = async (data: any) => {
       console.log('[WebSocket Hub] Command confirmation received:', data);
       
@@ -575,7 +575,7 @@ const AspCliWebTerminal: React.FC<AspCliWebTerminalProps> = ({ isDarkMode, works
       }
     };
 
-    // Hub 등록 완료 핸들러
+    // Hub登録完了ハンドラー
     const handleHubRegistered = (data: any) => {
       console.log('[WebSocket Hub] Registration completed:', data);
       if (data.success) {

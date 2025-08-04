@@ -26,11 +26,17 @@ from io import StringIO
 import chardet
 import codecs
 
-# ?? ??
+# 통합 로깅 설정 - 모든 서버 로그를 api_server.log에 출력
+import os
+log_file = os.path.join(os.path.dirname(__file__), 'api_server.log')
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    handlers=[
+        logging.FileHandler(log_file, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -1612,7 +1618,7 @@ def execute_asp_command(command, user):
             cwd=os.path.dirname(aspcli_path)
         )
         
-        stdout_bytes, stderr_bytes = process.communicate(timeout=30)
+        stdout_bytes, stderr_bytes = process.communicate(timeout=60)
         
         # Safely decode output using UTF-8 with error handling
         stdout = stdout_bytes.decode('utf-8', errors='replace') if stdout_bytes else ""
