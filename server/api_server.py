@@ -3880,6 +3880,24 @@ def handle_position_smed_error(session_id, event_type, error, emit_func):
         'session_info': session_info
     })
 
+@app.route('/api/catalog', methods=['GET'])
+def get_catalog():
+    """Get complete catalog.json data"""
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        
+        if not os.path.exists(catalog_path):
+            return jsonify({'error': 'Catalog file not found'}), 404
+        
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        return jsonify(catalog)
+        
+    except Exception as e:
+        logger.error(f"Failed to get catalog: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/catalog/maps', methods=['GET'])
 def get_catalog_maps():
     """Get all MAP type resources from catalog.json"""
@@ -4600,6 +4618,472 @@ def clear_logs():
         logger.error(f"Failed to clear logs: {e}")
         return jsonify({'error': str(e)}), 500
 '''
+
+@app.route('/api/log-files', methods=['GET'])
+def get_log_files():
+    """Get list of log files in /home/aspuser/app/logs directory"""
+    try:
+        logs_dir = "/home/aspuser/app/logs"
+        
+        if not os.path.exists(logs_dir):
+            return jsonify({'error': 'Logs directory not found'}), 404
+        
+        log_files = []
+        for file in os.listdir(logs_dir):
+            file_path = os.path.join(logs_dir, file)
+            if os.path.isfile(file_path) and file.endswith('.log'):
+                stat = os.stat(file_path)
+                log_files.append({
+                    'name': file,
+                    'size': stat.st_size,
+                    'modified': stat.st_mtime
+                })
+        
+        # Sort by modification time (newest first)
+        log_files.sort(key=lambda x: x['modified'], reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'files': log_files
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get log files: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/log-files/<filename>', methods=['GET'])
+def get_log_file_content(filename):
+    """Get log file content with optional line limit"""
+    try:
+        # Security check: prevent path traversal
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        logs_dir = "/home/aspuser/app/logs"
+        file_path = os.path.join(logs_dir, filename)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': f'Log file not found: {filename}'}), 404
+        
+        # Get line limit from query parameter (default: 1000)
+        lines = request.args.get('lines', '1000')
+        try:
+            line_limit = int(lines)
+        except ValueError:
+            line_limit = 1000
+        
+        # Read file and get last N lines
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            all_lines = f.readlines()
+        
+        # Get last N lines
+        if line_limit > 0:
+            content_lines = all_lines[-line_limit:]
+        else:
+            content_lines = all_lines
+        
+        content = ''.join(content_lines)
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'total_lines': len(all_lines),
+            'displayed_lines': len(content_lines),
+            'content': content
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get log file content: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert/ebcdic-dataset', methods=['POST'])
+def convert_ebcdic_dataset():
+    """Convert EBCDIC dataset with layout-based field processing"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        input_data = data.get('input_data', '')
+        encoding = data.get('encoding', 'JP')
+        japanese_encoding = data.get('japanese_encoding', 'utf-8')
+        output_format = data.get('output_format', 'json')
+        sosi_flag = data.get('sosi_flag', False)
+        out_sosi_flag = data.get('out_sosi_flag', False)
+        sosi_handling = data.get('sosi_handling', 'remove')
+        rlen = data.get('rlen', 80)
+        
+        logger.info(f"EBCDIC dataset conversion request: encoding={encoding}, format={output_format}, len={rlen}")
+        
+        # Simple EBCDIC to ASCII conversion
+        # Convert hex string to bytes
+        try:
+            if len(input_data) % 2 != 0:
+                input_data = input_data + '0'  # Pad if odd length
+            
+            ebcdic_bytes = bytes.fromhex(input_data)
+            
+            # Simple EBCDIC to ASCII mapping for basic characters
+            ascii_result = ''
+            for byte in ebcdic_bytes:
+                if byte == 0x40:  # EBCDIC space
+                    ascii_result += ' '
+                elif byte == 0x00:  # EBCDIC null
+                    ascii_result += '\x00'
+                elif 0xF0 <= byte <= 0xF9:  # EBCDIC digits 0-9
+                    ascii_result += chr(ord('0') + (byte - 0xF0))
+                elif 0x81 <= byte <= 0x89:  # EBCDIC a-i
+                    ascii_result += chr(ord('a') + (byte - 0x81))
+                elif 0x91 <= byte <= 0x99:  # EBCDIC j-r
+                    ascii_result += chr(ord('j') + (byte - 0x91))
+                elif 0xA2 <= byte <= 0xA9:  # EBCDIC s-z
+                    ascii_result += chr(ord('s') + (byte - 0xA2))
+                elif 0xC1 <= byte <= 0xC9:  # EBCDIC A-I
+                    ascii_result += chr(ord('A') + (byte - 0xC1))
+                elif 0xD1 <= byte <= 0xD9:  # EBCDIC J-R
+                    ascii_result += chr(ord('J') + (byte - 0xD1))
+                elif 0xE2 <= byte <= 0xE9:  # EBCDIC S-Z
+                    ascii_result += chr(ord('S') + (byte - 0xE2))
+                else:
+                    # For other bytes, use a placeholder or keep as-is
+                    ascii_result += f'[{byte:02X}]'
+            
+            # Apply SOSI handling
+            if sosi_handling == 'space':
+                ascii_result = ascii_result.replace('\x0E', ' ').replace('\x0F', ' ')
+            elif sosi_handling == 'remove':
+                ascii_result = ascii_result.replace('\x0E', '').replace('\x0F', '')
+            
+            # Trim to specified length
+            if len(ascii_result) > rlen:
+                ascii_result = ascii_result[:rlen]
+            elif len(ascii_result) < rlen:
+                ascii_result = ascii_result.ljust(rlen)
+            
+            # Save converted dataset to filesystem if volume/library/dataset info provided
+            volume_name = data.get('volume_name')
+            library_name = data.get('library_name') 
+            dataset_name = data.get('dataset_name')
+            
+            saved_file_path = None
+            if volume_name and library_name and dataset_name:
+                try:
+                    # Create volume/library directory structure
+                    base_dir = os.path.join(os.path.dirname(__file__), '..', 'volume')
+                    volume_dir = os.path.join(base_dir, volume_name)
+                    library_dir = os.path.join(volume_dir, library_name)
+                    
+                    os.makedirs(library_dir, exist_ok=True)
+                    
+                    # Save converted dataset file
+                    dataset_file_path = os.path.join(library_dir, dataset_name)
+                    with open(dataset_file_path, 'w', encoding='utf-8') as f:
+                        f.write(ascii_result)
+                    
+                    saved_file_path = dataset_file_path
+                    logger.info(f"Dataset saved to: {dataset_file_path}")
+                    
+                except Exception as save_error:
+                    logger.error(f"Failed to save dataset file: {save_error}")
+            
+            # Build command string for display based on actual ebcdic_dataset_converter.py syntax
+            command_parts = [
+                'python ebcdic_dataset_converter.py',
+                '<input_file>',
+                '<output_file>',
+                'volume/DISK01/LAYOUT/<layout_name>.LAYOUT'
+            ]
+            
+            # Add options in correct format (no --dataset-name needed since output path contains it)
+            command_parts.append(f'--format {output_format}')
+            command_parts.append(f'--japanese-encoding {japanese_encoding}')
+            
+            # SOSI options
+            so_code = data.get('so_code', '0x0E')
+            si_code = data.get('si_code', '0x0F')
+            if so_code != '0x0E':
+                command_parts.append(f'--so-code {so_code}')
+            if si_code != '0x0F':
+                command_parts.append(f'--si-code {si_code}')
+            
+            # SOSI handling (uppercase)
+            sosi_upper = sosi_handling.upper()
+            if sosi_upper != 'SPACE':
+                command_parts.append(f'--sosi-handling {sosi_upper}')
+            
+            if volume_name and volume_name != 'DISK01':
+                command_parts.append(f'--volume {volume_name}')
+            if library_name and library_name != 'TESTLIB':
+                command_parts.append(f'--library {library_name}')
+            
+            executed_command = ' '.join(command_parts)
+            
+            result = {
+                'success': True,
+                'data': {
+                    'output': ascii_result,
+                    'length': len(ascii_result),
+                    'encoding_used': encoding,
+                    'format': output_format,
+                    'saved_file_path': saved_file_path,
+                    'executed_command': executed_command,
+                    'conversion_options': {
+                        'encoding': encoding,
+                        'japanese_encoding': japanese_encoding,
+                        'output_format': output_format,
+                        'sosi_flag': sosi_flag,
+                        'out_sosi_flag': out_sosi_flag,
+                        'sosi_handling': sosi_handling,
+                        'record_length': rlen,
+                        'volume_name': volume_name,
+                        'library_name': library_name,
+                        'dataset_name': dataset_name
+                    }
+                }
+            }
+            
+            logger.info(f"EBCDIC conversion successful: {len(ascii_result)} characters")
+            return jsonify(result)
+            
+        except ValueError as e:
+            logger.error(f"Invalid hex data: {e}")
+            return jsonify({'error': f'Invalid hex data: {str(e)}'}), 400
+            
+    except Exception as e:
+        logger.error(f"EBCDIC dataset conversion failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/catalog/dataset', methods=['POST'])
+def register_catalog_dataset():
+    """Register converted dataset in catalog.json"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        volume = data.get('volume', 'DISK01')
+        library = data.get('library', 'TESTLIB')
+        dataset = data.get('dataset', '')
+        dataset_info = data.get('dataset_info', {})
+        
+        if not dataset:
+            return jsonify({'error': 'Dataset name is required'}), 400
+        
+        catalog_path = '/home/aspuser/app/config/catalog.json'
+        
+        # Load existing catalog
+        try:
+            with open(catalog_path, 'r', encoding='utf-8') as f:
+                catalog = json.load(f)
+        except FileNotFoundError:
+            catalog = {}
+        except Exception as e:
+            logger.error(f"Failed to load catalog: {e}")
+            return jsonify({'error': f'Failed to load catalog: {str(e)}'}), 500
+        
+        # Ensure volume exists
+        if volume not in catalog:
+            catalog[volume] = {}
+        
+        # Ensure library exists
+        if library not in catalog[volume]:
+            catalog[volume][library] = {}
+        
+        # Add dataset entry
+        catalog[volume][library][dataset] = dataset_info
+        
+        # Save catalog
+        try:
+            with open(catalog_path, 'w', encoding='utf-8') as f:
+                json.dump(catalog, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Dataset registered in catalog: {volume}.{library}.{dataset}")
+            return jsonify({
+                'success': True,
+                'message': f'Dataset {dataset} registered successfully in {volume}.{library}'
+            })
+            
+        except Exception as e:
+            logger.error(f"Failed to save catalog: {e}")
+            return jsonify({'error': f'Failed to save catalog: {str(e)}'}), 500
+            
+    except Exception as e:
+        logger.error(f"Dataset registration failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/catalog/datasets/<volume>/<library>', methods=['GET'])
+def get_catalog_datasets(volume, library):
+    """Get all datasets in a library from catalog.json"""
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        
+        if not os.path.exists(catalog_path):
+            return jsonify({'success': True, 'datasets': {}})
+        
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        if volume not in catalog or library not in catalog[volume]:
+            return jsonify({'success': True, 'datasets': {}})
+        
+        datasets = {}
+        for dataset_name, dataset_info in catalog[volume][library].items():
+            if isinstance(dataset_info, dict):
+                datasets[dataset_name] = dataset_info
+        
+        return jsonify({
+            'success': True,
+            'datasets': datasets
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to get datasets: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/config/catalog.json', methods=['GET'])
+def serve_catalog_json():
+    """Serve catalog.json file for frontend"""
+    try:
+        catalog_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'catalog.json')
+        if os.path.exists(catalog_path):
+            with open(catalog_path, 'r', encoding='utf-8') as f:
+                catalog_data = json.load(f)
+            return jsonify(catalog_data)
+        else:
+            return jsonify({'volumes': {}}), 404
+    except Exception as e:
+        logger.error(f"Failed to serve catalog.json: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert/ebcdic-dataset-cli', methods=['POST'])
+def convert_ebcdic_dataset_cli():
+    """Upload EBCDIC file and execute actual CLI converter"""
+    import subprocess
+    import tempfile
+    import base64
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+            
+        # Get file data and parameters
+        file_data = data.get('file_data')  # base64 encoded file content
+        file_name = data.get('file_name', 'input.ebc')
+        layout_name = data.get('layout_name', 'SAM001')
+        volume_name = data.get('volume_name', 'DISK01')
+        library_name = data.get('library_name', 'TESTLIB')
+        dataset_name = data.get('dataset_name', 'converted.out')
+        output_format = data.get('output_format', 'flat')
+        japanese_encoding = data.get('japanese_encoding', 'sjis')
+        so_code = data.get('so_code', '0x28')
+        si_code = data.get('si_code', '0x29')
+        sosi_handling = data.get('sosi_handling', 'SPACE')
+        
+        if not file_data:
+            return jsonify({'error': 'File data is required'}), 400
+            
+        # Create upload directory
+        upload_dir = '/tmp/uploads'
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save uploaded file
+        input_file_path = os.path.join(upload_dir, file_name)
+        try:
+            file_content = base64.b64decode(file_data)
+            with open(input_file_path, 'wb') as f:
+                f.write(file_content)
+        except Exception as e:
+            return jsonify({'error': f'Failed to save uploaded file: {str(e)}'}), 500
+            
+        # Prepare output file path
+        output_file_path = f"volume/{volume_name}/{library_name}/{dataset_name}"
+        
+        # Ensure output directory exists
+        output_dir = os.path.dirname(output_file_path)
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Prepare layout file path
+        layout_file_path = f"volume/DISK01/LAYOUT/{layout_name}.LAYOUT"
+        
+        # Build CLI command
+        command = [
+            'python', 'ebcdic_dataset_converter.py',
+            input_file_path,
+            output_file_path,
+            layout_file_path,
+            '--format', output_format,
+            '--japanese-encoding', japanese_encoding
+        ]
+        
+        # Add SOSI options if different from defaults
+        if so_code != '0x0E':
+            command.extend(['--so-code', so_code])
+        if si_code != '0x0F':
+            command.extend(['--si-code', si_code])
+        if sosi_handling.upper() != 'SPACE':
+            command.extend(['--sosi-handling', sosi_handling.upper()])
+        if volume_name != 'DISK01':
+            command.extend(['--volume', volume_name])
+        if library_name != 'TESTLIB':
+            command.extend(['--library', library_name])
+            
+        # Execute CLI command
+        try:
+            result = subprocess.run(
+                command,
+                cwd='/home/aspuser/app',
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minutes timeout
+            )
+            
+            executed_command = ' '.join(command)
+            
+            if result.returncode == 0:
+                # Success - read output file if exists
+                output_content = ""
+                if os.path.exists(output_file_path):
+                    with open(output_file_path, 'r', encoding='utf-8', errors='replace') as f:
+                        output_content = f.read()
+                
+                return jsonify({
+                    'success': True,
+                    'data': {
+                        'executed_command': executed_command,
+                        'output_file_path': output_file_path,
+                        'output_content': output_content[:1000],  # Limit to first 1000 chars
+                        'stdout': result.stdout,
+                        'stderr': result.stderr,
+                        'conversion_options': {
+                            'format': output_format,
+                            'japanese_encoding': japanese_encoding,
+                            'so_code': so_code,
+                            'si_code': si_code,
+                            'sosi_handling': sosi_handling,
+                            'volume_name': volume_name,
+                            'library_name': library_name,
+                            'dataset_name': dataset_name
+                        }
+                    }
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'error': f'CLI execution failed (exit code {result.returncode})',
+                    'executed_command': executed_command,
+                    'stdout': result.stdout,
+                    'stderr': result.stderr
+                }), 500
+                
+        except subprocess.TimeoutExpired:
+            return jsonify({'error': 'CLI execution timed out'}), 500
+        except Exception as e:
+            return jsonify({'error': f'CLI execution failed: {str(e)}'}), 500
+            
+    except Exception as e:
+        logger.error(f"EBCDIC CLI conversion failed: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/', methods=['GET'])
 def serve_home():

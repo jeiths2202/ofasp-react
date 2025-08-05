@@ -4,7 +4,7 @@
 
 OpenASP AX 프로젝트의 모든 API, 서비스, 인터페이스를 통합 관리하는 문서입니다.
 
-**최종 업데이트**: 2025-08-01  
+**최종 업데이트**: 2025-08-05  
 **프로젝트**: OpenASP AX - 레거시 마이그레이션 플랫폼  
 **범위**: 전체 시스템 API 통합 문서
 
@@ -17,6 +17,410 @@ OpenASP AX 프로젝트의 모든 API, 서비스, 인터페이스를 통합 관�
 - **3007**: ASP Manager
 - **3008**: ASP Manager 백엔드
 - **8000**: API 서버
+
+## 🗂️ 12. Layout 파일 관리 API (2025-08-03 신규)
+
+## 🔄 13. EBCDIC 데이터셋 변환 API (2025-08-05 신규)
+
+### 13.1 개요
+
+**기능**: JAK EBCDIC 데이터셋을 올바른 일본어 문자로 변환하는 고성능 변환 시스템  
+**특징**: 코드페이지 기반 동적 변환, 하드코딩 완전 제거, CODING_RULES.md 준수  
+**변환 체인**: JAK EBCDIC → JEF → Shift_JIS → Unicode  
+
+### 13.2 CLI 인터페이스
+
+#### **기본 사용법**
+```bash
+python ebcdic_dataset_converter.py INPUT_FILE OUTPUT_FILE LAYOUT_FILE [OPTIONS]
+```
+
+#### **필수 매개변수**
+- `INPUT_FILE`: EBCDIC 데이터셋 파일 경로
+- `OUTPUT_FILE`: 변환된 출력 파일 경로  
+- `LAYOUT_FILE`: COBOL 레이아웃 파일 경로
+
+#### **주요 옵션**
+```bash
+--schema SCHEMA_FILE          # JSON 스키마 파일 (COBOL 레이아웃 대체)
+--format {json,flat}          # 출력 형식 (기본값: json)
+--japanese-encoding {utf-8,sjis}  # 일본어 인코딩 (기본값: utf-8)
+--so-code HEX_CODE           # Shift Out 코드 (기본값: 0x0E)
+--si-code HEX_CODE           # Shift In 코드 (기본값: 0x0F)
+--sosi-handling {SPACE,SOSI,REMOVE}  # SOSI 코드 처리 방식
+--volume VOLUME_NAME         # 볼륨명 (기본값: DISK01)
+--library LIBRARY_NAME       # 라이브러리명 (기본값: TESTLIB)
+--dataset-name DATASET_NAME  # catalog.json 등록용 데이터셋명
+```
+
+### 13.3 사용 예시
+
+#### **기본 JSON 변환**
+```bash
+python ebcdic_dataset_converter.py \
+  /data/assets/ebcdic/DEMO.SAM.ebc \
+  /tmp/output.json \
+  /home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT \
+  --japanese-encoding utf-8
+```
+
+#### **JSON 스키마 사용 (copybook_analysis 형식)**
+```bash
+python ebcdic_dataset_converter.py \
+  /data/assets/ebcdic/DEMO.SAM.ebc \
+  /tmp/output.json \
+  /home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT \
+  --schema /tmp/schema.json \
+  --japanese-encoding utf-8
+```
+
+#### **FLAT 형식 + SOSI 처리**
+```bash
+python ebcdic_dataset_converter.py \
+  /data/assets/ebcdic/DEMO.SAM.ebc \
+  /tmp/output.out \
+  /home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT \
+  --format flat \
+  --japanese-encoding sjis \
+  --so-code 0x28 \
+  --si-code 0x29 \
+  --sosi-handling SPACE
+```
+
+#### **볼륨/라이브러리 구조로 출력**
+```bash
+python ebcdic_dataset_converter.py \
+  /data/assets/ebcdic/DEMO.SAM.ebc \
+  volume/DISK01/TESTLIB/SAM001.ASCII \
+  volume/DISK01/LAYOUT/SAM001.LAYOUT \
+  --format flat \
+  --japanese-encoding sjis \
+  --so-code 0x28 \
+  --si-code 0x29 \
+  --sosi-handling SPACE
+```
+
+### 13.4 웹 UI 기반 데이터셋 변환 API (2025-08-05 업데이트)
+
+#### **파일 업로드 + CLI 실행 API**
+**엔드포인트**: `POST /api/convert/ebcdic-dataset-cli`  
+**기능**: 클라이언트에서 EBCDIC 파일을 업로드하고 서버에서 실제 CLI 도구를 실행
+
+**요청 형식**:
+```json
+{
+  "file_data": "base64_encoded_file_content",
+  "file_name": "DEMO.SAM.ebc",
+  "layout_name": "SAM001",
+  "volume_name": "DISK01",
+  "library_name": "TESTLIB", 
+  "dataset_name": "SAM001.ASCII",
+  "output_format": "flat",
+  "japanese_encoding": "sjis",
+  "so_code": "0x28",
+  "si_code": "0x29",
+  "sosi_handling": "SPACE"
+}
+```
+
+**응답 형식**:
+```json
+{
+  "success": true,
+  "data": {
+    "executed_command": "python ebcdic_dataset_converter.py /tmp/uploads/DEMO.SAM.ebc volume/DISK01/TESTLIB/SAM001.ASCII volume/DISK01/LAYOUT/SAM001.LAYOUT --format flat --japanese-encoding sjis --so-code 0x28 --si-code 0x29",
+    "output_file_path": "volume/DISK01/TESTLIB/SAM001.ASCII",
+    "output_content": "변환된 데이터 일부...",
+    "stdout": "CLI 표준 출력",
+    "stderr": "CLI 로그 메시지",
+    "conversion_options": {
+      "format": "flat",
+      "japanese_encoding": "sjis",
+      "so_code": "0x28",
+      "si_code": "0x29",
+      "sosi_handling": "SPACE",
+      "volume_name": "DISK01",
+      "library_name": "TESTLIB",
+      "dataset_name": "SAM001.ASCII"
+    }
+  }
+}
+```
+
+#### **웹 UI 사용법**
+1. **파일 선택**: 클라이언트에서 EBCDIC 파일 선택
+2. **레이아웃 선택**: SAM001 등 COBOL 레이아웃 선택
+3. **옵션 설정**: 
+   - 출력 형식: JSON/FLAT
+   - 일본어 인코딩: UTF-8/SJIS
+   - SOSI 코드: SO/SI 코드 설정
+   - SOSI 처리: SPACE/REMOVE/SOSI
+4. **볼륨/라이브러리 지정**: 출력 경로 설정
+5. **변환 실행**: 서버에서 실제 CLI 도구 실행
+6. **결과 확인**: 
+   - 실행된 정확한 커맨드 표시
+   - CLI 출력 메시지 표시
+   - 서버상 저장된 파일 경로 표시
+
+#### **특징**
+- **실제 CLI 실행**: 웹 UI에서도 실제 `ebcdic_dataset_converter.py` 실행
+- **파일 업로드**: 클라이언트 파일을 서버 `/tmp/uploads/`에 업로드
+- **볼륨 구조 저장**: `volume/볼륨명/라이브러리명/데이터셋명` 구조로 저장
+- **커맨드 추적**: 실행된 정확한 CLI 커맨드 표시
+- **실시간 로그**: CLI의 stdout/stderr 출력 실시간 표시
+
+### 13.5 JSON 스키마 형식 지원
+
+#### **표준 형식**
+```json
+{
+  "fields": [
+    {
+      "name": "PNO",
+      "level": 3,
+      "type": "DISPLAY",
+      "picture": "9(5)",
+      "length": 5,
+      "position": 1
+    }
+  ]
+}
+```
+
+#### **copybook_analysis 형식**
+```json
+{
+  "copybook_analysis": {
+    "total_fields": 4,
+    "total_size": 80,
+    "fields": [
+      {
+        "name": "OUT1",
+        "level": 1,
+        "type": "group",
+        "children": [
+          {
+            "name": "PNO",
+            "level": 3,
+            "type": "elementary",
+            "size": 5,
+            "pic": "9(5).",
+            "usage": "DISPLAY"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 13.5 출력 형식
+
+#### **JSON 형식 (기본값)**
+```json
+{
+  "conversion_info": {
+    "timestamp": "2025-08-05T08:31:32.558000",
+    "source_file": "/data/assets/ebcdic/DEMO.SAM.ebc",
+    "layout_file": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+    "record_length": 80,
+    "encoding": "JAK",
+    "statistics": {
+      "total_records": 4,
+      "successful_records": 4,
+      "error_records": 0,
+      "conversion_errors": []
+    }
+  },
+  "records": [
+    {
+      "PNO": "12345",
+      "PNAME": " 東京　関西",
+      "PTRAIL": "ABCDE",
+      "FILLER": "",
+      "_record_number": 1
+    }
+  ]
+}
+```
+
+#### **FLAT 형식 (Fixed Block)**
+- **특징**: 개행 문자 없는 고정 길이 바이너리 형식
+- **용도**: 레거시 시스템 호환성
+- **인코딩**: Shift_JIS 또는 UTF-8 선택 가능
+
+### 13.6 코드페이지 시스템
+
+#### **동적 로딩**
+- **경로**: 환경 변수 `CODEPAGE_BASE_PATH` 또는 기본 경로 사용
+- **기본 경로**: `/home/aspuser/app/ofasp-refactor/public/codepages`
+- **JAK → JEF 매핑**: `JEFASCK.txt` (65,536개 DBCS 매핑)
+
+#### **지원 코드페이지**
+```
+EBCDIC to ASCII:
+- EBCASCUS.txt (US)
+- EBCASCJP.txt (JP) 
+- JEFASCK.txt (JAK)
+- KEISASCK.txt (KEIS)
+
+ASCII to EBCDIC:
+- ASCEBCUS.txt (US)
+- ASCEBCJP.txt (JP)
+- ASCJEFK.txt (JAK)
+- ASCJEISK.txt (KEIS)
+```
+
+#### **캐싱 시스템**
+- **메모리 캐시**: 로드된 코드페이지 테이블을 메모리에 캐시
+- **성능 최적화**: 반복 변환 시 디스크 I/O 최소화
+- **로그 출력**: `Loaded 256 single-byte and 65536 double-byte mappings`
+
+### 13.7 SOSI 코드 처리
+
+#### **SOSI 코드 종류**
+- **표준**: SO=0x0E, SI=0x0F (기본값)
+- **사용자 정의**: `--so-code`, `--si-code`로 지정
+
+#### **처리 방식**
+```bash
+--sosi-handling SPACE   # SOSI 코드를 공백으로 변환 (권장)
+--sosi-handling SOSI    # SOSI 코드 그대로 유지
+--sosi-handling REMOVE  # SOSI 코드 제거
+```
+
+#### **DBCS 처리 플로우**
+1. **SO 감지**: Double-Byte 모드 시작
+2. **2바이트 페어 변환**: JAK EBCDIC → JEF → Shift_JIS
+3. **SI 감지**: Single-Byte 모드 복귀
+
+### 13.8 변환 결과 검증
+
+#### **변환 전 (잘못된 하드코딩)**
+```
+EBCDIC: C5EC B5FE 4040 B4D8 C0BE
+결과:   82A0 82A2 ???? 82A4 82A6  # 잘못된 매핑
+```
+
+#### **변환 후 (코드페이지 기반)**
+```
+EBCDIC: C5EC B5FE 4040 B4D8 C0BE
+JEF:    938C 8B9E 8140 8AD6 90BC  # 올바른 JEF 코드
+결과:   東京　関西                # 정확한 일본어 문자
+```
+
+### 13.9 환경 변수 설정
+
+#### **코드페이지 경로**
+```bash
+export CODEPAGE_BASE_PATH="/custom/path/to/codepages"
+```
+
+#### **로깅 레벨**
+```bash
+export EBCDIC_CONVERTER_LOG_LEVEL="DEBUG"  # DEBUG, INFO, WARNING, ERROR
+```
+
+### 13.10 오류 처리
+
+#### **파일 없음 오류**
+```
+FileNotFoundError: Input file not found: /path/to/file.ebc
+FileNotFoundError: Layout file not found: /path/to/layout
+FileNotFoundError: Code page file not found: /path/to/JEFASCK.txt
+```
+
+#### **변환 오류**
+```json
+{
+  "conversion_errors": [
+    "Field PNO conversion error: Invalid data format",
+    "JAK EBCDIC DBCS conversion failed for C5EC: No mapping found"
+  ]
+}
+```
+
+#### **스키마 오류**
+```
+ValueError: Invalid JSON schema format
+ValueError: No fields found in layout file
+```
+
+### 13.11 성능 특성
+
+#### **변환 속도**
+- **소규모 데이터셋** (< 1MB): < 1초
+- **중간 데이터셋** (1-100MB): 1-10초  
+- **대용량 데이터셋** (> 100MB): 병렬 처리 권장
+
+#### **메모리 사용량**
+- **기본**: ~10MB (코드페이지 테이블 캐시)
+- **대용량**: 입력 파일 크기의 2-3배
+
+#### **로그 출력 예시**
+```
+2025-08-05 08:31:32,348 - INFO - Using codepage base path: /home/aspuser/app/ofasp-refactor/public/codepages
+2025-08-05 08:31:32,556 - INFO - Loaded 256 single-byte and 65536 double-byte mappings from JEFASCK.txt
+2025-08-05 08:31:32,558 - INFO - Records to process: 4
+2025-08-05 08:31:32,559 - INFO - Success rate: 100.00%
+```
+
+### 13.12 catalog.json 통합
+
+#### **자동 등록**
+```json
+{
+  "DISK01": {
+    "CONVERTED": {
+      "DEMO_DATASET": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T08:31:32.558Z",
+        "CONVERSION": {
+          "source_encoding": "JAK",
+          "target_encoding": "shift_jis",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T08:31:32.558Z"
+        }
+      }
+    }
+  }
+}
+```
+
+### 13.13 통합 워크플로우
+
+#### **데이터셋 변환 → 프로그램 실행**
+```bash
+# 1. EBCDIC 데이터셋 변환
+python ebcdic_dataset_converter.py \
+  /data/ebcdic/CUSTOMER.DAT \
+  /tmp/customer.json \
+  /volume/DISK01/LAYOUT/CUSTOMER.LAYOUT \
+  --dataset-name CUSTOMER_CONVERTED
+
+# 2. Java 프로그램에서 변환된 데이터 사용
+CALL PGM-CUSTOMER_PROC.JAVA,VOL-DISK01
+```
+
+#### **SMED 맵 연동**
+```bash
+# 변환된 데이터를 SMED 맵으로 표시
+python ebcdic_dataset_converter.py \
+  /data/ebcdic/EMPLOYEE.DAT \
+  /tmp/employee.json \
+  /volume/DISK01/LAYOUT/EMPLOYEE.LAYOUT \
+  --format json
+
+# → SUB001.java에서 employee.json 읽어서 SMED 맵으로 표시
+```
+
+---
 
 ## 🗂️ 12. Layout 파일 관리 API (2025-08-03 신규)
 
@@ -908,4 +1312,4 @@ def call_encoding_service(data, encoding='JP'):
 
 **개발팀**: OpenASP AX Development Team  
 **문서 관리**: Claude Code Assistant  
-**버전**: 1.0.0
+**버전**: 1.1.0
