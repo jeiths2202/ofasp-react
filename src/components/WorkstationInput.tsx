@@ -37,7 +37,7 @@ const WorkstationInput: React.FC<WorkstationInputProps> = ({
     setValidationError('');
 
     try {
-      const response = await fetch(`http://localhost:3006/api/workstation/status/${wsnameToCheck}`);
+      const response = await fetch(`http://localhost:8000/api/workstation/${wsnameToCheck}/status`);
       
       if (response.ok) {
         const statusData = await response.json();

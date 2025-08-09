@@ -13,7 +13,7 @@ export const API_CONFIG = {
     }
   },
   FILE_SERVER: {
-    BASE_URL: process.env.REACT_APP_FILE_SERVER_URL || 'http://localhost:3006',
+    BASE_URL: process.env.REACT_APP_FILE_SERVER_URL || 'http://localhost:8000',
     ENDPOINTS: {
       UPLOAD: '/upload',
       DOWNLOAD: '/download',

@@ -7,7 +7,7 @@ export const APP_CONFIG = {
   SERVER: {
     PORT: process.env.REACT_APP_PORT || 3005,
     HOST: process.env.REACT_APP_HOST || '0.0.0.0',
-    PROXY_URL: process.env.REACT_APP_PROXY_URL || 'http://localhost:3006'
+    PROXY_URL: process.env.REACT_APP_PROXY_URL || 'http://localhost:8000'
   },
   LOCALE: {
     DEFAULT: process.env.REACT_APP_DEFAULT_LOCALE || 'ja-JP',
