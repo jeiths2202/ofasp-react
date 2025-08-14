@@ -4,9 +4,50 @@
 
 OpenASP AX 프로젝트의 모든 API, 서비스, 인터페이스를 통합 관리하는 문서입니다.
 
-**최종 업데이트**: 2025-08-05  
+**최종 업데이트**: 2025-08-14  
 **프로젝트**: OpenASP AX - 레거시 마이그레이션 플랫폼  
 **범위**: 전체 시스템 API 통합 문서
+
+## 🚨 **CRITICAL: 필수 File I/O 정책**
+
+### **모든 Application은 dslock_suite API 사용 필수**
+
+OpenASP AX 시스템에서 **모든 파일 I/O 작업**은 반드시 `ofasp-refactor/dslock_suite`에서 제공하는 API를 사용해야 합니다:
+
+#### **필수 사용 대상**
+- **C 애플리케이션**: `libdslock.so`, `libdsio.so` 링크 필수
+- **Java 애플리케이션**: JNI 래퍼를 통한 dslock/dsio API 호출 필수  
+- **Python 애플리케이션**: ctypes 또는 subprocess를 통한 dslockctl 호출 필수
+
+#### **금지된 직접 파일 접근**
+```c
+// ❌ 절대 금지 - 직접 파일 접근
+FILE* fp = fopen("/volume/DISK01/TESTLIB/EMPLOYEE.FB", "r");
+
+// ✅ 필수 - dslock_suite API 사용
+dsio_t handle;
+dsio_open(&handle, "DISK01/TESTLIB/EMPLOYEE.FB", "READ", err, sizeof(err));
+```
+
+#### **데이터 무결성 보장**
+- **락 메커니즘**: 동시 접근 시 데이터 손상 방지
+- **Atomic 쓰기**: 중간 실패 시 데이터 일관성 보장
+- **TTL 기반 정리**: 비정상 종료 시 자동 락 해제
+- **catalog.json 연동**: 메타데이터 일치성 보장
+
+#### **성능 및 확장성**
+- **락 충돌 최소화**: 효율적인 락 레벨 관리 (SHR/OLD/MOD)
+- **자동 정리**: 좀비 프로세스 락 자동 해제
+- **모니터링**: 실시간 락 상태 추적 가능
+- **관리 도구**: `dslockctl`로 문제 상황 즉시 해결
+
+#### **호환성 및 확장**
+- **레거시 지원**: 기존 ASP 데이터셋 포맷 완벽 지원
+- **다중 언어**: C, Java, Python 모든 언어에서 사용 가능
+- **표준 준수**: POSIX 호환 파일 락 메커니즘
+- **확장 가능**: 새로운 락 모드 및 기능 추가 용이
+
+> **⚠️ 경고**: dslock_suite API를 사용하지 않는 직접 파일 접근은 데이터 손상, 락 충돌, 시스템 불안정을 야기할 수 있습니다. 모든 개발자는 반드시 이 정책을 준수해야 합니다.
 
 ## 🏗️ 시스템 아키텍처
 
@@ -418,6 +459,421 @@ python ebcdic_dataset_converter.py \
   --format json
 
 # → SUB001.java에서 employee.json 읽어서 SMED 맵으로 표시
+```
+
+---
+
+## 🔐 14. Dataset Lock & I/O Suite API (2025-08-13 신규)
+
+### 14.1 개요
+
+**기능**: 안전한 데이터셋 접근을 위한 락 관리 및 I/O 라이브러리 시스템  
+**특징**: 프로세스 기반 락 메커니즘, 자동 cleanup, TTL 지원, 관리자용 강제 해제  
+**구성요소**: libdslock.so (락 관리) + libdsio.so (I/O) + dslockctl (CLI 도구)
+
+### 14.2 🔒 데이터셋 락 관리 API (libdslock.so)
+
+#### **기본 락 관리 API**
+
+```c
+// 락 획득 (SHR: 공유, OLD: 배타적 읽기, MOD: 수정)
+int dslock_acquire(const char* dataset, const char* level, char* errbuf, int errlen);
+
+// 락 해제
+int dslock_release(const char* dataset, char* errbuf, int errlen);
+
+// 락 상태 조회 (JSON 형식)
+int dslock_status(const char* dataset, char* buf, int bufsize, char* errbuf, int errlen);
+
+// 좀비/TTL 만료 락 정리
+int dslock_sweep(char* errbuf, int errlen);
+```
+
+#### **🆕 관리자용 확장 API**
+
+```c
+// 필터링 가능한 상세 락 조회 (사용자명, 프로세스명 포함)
+int dslock_query_locks(const char* filter_user, pid_t filter_pid, const char* filter_dataset, 
+                       char* out, int outn, char* err, int errn);
+
+// 강제 락 해제 (PID/데이터셋별)
+int dslock_force_cleanup(pid_t target_pid, const char* target_dataset, char* err, int errn);
+```
+
+#### **락 레벨 호환성**
+```
+       │ SHR │ OLD │ MOD │
+   ────┼─────┼─────┼─────┤
+   SHR │  ✓  │  ✗  │  ✗  │
+   OLD │  ✗  │  ✗  │  ✗  │
+   MOD │  ✗  │  ✗  │  ✗  │
+```
+
+#### **사용 예시**
+```c
+#include "dslock.h"
+
+// 배타적 읽기 락 획득
+char errbuf[512];
+int rc = dslock_acquire("DISK01/TESTLIB/EMPLOYEE.FB", "OLD", errbuf, sizeof(errbuf));
+if (rc == DSERR_OK) {
+    printf("락 획득 성공\n");
+    // 데이터 작업 수행
+    dslock_release("DISK01/TESTLIB/EMPLOYEE.FB", errbuf, sizeof(errbuf));
+} else if (rc == DSERR_CONFLICT) {
+    printf("락 충돌: %s\n", errbuf);
+}
+```
+
+### 14.3 📁 데이터셋 I/O API (libdsio.so)
+
+#### **데이터셋 I/O API**
+
+```c
+// 기존 데이터셋 열기
+int dsio_open(dsio_t* h, const char* dataset, const char* mode, char* err, int errlen);
+
+// 새 데이터셋 생성 및 카탈로그 등록
+int dsio_open2(dsio_t* h, const char* dataset, const char* mode,
+               const char* vol, int lrecl, const char* recfm,
+               int create_if_missing, char* err, int errlen);
+
+// 데이터 읽기/쓰기
+ssize_t dsio_read(dsio_t* h, void* buf, size_t n, char* err, int errlen);
+ssize_t dsio_write(dsio_t* h, const void* buf, size_t n, char* err, int errlen);
+
+// 레코드 단위 쓰기 (RECFM 정책에 따른 개행 처리)
+ssize_t dsio_put_record(dsio_t* h, const void* buf, size_t n, char* err, int errlen);
+
+// 데이터셋 닫기 (atomic 모드에서 커밋)
+int dsio_close(dsio_t* h, char* err, int errlen);
+```
+
+#### **dsio_t 구조체**
+```c
+typedef struct {
+    int   fd;              // 파일 디스크립터
+    char  dataset[256];    // 데이터셋명
+    char  level[4];        // 락 레벨 (SHR/OLD/MOD)
+    int   owns_lock;       // 락 소유 여부
+    int   atomic;          // atomic write 플래그
+    char  path[512];       // 최종 경로
+    char  tmp[512];        // 임시 파일 경로 (atomic용)
+    char  recfm[4];        // 레코드 형식 (FB/VB)
+    int   lrecl;           // 논리적 레코드 길이
+    int   newline_on_write; // 쓰기 시 개행 처리 여부
+} dsio_t;
+```
+
+#### **사용 예시**
+```c
+#include "dsio.h"
+
+// 데이터셋 읽기 예시
+dsio_t handle;
+char errbuf[512];
+unsigned char buffer[256];
+
+// 데이터셋 열기 (READ 모드, SHR 락 자동 획득)
+int rc = dsio_open(&handle, "DISK01/TESTLIB/EMPLOYEE.FB", "READ", errbuf, sizeof(errbuf));
+if (rc == DSERR_OK) {
+    printf("데이터셋 열기 성공: RECFM=%s, LRECL=%d\n", handle.recfm, handle.lrecl);
+    
+    // 레코드 읽기
+    ssize_t bytes_read = dsio_read(&handle, buffer, handle.lrecl, errbuf, sizeof(errbuf));
+    if (bytes_read > 0) {
+        printf("읽기 성공: %zd 바이트\n", bytes_read);
+    }
+    
+    // 데이터셋 닫기 (락 자동 해제)
+    dsio_close(&handle, errbuf, sizeof(errbuf));
+}
+```
+
+### 14.4 🛠️ dslockctl - 락 관리 CLI 도구
+
+#### **기본 명령어**
+```bash
+# 락 목록 조회
+./build/dslockctl list [DATASET]
+
+# stale 락 정리
+./build/dslockctl sweep
+
+# 락 획득
+./build/dslockctl lock DATASET LEVEL     # LEVEL: SHR/OLD/MOD
+
+# 락 해제
+./build/dslockctl unlock DATASET
+```
+
+#### **🆕 관리자 명령어**
+```bash
+# 상세 조회 (사용자명, 프로세스명 포함)
+./build/dslockctl query
+./build/dslockctl query --user USERNAME
+./build/dslockctl query --pid PID
+./build/dslockctl query --dataset "DATASET_NAME"
+
+# 강제 해제 (관리자 권한)
+./build/dslockctl cleanup --pid PID
+./build/dslockctl cleanup --dataset "DATASET_NAME"
+```
+
+#### **사용 예시**
+```bash
+# 락 상황 확인
+./build/dslockctl query
+# 출력: [{"dataset":"TEST.FB","level":"OLD","pid":1234,"user":"aspuser","process":"my_app"}]
+
+# 특정 사용자의 락만 조회
+./build/dslockctl query --user aspuser
+
+# 문제가 된 프로세스의 락 강제 해제
+./build/dslockctl cleanup --pid 1234
+```
+
+### 14.5 🔧 자동 Lock Cleanup 메커니즘
+
+#### **이중 안전장치**
+1. **프로세스 생존 확인**: `kill(pid, 0)`로 실시간 확인
+2. **TTL 기반**: 기본 3600초 후 자동 만료
+
+#### **자동 실행 시점**
+- `dslock_acquire()` 호출 시마다 자동 sweep
+- `dslock_release()` 호출 시마다 자동 sweep
+- `dslock_status()` 호출 시마다 자동 sweep
+
+#### **환경 변수 설정**
+```bash
+# TTL 설정 (초 단위)
+export DSLOCK_TTL_SEC=3600        # 기본값: 1시간
+
+# 락 DB 파일 위치
+export DSLOCK_DB="/tmp/dslock.jsonl"
+
+# 로깅 활성화
+export DSLOCK_LOG=1
+```
+
+### 14.6 📊 JSON 카탈로그 통합
+
+#### **catalog.json 연동**
+- **경로**: `/home/aspuser/app/config/catalog.json`
+- **형식**: OpenASP 계층 구조 (volume/library/dataset)
+- **자동 파싱**: RECTYPE→recfm, RECLEN→lrecl 매핑
+
+#### **catalog.json 예시**
+```json
+{
+  "DISK01": {
+    "TESTLIB": {
+      "EMPLOYEE.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "사원 마스터 파일"
+      }
+    }
+  }
+}
+```
+
+#### **dsio JSON 파서 기능**
+- **계층적 검색**: volume → library → dataset 순서
+- **타입 검증**: TYPE="DATASET" 확인
+- **매핑 변환**: RECTYPE→recfm, RECLEN→lrecl
+- **backwards compatibility**: 구 NDJSON 형식도 지원
+
+### 14.7 ⚡ 성능 및 안전성 특징
+
+#### **동시성 제어**
+- **글로벌 락 파일**: `.lck` 접미사로 원자적 락 관리
+- **fcntl 기반**: POSIX 호환 파일 락 메커니즘
+- **데드락 방지**: 단일 락 순서 보장
+
+#### **신뢰성 보장**
+- **Atomic Write**: 임시 파일 → rename 방식
+- **fsync 지원**: 설정 가능한 강제 동기화
+- **오류 복구**: 중간 실패 시 자동 롤백
+
+#### **메모리 효율성**
+- **코드페이지 캐싱**: 한 번 로드된 테이블 재사용
+- **스트리밍 I/O**: 대용량 파일도 적은 메모리로 처리
+- **리소스 정리**: 프로세스 종료 시 자동 정리
+
+### 14.8 🧪 테스트 도구들
+
+#### **락 메커니즘 테스트**
+```bash
+# 충돌 상황 테스트
+./build/test_lock_holder      # OLD 락 180초 보유
+./build/test_lock_requester   # SHR 락 획득 시도
+
+# 비정상 종료 테스트  
+./build/test_signal_cleanup   # SIGKILL 후 자동 정리 확인
+
+# TTL 기반 정리 테스트
+./build/test_ttl_cleanup      # 시간 경과 후 자동 해제
+
+# 관리자 API 테스트
+./build/test_admin_api        # query_locks, force_cleanup 테스트
+```
+
+#### **I/O 기능 테스트**
+```bash
+# 기본 읽기/쓰기 테스트
+./build/sample_dsio
+
+# EMPLOYEE.FB 데이터셋 읽기 테스트
+./build/test_lock_and_read    # 락 획득 → 읽기 → 해제
+```
+
+### 14.9 🔍 에러 코드 및 처리
+
+#### **주요 에러 코드**
+```c
+typedef enum {
+    DSERR_OK                = 0,   // 성공
+    DSERR_CONFLICT          = 1,   // 락 충돌
+    DSERR_NOT_FOUND         = 2,   // 락/데이터셋 없음
+    DSERR_SYS               = -1,  // 시스템 에러
+    DSERR_BAD_ARGS          = -2,  // 잘못된 인수
+    DSERR_IO                = -9,  // I/O 에러
+    DSERR_CATALOG_MISSING   = -5,  // 카탈로그 없음
+    DSERR_DATASET_NOT_EXIST = -7,  // 데이터셋 없음
+    DSERR_BUFFER_SMALL      = -10  // 버퍼 부족
+} ds_err_t;
+```
+
+#### **에러 처리 예시**
+```c
+int rc = dslock_acquire(dataset, "OLD", errbuf, sizeof(errbuf));
+switch(rc) {
+    case DSERR_OK:
+        printf("락 획득 성공\n");
+        break;
+    case DSERR_CONFLICT:
+        printf("락 충돌: %s\n", errbuf);
+        break;
+    case DSERR_CATALOG_MISSING:
+        printf("카탈로그 파일 없음: %s\n", errbuf);
+        break;
+    default:
+        printf("시스템 에러: %s (%s)\n", ds_strerror_code(rc), errbuf);
+}
+```
+
+### 14.10 🏗️ 빌드 및 설치
+
+#### **컴파일**
+```bash
+cd /home/aspuser/app/ofasp-refactor/dslock_suite
+
+# 전체 빌드
+make clean && make
+
+# 특정 라이브러리만 빌드
+make build/libdslock.so    # 락 관리 라이브러리
+make build/libdsio.so      # I/O 라이브러리  
+make build/dslockctl       # CLI 도구
+```
+
+#### **라이브러리 사용**
+```bash
+# 환경 변수 설정
+export LD_LIBRARY_PATH=./build:$LD_LIBRARY_PATH
+
+# 프로그램 실행
+./your_program
+
+# 또는 링크 시 지정
+gcc -o myapp myapp.c -L./build -ldslock -ldsio
+```
+
+### 14.11 🎯 실제 활용 사례
+
+#### **시나리오 1: 안전한 데이터셋 업데이트**
+```c
+// 1. 배타적 락 획득
+dslock_acquire("DISK01/TESTLIB/CUSTOMER.FB", "MOD", err, sizeof(err));
+
+// 2. 데이터셋 열기
+dsio_t handle;
+dsio_open(&handle, "DISK01/TESTLIB/CUSTOMER.FB", "WRITE", err, sizeof(err));
+
+// 3. 안전하게 데이터 수정
+dsio_write(&handle, new_data, data_size, err, sizeof(err));
+
+// 4. 정리 (락 자동 해제됨)
+dsio_close(&handle, err, sizeof(err));
+```
+
+#### **시나리오 2: 관리자 문제 해결**
+```bash
+# 1. 문제 상황 파악
+./build/dslockctl query --dataset "PROBLEM.FB"
+
+# 2. 문제 프로세스 확인
+./build/dslockctl query --user baduser
+
+# 3. 강제 해제
+./build/dslockctl cleanup --pid 1234
+
+# 4. 정리 완료 확인
+./build/dslockctl query
+```
+
+#### **시나리오 3: 프로세스 모니터링**
+```bash
+#!/bin/bash
+# 락 상태 모니터링 스크립트
+while true; do
+    echo "=== $(date) ==="
+    ./build/dslockctl query | jq '.[] | {dataset, user, pid, process}'
+    sleep 60
+done
+```
+
+### 14.12 🔗 OpenASP 시스템 통합
+
+#### **ASP CLI 명령어와의 연동**
+```bash
+# CALL 명령어에서 자동 락 관리
+CALL PGM-DATAPROG.JAVA,VOL-DISK01
+# → 내부적으로 dslock/dsio API 사용하여 안전한 데이터 접근
+
+# 파일 시스템 명령어와 연동
+DSPFD FILE-EMPLOYEE.FB,LIB-TESTLIB,VOL-DISK01
+# → dslock_query_locks로 현재 락 상태 표시
+```
+
+#### **catalog.json 자동 업데이트**
+```c
+// 새 데이터셋 생성 시 자동 카탈로그 등록
+dsio_open2(&handle, "NEW/DATASET.FB", "WRITE", 
+          "DISK01", 80, "FB", 1, err, sizeof(err));
+// → catalog.json에 자동으로 등록됨
+```
+
+### 14.13 🛡️ 보안 및 권한
+
+#### **권한 확인**
+- **사용자별 분리**: 프로세스 소유자만 해당 락 해제 가능
+- **관리자 API**: 특별한 권한 체크 없이 모든 락 조작 가능
+- **감사 로깅**: 모든 관리 작업 로그 기록
+
+#### **보안 고려사항**
+```bash
+# 민감한 데이터셋 보호
+export DSLOCK_TTL_SEC=300    # 짧은 TTL로 노출 시간 최소화
+
+# 로그 레벨 조정
+export DSLOCK_LOG=1          # 운영 환경에서 감사 목적
+
+# 파일 권한 설정
+chmod 600 /tmp/dslock.jsonl  # 락 DB 파일 보호
 ```
 
 ---
