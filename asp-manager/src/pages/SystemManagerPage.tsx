@@ -94,6 +94,15 @@ interface DatasetInfo {
   description: string;
 }
 
+interface DatasetLock {
+  dataset: string;
+  level: string;
+  pid: number;
+  user: string;
+  process?: string;
+  lock_time?: string;
+}
+
 const SystemManagerPage: React.FC = () => {
   const [systemData, setSystemData] = useState<SystemData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -112,6 +121,9 @@ const SystemManagerPage: React.FC = () => {
   const [isLoadingDataset, setIsLoadingDataset] = useState(false);
   const [editingDataset, setEditingDataset] = useState<(DatasetInfo & {data?: string}) | null>(null);
   const [editedData, setEditedData] = useState<string>('');
+  const [datasetLocks, setDatasetLocks] = useState<DatasetLock[]>([]);
+  const [selectedLocks, setSelectedLocks] = useState<Set<string>>(new Set());
+  const [isLoadingLocks, setIsLoadingLocks] = useState(false);
   const [cursorPosition, setCursorPosition] = useState<{row: number, col: number}>({row: 0, col: 0});
   const [hoveredChar, setHoveredChar] = useState<{char: string, hex: string, pos: number} | null>(null);
   
@@ -134,7 +146,7 @@ const SystemManagerPage: React.FC = () => {
     { id: 'jobs', label: 'Job Management', icon: <PlayIcon className="w-5 h-5" /> },
     { id: 'queues', label: 'Queue Management', icon: <QueueListIcon className="w-5 h-5" /> },
     { id: 'datasets', label: 'Dataset Management', icon: <FolderIcon className="w-5 h-5" /> },
-    { id: 'resources', label: 'Resource Monitoring', icon: <ChartBarIcon className="w-5 h-5" /> },
+    { id: 'resources', label: 'Dataset Monitoring', icon: <CircleStackIcon className="w-5 h-5" /> },
     { id: 'users', label: 'User Management', icon: <UserGroupIcon className="w-5 h-5" /> },
     { id: 'network', label: 'Network Control', icon: <CloudIcon className="w-5 h-5" /> },
     { id: 'security', label: 'Security & Access', icon: <ShieldCheckIcon className="w-5 h-5" /> },
@@ -149,16 +161,18 @@ const SystemManagerPage: React.FC = () => {
     fetchSystemData();
     fetchCatalogData();
     fetchJobs();
+    fetchDatasetLocks();
     const interval = setInterval(() => {
       fetchSystemData();
       fetchJobs();
-    }, 5000);
+      fetchDatasetLocks();
+    }, 10000); // Refresh dataset locks every 10 seconds
     return () => clearInterval(interval);
   }, []);
 
   const fetchCatalogData = async () => {
     try {
-      const response = await fetch('/config/catalog.json');
+      const response = await fetch('http://localhost:8000/api/catalog');
       if (response.ok) {
         const data = await response.json();
         setCatalogData(data);
@@ -179,6 +193,107 @@ const SystemManagerPage: React.FC = () => {
       console.error('Failed to fetch jobs:', error);
       // Fallback to empty array instead of mock data
       setJobs([]);
+    }
+  };
+
+  const fetchDatasetLocks = async () => {
+    setIsLoadingLocks(true);
+    try {
+      // Call dslock_suite API to get lock information from main API server (port 8000)
+      const response = await fetch('http://localhost:8000/api/dslock/query', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Parse JSON response from dslock_query_locks API
+        const rawLocks = JSON.parse(data.locks || '[]');
+        
+        // Use lock_time field directly from API (already in HH:MM:SS format)
+        const locks = rawLocks.map((lock: any) => ({
+          dataset: lock.dataset,
+          level: lock.level,
+          pid: lock.pid,
+          user: lock.user,
+          process: lock.process,
+          lock_time: lock.lock_time || '不明'
+        }));
+        
+        setDatasetLocks(locks);
+      } else {
+        console.error('Failed to fetch dataset locks:', response.statusText);
+        // Fallback to mock data for testing
+        setDatasetLocks([
+          {
+            dataset: 'DISK01/TESTLIB/EMPLOYEE.FB',
+            level: 'OLD',
+            pid: 1234,
+            user: 'aspuser',
+            process: 'test_program',
+            lock_time: '2025-08-13T10:30:00Z'
+          },
+          {
+            dataset: 'DISK01/TESTLIB/CUSTOMER.FB', 
+            level: 'SHR',
+            pid: 5678,
+            user: 'batchuser',
+            process: 'batch_process',
+            lock_time: '2025-08-13T11:15:00Z'
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching dataset locks:', error);
+      setDatasetLocks([]);
+    } finally {
+      setIsLoadingLocks(false);
+    }
+  };
+
+  const cleanupSelectedLocks = async () => {
+    if (selectedLocks.size === 0) {
+      alert('クリーンアップするロックを選択してください');
+      return;
+    }
+
+    const confirmation = window.confirm(
+      `選択した ${selectedLocks.size} 個のロックをクリーンアップしますか？`
+    );
+    
+    if (!confirmation) return;
+
+    try {
+      for (const lockKey of Array.from(selectedLocks)) {
+        const lock = datasetLocks.find(l => `${l.dataset}_${l.pid}` === lockKey);
+        if (lock) {
+          const response = await fetch('http://localhost:8000/api/dslock/cleanup', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              pid: lock.pid,
+              dataset: lock.dataset
+            })
+          });
+          
+          if (!response.ok) {
+            console.error(`Failed to cleanup lock for ${lock.dataset}:`, response.statusText);
+          }
+        }
+      }
+      
+      // Clear selections and refresh lock data
+      setSelectedLocks(new Set());
+      await fetchDatasetLocks();
+      alert('選択したロックをクリーンアップしました');
+      
+    } catch (error) {
+      console.error('Error during lock cleanup:', error);
+      alert('ロッククリーンアップ中にエラーが発生しました');
     }
   };
 
@@ -831,126 +946,177 @@ const SystemManagerPage: React.FC = () => {
     };
   };
 
-  const renderResourceMonitoring = () => {
-    // Extract running jobs for resource monitoring
-    const runningJobs = jobs.filter(job => job.status === 'running');
+  const renderDatasetMonitoring = () => {
+    const handleLockSelection = (lockKey: string, checked: boolean) => {
+      const newSelection = new Set(selectedLocks);
+      if (checked) {
+        newSelection.add(lockKey);
+      } else {
+        newSelection.delete(lockKey);
+      }
+      setSelectedLocks(newSelection);
+    };
+
+    const handleSelectAll = () => {
+      if (selectedLocks.size === datasetLocks.length) {
+        setSelectedLocks(new Set());
+      } else {
+        const allKeys = datasetLocks.map(lock => `${lock.dataset}_${lock.pid}`);
+        setSelectedLocks(new Set(allKeys));
+      }
+    };
+
+    const formatLockTime = (timestamp?: string) => {
+      if (!timestamp) return '不明';
+      
+      // Check if timestamp is already in HH:MM:SS format
+      if (/^\d{2}:\d{2}:\d{2}$/.test(timestamp)) {
+        return timestamp; // Return HH:MM:SS format as-is
+      }
+      
+      // Handle other timestamp formats (ISO 8601, etc.)
+      try {
+        return new Date(timestamp).toLocaleString('ja-JP');
+      } catch {
+        return timestamp;
+      }
+    };
     
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-xl font-semibold text-white">リソースモニタリング</h3>
-          <button 
-            onClick={fetchJobs}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            更新
-          </button>
+          <h3 className="text-xl font-semibold text-white">データセットモニタリング</h3>
+          <div className="flex space-x-2">
+            {selectedLocks.size > 0 && (
+              <button 
+                onClick={cleanupSelectedLocks}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
+              >
+                <TrashIcon className="w-4 h-4 mr-2" />
+                選択したロックをクリーンアップ ({selectedLocks.size})
+              </button>
+            )}
+            <button 
+              onClick={fetchDatasetLocks}
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center"
+              disabled={isLoadingLocks}
+            >
+              {isLoadingLocks ? (
+                <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <ArrowPathIcon className="w-4 h-4 mr-2" />
+              )}
+              更新
+            </button>
+          </div>
         </div>
 
-        {/* System Resource Overview */}
+        {/* Dataset Locks Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold text-white">CPU使用率</h4>
-              <CpuChipIcon className="w-6 h-6 text-blue-400" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">
-              {systemData?.system_info.cpu_percent.toFixed(1)}%
-            </div>
-            <div className="bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-blue-400 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${systemData?.system_info.cpu_percent}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold text-white">メモリ使用率</h4>
-              <CircleStackIcon className="w-6 h-6 text-green-400" />
-            </div>
-            <div className="text-3xl font-bold text-white mb-2">
-              {systemData?.system_info.memory_percent.toFixed(1)}%
-            </div>
-            <div className="bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-green-400 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${systemData?.system_info.memory_percent}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-lg font-semibold text-white">実行中ジョブ</h4>
-              <PlayIcon className="w-6 h-6 text-orange-400" />
+              <h4 className="text-lg font-semibold text-white">総ロック数</h4>
+              <CircleStackIcon className="w-6 h-6 text-blue-400" />
             </div>
             <div className="text-3xl font-bold text-white">
-              {runningJobs.length}
+              {datasetLocks.length}
             </div>
             <div className="text-sm text-gray-400 mt-2">
-              総ジョブ数: {jobs.length}
+              選択中: {selectedLocks.size}
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-white">排他ロック (OLD/MOD)</h4>
+              <ExclamationTriangleIcon className="w-6 h-6 text-orange-400" />
+            </div>
+            <div className="text-3xl font-bold text-white">
+              {datasetLocks.filter(lock => lock.level === 'OLD' || lock.level === 'MOD').length}
+            </div>
+            <div className="text-sm text-gray-400 mt-2">
+              共有ロック (SHR): {datasetLocks.filter(lock => lock.level === 'SHR').length}
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-white">ユニークユーザー</h4>
+              <UserGroupIcon className="w-6 h-6 text-green-400" />
+            </div>
+            <div className="text-3xl font-bold text-white">
+              {new Set(datasetLocks.map(lock => lock.user)).size}
+            </div>
+            <div className="text-sm text-gray-400 mt-2">
+              アクティブプロセス: {new Set(datasetLocks.map(lock => lock.pid)).size}
             </div>
           </div>
         </div>
 
-        {/* Running Jobs Detail */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700">
+        {/* Dataset Locks Table */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
           <div className="p-6 border-b border-gray-700">
-            <h4 className="text-lg font-semibold text-white">実行中ジョブ詳細</h4>
+            <h4 className="text-lg font-semibold text-white">データセットロック一覧</h4>
           </div>
           
-          {runningJobs.length > 0 ? (
-            <div className="overflow-hidden">
+          {isLoadingLocks ? (
+            <div className="p-8 text-center">
+              <ArrowPathIcon className="w-8 h-8 text-blue-400 animate-spin mx-auto mb-4" />
+              <p className="text-gray-400">データセットロック情報を取得中...</p>
+            </div>
+          ) : datasetLocks.length > 0 ? (
+            <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ジョブ名</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">メモリ使用量</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">CPU使用率</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">実行中PGM</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">所有者</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">実行時間</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-600 bg-gray-700 text-blue-600"
+                        checked={selectedLocks.size === datasetLocks.length && datasetLocks.length > 0}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">データセット名</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ロックモード</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ユーザー名</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">PID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">ロック時間</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {runningJobs.map((job, index) => {
-                    // Simulate resource usage data
-                    const memoryUsage = Math.floor(Math.random() * 512) + 128; // 128-640 MB
-                    const cpuUsage = Math.floor(Math.random() * 80) + 10; // 10-90%
-                    const programName = job.program || extractProgramFromJobName(job.name);
-                    
+                  {datasetLocks.map((lock, index) => {
+                    const lockKey = `${lock.dataset}_${lock.pid}`;
                     return (
-                      <tr key={job.id} className="hover:bg-gray-750">
+                      <tr key={lockKey} className="hover:bg-gray-750">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-600 bg-gray-700 text-blue-600"
+                            checked={selectedLocks.has(lockKey)}
+                            onChange={(e) => handleLockSelection(lockKey, e.target.checked)}
+                          />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-mono">
-                          {job.name}
+                          {lock.dataset}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            lock.level === 'OLD' || lock.level === 'MOD' 
+                              ? 'bg-red-900/30 text-red-400 border border-red-700' 
+                              : 'bg-green-900/30 text-green-400 border border-green-700'
+                          }`}>
+                            {lock.level}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {memoryUsage} MB
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          <div className="flex items-center">
-                            <span className="mr-2">{cpuUsage}%</span>
-                            <div className="bg-gray-700 rounded-full h-2 w-16">
-                              <div 
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                  cpuUsage > 70 ? 'bg-red-400' : 
-                                  cpuUsage > 40 ? 'bg-yellow-400' : 'bg-green-400'
-                                }`}
-                                style={{ width: `${cpuUsage}%` }}
-                              />
-                            </div>
-                          </div>
+                          {lock.user}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
-                          {programName}
+                          {lock.pid}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {job.user || 'system'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {calculateRunningTime(job.start_time)}
+                          {formatLockTime(lock.lock_time)}
                         </td>
                       </tr>
                     );
@@ -959,33 +1125,11 @@ const SystemManagerPage: React.FC = () => {
               </table>
             </div>
           ) : (
-            <div className="p-8 text-center text-gray-400">
-              現在実行中のジョブはありません
+            <div className="p-8 text-center">
+              <CircleStackIcon className="w-8 h-8 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400">現在アクティブなデータセットロックはありません</p>
             </div>
           )}
-        </div>
-
-        {/* System Processes */}
-        <div className="bg-gray-800 rounded-lg border border-gray-700">
-          <div className="p-6 border-b border-gray-700">
-            <h4 className="text-lg font-semibold text-white">システムプロセス</h4>
-          </div>
-          <div className="p-6">
-            <div className="space-y-3">
-              {systemData?.processes.slice(0, 5).map((proc, index) => (
-                <div key={proc.pid} className="flex justify-between items-center py-2 border-b border-gray-700">
-                  <div>
-                    <p className="text-white font-medium">{proc.name}</p>
-                    <p className="text-xs text-gray-400">PID: {proc.pid} | User: {proc.user}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white">{proc.cpu_percent.toFixed(1)}% CPU</p>
-                    <p className="text-xs text-gray-400">{proc.memory_percent.toFixed(1)}% MEM</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -1639,7 +1783,7 @@ const SystemManagerPage: React.FC = () => {
       case 'jobs': return renderJobs();
       case 'queues': return renderQueues();
       case 'datasets': return renderDatasets();
-      case 'resources': return renderResourceMonitoring();
+      case 'resources': return renderDatasetMonitoring();
       default: 
         return (
           <div className="flex items-center justify-center h-64">

@@ -5085,6 +5085,142 @@ def convert_ebcdic_dataset_cli():
         logger.error(f"EBCDIC CLI conversion failed: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/dslock/query', methods=['GET'])
+def dslock_query():
+    """Query dataset locks using dslock_suite CLI"""
+    try:
+        # Path to dslock_suite dslockctl binary
+        dslockctl_path = './dslockctl'
+        
+        # Check if dslockctl exists (adjust path for working directory)
+        full_dslockctl_path = '/home/aspuser/app/ofasp-refactor/dslock_suite/build/dslockctl'
+        if not os.path.exists(full_dslockctl_path):
+            logger.error(f"dslockctl not found at {full_dslockctl_path}")
+            return jsonify({'error': 'dslock suite not available'}), 503
+        
+        # Get filter parameters
+        filter_user = request.args.get('user')
+        filter_pid = request.args.get('pid')
+        filter_dataset = request.args.get('dataset')
+        
+        # Set environment with library path and database path
+        env = os.environ.copy()
+        current_ld_path = env.get('LD_LIBRARY_PATH', '')
+        build_path = '/home/aspuser/app/ofasp-refactor/dslock_suite/build'
+        env['LD_LIBRARY_PATH'] = build_path + (':' + current_ld_path if current_ld_path else '')
+        
+        # Set database path to use hostname-based file
+        import socket
+        hostname = socket.gethostname()
+        db_path = f'/home/aspuser/app/ofasp-refactor/dslock_suite/database/{hostname}.dat'
+        env['DSLOCK_DB'] = db_path
+        
+        # Build command
+        cmd = [dslockctl_path, 'query']
+        if filter_user:
+            cmd.extend(['--user', filter_user])
+        if filter_pid:
+            cmd.extend(['--pid', filter_pid])
+        if filter_dataset:
+            cmd.extend(['--dataset', filter_dataset])
+        
+        logger.info(f"Executing dslock query: {' '.join(cmd)}")
+        
+        # Execute command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd='/home/aspuser/app/ofasp-refactor/dslock_suite/build',
+            env=env
+        )
+        
+        if result.returncode != 0:
+            logger.error(f"dslockctl query failed: {result.stderr}")
+            return jsonify({'error': 'Failed to query locks', 'details': result.stderr}), 500
+        
+        # Parse JSON output
+        try:
+            locks_data = json.loads(result.stdout) if result.stdout.strip() else []
+            return jsonify({'locks': json.dumps(locks_data)})
+        except json.JSONDecodeError:
+            return jsonify({'locks': '[]'})
+        
+    except subprocess.TimeoutExpired:
+        logger.error("dslock query timeout")
+        return jsonify({'error': 'Query timeout'}), 408
+    except Exception as e:
+        logger.error(f"dslock query error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/dslock/cleanup', methods=['DELETE'])
+def dslock_cleanup():
+    """Force cleanup dataset locks using dslock_suite CLI"""
+    try:
+        # Path to dslock_suite dslockctl binary
+        dslockctl_path = './dslockctl'
+        
+        # Check if dslockctl exists (adjust path for working directory)
+        full_dslockctl_path = '/home/aspuser/app/ofasp-refactor/dslock_suite/build/dslockctl'
+        if not os.path.exists(full_dslockctl_path):
+            logger.error(f"dslockctl not found at {full_dslockctl_path}")
+            return jsonify({'error': 'dslock suite not available'}), 503
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Request data required'}), 400
+        
+        target_pid = data.get('pid')
+        target_dataset = data.get('dataset')
+        
+        if not target_pid and not target_dataset:
+            return jsonify({'error': 'Either pid or dataset must be specified'}), 400
+        
+        # Set environment with library path and database path
+        env = os.environ.copy()
+        current_ld_path = env.get('LD_LIBRARY_PATH', '')
+        build_path = '/home/aspuser/app/ofasp-refactor/dslock_suite/build'
+        env['LD_LIBRARY_PATH'] = build_path + (':' + current_ld_path if current_ld_path else '')
+        
+        # Set database path to use hostname-based file
+        import socket
+        hostname = socket.gethostname()
+        db_path = f'/home/aspuser/app/ofasp-refactor/dslock_suite/database/{hostname}.dat'
+        env['DSLOCK_DB'] = db_path
+        
+        # Build command
+        cmd = [dslockctl_path, 'cleanup']
+        if target_pid:
+            cmd.extend(['--pid', str(target_pid)])
+        if target_dataset:
+            cmd.extend(['--dataset', target_dataset])
+        
+        logger.info(f"Executing dslock cleanup: {' '.join(cmd)}")
+        
+        # Execute command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd='/home/aspuser/app/ofasp-refactor/dslock_suite/build',
+            env=env
+        )
+        
+        if result.returncode != 0:
+            logger.error(f"dslockctl cleanup failed: {result.stderr}")
+            return jsonify({'error': 'Failed to cleanup locks', 'details': result.stderr}), 500
+        
+        return jsonify({'success': True, 'message': 'Lock cleanup completed'})
+        
+    except subprocess.TimeoutExpired:
+        logger.error("dslock cleanup timeout")
+        return jsonify({'error': 'Cleanup timeout'}), 408
+    except Exception as e:
+        logger.error(f"dslock cleanup error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/', methods=['GET'])
 def serve_home():
     """Redirect home to terminal"""
