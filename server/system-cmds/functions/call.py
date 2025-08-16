@@ -32,6 +32,13 @@ logger = logging.getLogger('call')
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from asp_commands import VOLUME_ROOT, get_catalog_info, set_pgmec, reset_pgmec
 
+# Import dslock Java interface for override mappings
+try:
+    from dslock_java_interface import prepare_java_environment, export_override_mappings
+    DSLOCK_JAVA_AVAILABLE = True
+except ImportError:
+    DSLOCK_JAVA_AVAILABLE = False
+
 def CALL(command: str) -> bool:
     """
     CALL command - Call Program with enhanced debug logging
@@ -193,6 +200,9 @@ def CALL(command: str) -> bool:
         elif pgm_type == 'PYTHON':
             print(f"[CALL_DEBUG] Calling _call_python_program...")
             result = _call_python_program(volume, library, program, program_info, parameters)
+        elif pgm_type == 'CL':
+            print(f"[CALL_DEBUG] Calling _call_cl_program...")
+            result = _call_cl_program(volume, library, program, program_info, parameters)
         else:
             print(f"[CALL_ERROR] Unsupported program type: {pgm_type}")
             print(f"[ERROR] Unsupported program type: {pgm_type}")
@@ -278,7 +288,15 @@ def _call_java_program(volume: str, library: str, program: str,
         # Execute the Java program with environment variables
         try:
             # Get current environment and add ASP-specific variables
-            env = os.environ.copy()
+            if DSLOCK_JAVA_AVAILABLE:
+                print(f"[CALL_DEBUG] Preparing dslock Java environment...")
+                env = prepare_java_environment()
+                print(f"[CALL_DEBUG] dslock environment prepared with {len(env)} variables")
+            else:
+                print(f"[CALL_DEBUG] dslock Java interface not available, using standard environment")
+                env = os.environ.copy()
+            
+            # Add ASP-specific variables
             env['ASP_VOLUME'] = volume
             env['ASP_LIBRARY'] = library
             env['ASP_PROGRAM'] = program
@@ -287,6 +305,14 @@ def _call_java_program(volume: str, library: str, program: str,
             if 'ASP_TERMINAL_ID' in os.environ:
                 env['ASP_TERMINAL_ID'] = os.environ['ASP_TERMINAL_ID']
                 print(f"[CALL_DEBUG] Passing ASP_TERMINAL_ID to Java: {os.environ['ASP_TERMINAL_ID']}")
+            
+            # Export override mappings for Java program access
+            if DSLOCK_JAVA_AVAILABLE:
+                mapping_file = export_override_mappings()
+                if mapping_file:
+                    print(f"[CALL_DEBUG] Override mappings exported to: {mapping_file}")
+                else:
+                    print(f"[CALL_DEBUG] No override mappings to export")
             
             # All Java programs output to API server log
             with open(log_file, 'a', encoding='utf-8') as f:
@@ -708,6 +734,61 @@ def _setup_smed_input_handler(program_name: str) -> None:
         
     except Exception as e:
         print(f"[SMED_INPUT] Error setting up input handler: {e}")
+
+def _call_cl_program(volume: str, library: str, program: str, 
+                    program_info: Dict[str, Any], parameters: str) -> bool:
+    """Execute CL (Command Language) program"""
+    try:
+        program_path = os.path.join(VOLUME_ROOT, volume, library)
+        cl_file = program_info.get('CLFILE', program)
+        cl_path = os.path.join(program_path, cl_file)
+        
+        if not os.path.exists(cl_path):
+            print(f"[ERROR] CL file not found: {cl_path}")
+            set_pgmec(999)
+            return False
+        
+        print(f"[INFO] Executing CL program: {cl_path}")
+        
+        # Import CL executor
+        sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'system-cmds'))
+        from cl_executor import execute_cl_file
+        
+        # Set environment variables for CL execution
+        os.environ['ASP_VOLUME'] = volume
+        os.environ['ASP_LIBRARY'] = library
+        os.environ['ASP_PROGRAM'] = program
+        
+        # Add parameters to environment if provided
+        if parameters:
+            param_list = _parse_parameters(parameters)
+            for i, param in enumerate(param_list):
+                os.environ[f'ASP_PARAM_{i+1}'] = param
+        
+        try:
+            # Execute CL program
+            print(f"[CALL_DEBUG] Starting CL execution for {program}")
+            result = execute_cl_file(cl_path)
+            
+            print(f"[INFO] CL program executed")
+            print(f"[INFO] Return code: {result}")
+            
+            if result != 0:
+                print(f"[ERROR] CL program execution failed with code: {result}")
+                set_pgmec(result)
+                return False
+            
+            return True
+            
+        except Exception as e:
+            print(f"[ERROR] CL execution failed: {e}")
+            set_pgmec(999)
+            return False
+        
+    except Exception as e:
+        print(f"[ERROR] CL program call failed: {e}")
+        set_pgmec(999)
+        return False
 
 def _send_employee_data_to_hub(terminal_id: str, employee_data: dict, program_name: str) -> bool:
     """Send simplified employee data directly to WebSocket Hub"""
