@@ -1,40 +1,5 @@
 # 🚀 OpenASP AX - 레거시 마이그레이션 플랫폼
 
-## ⚠️ **모든 AI CODING AGENT 필수 준수사항**
-
-### 🔥 **절대 금지 원칙 - NEVER HARDCODE**
-```
-❌ 절대 금지: "데모용", "임시로", "일단", "테스트용" 등의 핑계로 하드코딩
-❌ 절대 금지: 실제 파일 시스템 대신 목업(mock) 데이터 사용
-❌ 절대 금지: 에러 발생 시 우회 처리 (반드시 근본 원인 해결)
-❌ 절대 금지: 사용자 요구 파일 수와 다른 임의의 파일 수 처리
-
-✅ 필수 원칙: 모든 데이터는 실제 시스템에서 동적으로 로드
-✅ 필수 원칙: 사용자가 요구한 정확한 파일 수 처리 (1개도 빠짐없이)
-✅ 필수 원칙: 실제 파일 시스템과 화면 표시 완전 일치
-✅ 필수 원칙: 에러는 반드시 해결, 절대 우회 금지
-```
-
-### 📊 **실제 사례: 하드코딩으로 인한 심각한 문제**
-- **문제 상황**: AI Transform 페이지에서 실제 1,022개 파일 중 14개만 하드코딩으로 표시
-- **파급 효과**: 98.6% 기능 누락, 실제 업무 사용 불가능
-- **근본 원인**: "데모용이니까 하드코딩해도 된다"는 잘못된 사고방식
-- **교훈**: 이 프로젝트는 실제 레거시 마이그레이션용 업무 도구임
-
-### 🛡️ **재발방지 검증 체계**
-1. **파일 수 검증**: `find` 명령어 결과와 화면 표시 반드시 일치
-2. **내용 검증**: 실제 파일 내용과 화면 표시 내용 완전 일치
-3. **성능 검증**: 1,000+ 파일도 정상 처리 확인
-4. **에러 해결**: 500 에러 등 모든 에러는 근본 해결
-
-### 🔧 **올바른 구현 방법**
-- **백엔드 API**: Python Flask에 실제 파일 스캐닝 엔드포인트 구현
-- **대용량 처리**: 스트리밍, 페이지네이션으로 1,000+ 파일 처리
-- **실시간 연동**: 실제 파일 시스템 변경사항 즉시 반영
-- **완전한 기능**: 사용자 요구사항 100% 구현
-
----
-
 ## 개요
 OpenASP AX는 레거시 ASP(Advanced System Products) 시스템을 현대적인 오픈소스 기술로 마이그레이션하는 **실제 업무용** 통합 플랫폼입니다.
 
@@ -133,57 +98,6 @@ CODEPAGE_BASE_PATH=/home/aspuser/app/ofasp-refactor/public/codepages
 - **적용 대상**: Shell 스크립트 (.sh), 배치 파일, 설정 파일 등 시스템 레벨 파일
 - **변환 방법**: UTF-8로 작성 후 SHIFT_JIS로 변환 (이모지 제거 필요)
 
-#### 이모지 사용 금지
-- **모든 소스 코드**: 소스 코드, 주석, 문서에서 이모지 사용을 금지합니다.
-- **대체 표기**: 이모지 대신 ASCII 문자 조합을 사용합니다.
-  ```bash
-  # 금지: 🚀 시작, ✅ 성공, ❌ 실패, 📝 메모, 🔧 설정
-  # 권장: [START], [OK], [NG], [NOTE], [CONFIG]
-  ```
-- **예외 사항**: UI 텍스트에서는 사용자 경험을 위해 제한적 허용
-- **이유**: 
-  - SHIFT_JIS 인코딩에서 이모지 지원 불가
-  - 크로스 플랫폼 호환성 보장
-  - 코드 가독성 및 전문성 유지
-
-#### 주석 작성 가이드라인
-```python
-# English comments only - all source code comments must be in English
-def process_data(input_file):
-    """
-    Process input file and return results.
-    
-    Args:
-        input_file (str): Path to input file
-        
-    Returns:
-        dict: Processed data results
-    """
-    # Initialize data structure
-    result = {}
-    
-    # Process each line in the file
-    with open(input_file, 'r') as f:
-        for line in f:
-            # Skip empty lines and comments
-            if not line.strip() or line.startswith('#'):
-                continue
-                
-    return result
-```
-
-#### 인코딩 변환 예시
-```bash
-# UTF-8 → SHIFT_JIS 변환 (이모지 제거 포함)
-python3 -c "
-with open('script.sh', 'r', encoding='utf-8') as f:
-    content = f.read()
-# Remove emojis and replace with ASCII alternatives
-content = content.replace('🚀', '[START]').replace('✅', '[OK]').replace('❌', '[NG]')
-with open('script.sh', 'w', encoding='shift_jis') as f:
-    f.write(content)
-"
-```
 
 ## 📁 디렉토리 구조
 ```
@@ -200,50 +114,6 @@ with open('script.sh', 'w', encoding='shift_jis') as f:
 ├── master-start.sh        # 전체 시작 스크립트
 └── master-stop.sh         # 전체 종료 스크립트
 ```
-
-## 📋 개발 규칙 및 가이드라인
-
-### 🚨 **최우선 원칙: 하드코딩 절대 금지**
-```
-이 프로젝트는 실제 레거시 시스템을 처리하는 업무용 도구입니다.
-"데모용", "임시", "테스트" 등의 핑계로 하드코딩하는 것은 절대 금지됩니다.
-
-모든 데이터는 실제 파일 시스템에서 동적으로 로드해야 합니다.
-사용자가 요구한 파일 수와 화면 표시가 1개라도 다르면 안됩니다.
-에러가 발생하면 우회하지 말고 반드시 근본 원인을 해결하세요.
-```
-
-### 코딩 표준
-- **하드코딩 금지**: 모든 데이터는 실제 시스템에서 동적 로드 **[최우선]**
-- **언어별 규칙**: [CODING_RULES.md](./ofasp-refactor/CODING_RULES.md) 참조
-- **문자 인코딩**: 시스템 스크립트는 SHIFT_JIS, 소스 코드는 UTF-8
-- **주석 언어**: 모든 소스 코드 내 주석은 영어로 작성
-- **이모지 금지**: 모든 소스 코드 및 시스템 파일에서 이모지 사용 금지
-
-### 파일 생성 시 주의사항
-1. **Shell 스크립트 (.sh)**
-   - UTF-8로 작성 후 SHIFT_JIS로 변환
-   - 이모지 사용 금지, ASCII 대체 문자 사용 (`[START]`, `[OK]`, `[NG]`)
-   - 모든 주석은 영어로 작성
-   - 메시지 출력도 영어 권장 (국제화 고려)
-
-2. **Python 스크립트 (.py)**
-   - UTF-8 인코딩 유지
-   - 파일 상단에 `# -*- coding: utf-8 -*-` 선언
-   - 모든 주석과 docstring은 영어로 작성
-   - 이모지 사용 금지
-   - SJIS 변환이 필요한 출력은 런타임에 처리
-
-3. **JavaScript/TypeScript (.js/.ts/.tsx)**
-   - UTF-8 인코딩 사용
-   - 모든 주석은 영어로 작성
-   - 이모지 사용 금지 (UI 텍스트 제외)
-   - JSDoc 주석도 영어로 작성
-
-4. **설정 파일**
-   - JSON: UTF-8 인코딩, 주석 불가하지만 키명은 영어
-   - 시스템 설정: SHIFT_JIS 고려
-   - YAML/XML: UTF-8 인코딩, 주석은 영어
 
 ### 국제화 지원
 - **로케일 지원**: ja_JP.sjis, en_US.UTF-8
@@ -396,23 +266,3 @@ CALL PGM-CUINP001.TESTLIB,PARA-(001,ABC),VOL-DISK01
 - **서비스 미시작**: 로그 파일에서 에러 메시지 확인
 
 ---
-
-## 🔖 **모든 AI AGENT 기억해야 할 핵심 원칙**
-
-```
-이 프로젝트는 장난감이 아닙니다.
-실제 레거시 시스템을 마이그레이션하는 업무용 도구입니다.
-
-절대로 하드코딩하지 마세요.
-절대로 "데모용"이라는 핑계를 대지 마세요.
-절대로 사용자 요구사항을 임의로 축소하지 마세요.
-절대로 에러를 우회하지 말고 반드시 해결하세요.
-
-실제 파일 시스템의 모든 파일을 정확히 처리하세요.
-1개 파일이라도 빠뜨리면 안됩니다.
-```
-
-**개발**: Claude Code Assistant와 함께  
-**최종 업데이트**: 2025-07-23  
-**핵심 원칙**: 하드코딩 절대 금지, 실제 데이터만 사용  
-**인코딩**: SHIFT_JIS (시스템 스크립트), UTF-8 (소스 코드)
