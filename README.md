@@ -258,11 +258,3 @@ CALL PGM-CUINP001.TESTLIB,PARA='001,ABC',VOL-DISK01
 CALL PGM-CUINP001.TESTLIB,PARA-(001,ABC),VOL-DISK01
 ```
 
-### 📋 **관련 파일 위치**
-- **catalog.json**: `/home/aspuser/app/asp-manager/public/config/catalog.json`
-- **프로그램 파일**: `/home/aspuser/app/volume/DISK01/TESTLIB/`
-- **CL Parser**: `/home/aspuser/app/server/system-cmds/cl_parser.py`
-- **CL Executor**: `/home/aspuser/app/server/system-cmds/cl_executor.py`
-- **서비스 미시작**: 로그 파일에서 에러 메시지 확인
-
----
