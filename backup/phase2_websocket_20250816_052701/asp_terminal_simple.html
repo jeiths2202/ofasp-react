@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASP System Command Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .terminal-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #000;
+            border: 2px solid #333;
+        }
+
+        .terminal-header {
+            padding: 10px;
+            background: #111;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            color: #00ff00;
+            font-size: 14px;
+        }
+
+        .terminal-status {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .terminal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .terminal-output {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .terminal-input-container {
+            display: flex;
+            padding: 10px;
+            background: #111;
+            border-top: 1px solid #333;
+        }
+
+        .terminal-prompt {
+            color: #00ff00;
+            margin-right: 10px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .smed-display {
+            margin: 10px 0;
+            border: 1px solid #0088ff;
+            background: #001144;
+            padding: 2px;
+        }
+
+        .smed-title {
+            text-align: center;
+            color: #ffff00;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .smed-grid {
+            display: inline-block;
+            background: #000033;
+        }
+
+        .smed-row {
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            line-height: 1.2;
+        }
+
+        .smed-data {
+            color: #ffffff;
+        }
+
+        .smed-label {
+            color: #00ffff;
+        }
+
+        .smed-header {
+            color: #ffff00;
+            text-decoration: underline;
+        }
+
+        .command-success {
+            color: #00ff00;
+        }
+
+        .command-error {
+            color: #ff0000;
+        }
+
+        .command-info {
+            color: #00ffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-title">ASP System Command Terminal v2.0</div>
+            <div class="terminal-status">Ready</div>
+        </div>
+        
+        <div class="terminal-body">
+            <div class="terminal-output" id="terminalOutput">
+Welcome to ASP System Command Terminal
+Type 'HELP' for available commands
+=====================================
+
+</div>
+        </div>
+        
+        <div class="terminal-input-container">
+            <span class="terminal-prompt">ASP&gt;</span>
+            <input type="text" class="terminal-input" id="terminalInput" autofocus>
+        </div>
+    </div>
+
+    <script>
+        let commandHistory = [];
+        let historyIndex = -1;
+        const terminalOutput = document.getElementById('terminalOutput');
+        const terminalInput = document.getElementById('terminalInput');
+
+        function addOutput(text, className = '') {
+            const output = document.createElement('div');
+            output.textContent = text;
+            if (className) output.className = className;
+            terminalOutput.appendChild(output);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        async function renderSmedMap(mapName, smedData) {
+            console.log('[DEBUG] Rendering SMED map:', mapName, smedData);
+            
+            try {
+                // Call position-based SMED API
+                const response = await fetch(`/api/smed/position-render/${mapName}`, {
+                    method: 'GET'
+                });
+                
+                let smedGrid;
+                if (response.ok) {
+                    const mapDefinition = await response.json();
+                    smedGrid = mapDefinition.grid || createDefaultGrid(smedData);
+                } else {
+                    // Fallback: create grid from data
+                    smedGrid = createDefaultGrid(smedData);
+                }
+                
+                displaySmedGrid(smedGrid);
+                
+            } catch (error) {
+                console.error('[ERROR] Failed to render SMED map:', error);
+                // Fallback to basic display
+                displaySmedGrid(createDefaultGrid(smedData));
+            }
+        }
+
+        function createDefaultGrid(data) {
+            // Initialize 24x80 grid
+            const grid = Array(24).fill().map(() => Array(80).fill(' '));
+            
+            // Use data from JSON to populate grid positions
+            if (data.title) {
+                const title = data.title;
+                const startCol = Math.max(0, Math.floor((80 - title.length) / 2));
+                for (let i = 0; i < Math.min(title.length, 80 - startCol); i++) {
+                    grid[2][startCol + i] = title[i];
+                }
+                
+                // Underline
+                for (let i = startCol; i < startCol + title.length && i < 80; i++) {
+                    grid[3][i] = '-';
+                }
+            }
+            
+            // Headers from data
+            if (data.headers && Array.isArray(data.headers)) {
+                let col = 2;
+                data.headers.forEach(header => {
+                    for (let i = 0; i < header.length && col + i < 80; i++) {
+                        grid[5][col + i] = header[i];
+                    }
+                    col += 15; // Space between headers
+                });
+                
+                // Separator
+                for (let i = 2; i < 78; i++) {
+                    grid[6][i] = '-';
+                }
+            }
+            
+            return grid;
+        }
+
+        function displaySmedGrid(grid) {
+            // Create SMED display container with proper margins
+            const smedDiv = document.createElement('div');
+            smedDiv.className = 'smed-display';
+            smedDiv.style.cssText = `
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                line-height: 1.2;
+                background-color: #000040;
+                color: #00ff00;
+                padding: 20px 40px;
+                margin: 20px auto;
+                border: 2px solid #0080ff;
+                white-space: pre;
+                overflow: hidden;
+                width: 800px;
+                height: 480px;
+                box-sizing: border-box;
+            `;
+            
+            // Convert grid to display text
+            let displayText = '';
+            for (let row = 0; row < 24; row++) {
+                displayText += grid[row].join('') + '\n';
+            }
+            
+            smedDiv.textContent = displayText;
+            const terminalOutput = document.getElementById('terminalOutput');
+            terminalOutput.appendChild(smedDiv);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        function displaySmedData(data) {
+            console.log('[DEBUG] Displaying SMED data:', data);
+            
+            // Get map name
+            const mapName = data.map_name || 'BROWSE_MENU';
+            
+            // Initialize 24x80 grid
+            const grid = Array(24).fill().map(() => Array(80).fill(' '));
+            
+            // Fill data into grid using JSON information
+            if (data.title) {
+                const title = data.title;
+                const startCol = Math.max(0, Math.floor((80 - title.length) / 2));
+                for (let i = 0; i < Math.min(title.length, 80 - startCol); i++) {
+                    grid[2][startCol + i] = title[i];
+                }
+                
+                // Underline
+                for (let i = startCol; i < startCol + title.length && i < 80; i++) {
+                    grid[3][i] = '-';
+                }
+            }
+            
+            // Headers
+            if (data.headers && Array.isArray(data.headers)) {
+                let col = 2;
+                data.headers.forEach(header => {
+                    for (let i = 0; i < header.length && col + i < 80; i++) {
+                        grid[5][col + i] = header[i];
+                    }
+                    col += 15;
+                });
+                
+                // Separator
+                for (let i = 2; i < 78; i++) {
+                    grid[6][i] = '-';
+                }
+            }
+            
+            // Data rows
+            let employees = data.data || [];
+            let currentRow = 7;
+            if (employees.length > 0) {
+                employees.forEach((emp, index) => {
+                    if (currentRow < 20) {
+                        // ID
+                        const id = emp.id || '';
+                        for (let i = 0; i < Math.min(id.length, 6); i++) {
+                            grid[currentRow][2 + i] = id[i];
+                        }
+                        
+                        // Name
+                        const name = emp.name || '';
+                        for (let i = 0; i < Math.min(name.length, 15); i++) {
+                            grid[currentRow][10 + i] = name[i];
+                        }
+                        
+                        // Department
+                        const dept = emp.department || emp.dept || '';
+                        for (let i = 0; i < Math.min(dept.length, 6); i++) {
+                            grid[currentRow][30 + i] = dept[i];
+                        }
+                        
+                        currentRow++;
+                    }
+                });
+            }
+            
+            // Footer
+            const footer = `F3=Exit                                    Total Records: ${employees.length}`;
+            for (let i = 0; i < Math.min(footer.length, 80); i++) {
+                grid[21][i] = footer[i];
+            }
+            
+            displaySmedGrid(grid);
+        }
+
+        function clearTerminalScreen() {
+            const terminalOutput = document.getElementById('terminalOutput');
+            terminalOutput.innerHTML = '';
+        }
+
+        async function executeCommand(command) {
+            console.log('[DEBUG] Executing command:', command);
+            
+            // Clear screen for SMED commands
+            if (command.includes('PGM-') || command.includes('CALL')) {
+                clearTerminalScreen();
+            } else {
+                addOutput(`ASP> ${command}`);
+            }
+            
+            try {
+                const response = await fetch('/api/asp-command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        command: command,
+                        user: 'ASPUSER'
+                    })
+                });
+
+                const result = await response.json();
+                console.log('[DEBUG] Command result:', result);
+                
+                if (result.success) {
+                    // Display command output (filter out debug/system messages)
+                    if (result.output) {
+                        result.output.split('\n').forEach(line => {
+                            if (line.trim() && 
+                                !line.includes('[INFO]') && 
+                                !line.includes('[DEBUG]') && 
+                                !line.includes('[ERROR]') && 
+                                !line.includes('[WARNING]') &&
+                                !line.includes('[OUTPUT]') &&
+                                !line.includes('[EMPLOYEE_HUB]') &&
+                                !line.includes('Job processor') &&
+                                !line.includes('Executing query') &&
+                                !line.includes('Found 0 jobs') &&
+                                !line.includes('No pending jobs') &&
+                                !line.includes('WEBSOCKET') &&
+                                !line.includes('HUB_CLIENT') &&
+                                !line.includes('Return code:') &&
+                                !line.includes('Java program executed') &&
+                                !line.includes('Sending simplified') &&
+                                !line.includes('Employee count:') &&
+                                !line.includes('Connected to WebSocket') &&
+                                !line.includes('Employee data sent') &&
+                                !line.includes('Terminal:') &&
+                                !line.includes('Employee Records:') &&
+                                !line.includes('Headers:') &&
+                                !line.includes('Data confirmation:') &&
+                                !line.includes('SELECT * FROM jobs') &&
+                                !line.includes('WHERE status IN') &&
+                                !line.includes('ORDER BY submitted_time') &&
+                                !line.includes('datetime(') &&
+                                !line.includes('PENDING') &&
+                                !line.includes('RUNNING') &&
+                                !line.includes('HELD') &&
+                                !line.includes('COMPLETED') &&
+                                !line.includes('CANCELLED') &&
+                                !line.includes('"type": "smed_map"') &&
+                                !line.includes('"map_name":') &&
+                                !line.includes('"title":') &&
+                                !line.includes('"subtitle":') &&
+                                !line.includes('"headers":') &&
+                                !line.includes('"page_info":') &&
+                                !line.includes('"function_keys":') &&
+                                !line.includes('"status":') &&
+                                !line.includes('"data":') &&
+                                !line.includes('"id":') &&
+                                !line.includes('"name":') &&
+                                !line.includes('"dept":') &&
+                                !line.includes('Employee Information') &&
+                                !line.includes('BROWSE_MENU') &&
+                                !line.includes('Showing 5 employees') &&
+                                !line.includes('F3=Quit') &&
+                                !line.includes('John Smith') &&
+                                !line.includes('Jane Doe') &&
+                                !line.includes('Mike Johnson') &&
+                                !line.includes('Sarah Williams') &&
+                                !line.includes('Robert Brown') &&
+                                !line.trim().match(/^[}\]\s]*$/) &&
+                                !line.includes('Command completed successfully')) {
+                                addOutput(line, 'command-info');
+                            }
+                        });
+                    }
+                    
+                    // Check if output contains SMED display data (both formats)
+                    if (result.output && (result.output.includes('"action": "display_map"') || result.output.includes('"type": "smed_map"'))) {
+                        try {
+                            let jsonStr = '';
+                            
+                            // Check for display_map format first
+                            if (result.output.includes('"action": "display_map"')) {
+                                const jsonStart = result.output.indexOf('{"action": "display_map"');
+                                if (jsonStart !== -1) {
+                                    const jsonEnd = result.output.indexOf('\n', jsonStart);
+                                    jsonStr = result.output.substring(jsonStart, jsonEnd);
+                                }
+                            }
+                            // Check for smed_map format
+                            else if (result.output.includes('"type": "smed_map"')) {
+                                // Find any JSON object containing "type": "smed_map"
+                                const patterns = [
+                                    '{\n  "type": "smed_map"',
+                                    '{ "type": "smed_map"',
+                                    '{"type": "smed_map"'
+                                ];
+                                
+                                let jsonStart = -1;
+                                for (const pattern of patterns) {
+                                    jsonStart = result.output.indexOf(pattern);
+                                    if (jsonStart !== -1) break;
+                                }
+                                
+                                if (jsonStart !== -1) {
+                                    // Find the complete JSON object
+                                    let braceCount = 0;
+                                    let endIndex = jsonStart;
+                                    for (let i = jsonStart; i < result.output.length; i++) {
+                                        if (result.output[i] === '{') braceCount++;
+                                        if (result.output[i] === '}') braceCount--;
+                                        if (braceCount === 0) {
+                                            endIndex = i + 1;
+                                            break;
+                                        }
+                                    }
+                                    jsonStr = result.output.substring(jsonStart, endIndex);
+                                }
+                            }
+                            
+                            if (jsonStr) {
+                                console.log('[DEBUG] Found SMED JSON:', jsonStr.substring(0, 200));
+                                const smedData = JSON.parse(jsonStr);
+                                displaySmedData(smedData);
+                            }
+                        } catch (e) {
+                            console.error('[ERROR] Failed to parse SMED data:', e);
+                            console.error('[ERROR] JSON string:', jsonStr);
+                        }
+                    }
+                    
+                    // Only show completion message for non-SMED commands
+                    if (!command.includes('PGM-') && !command.includes('CALL')) {
+                        addOutput('Command completed successfully', 'command-success');
+                    }
+                } else {
+                    addOutput(`Error: ${result.error}`, 'command-error');
+                }
+            } catch (error) {
+                console.error('[ERROR]:', error);
+                addOutput(`Error: ${error.message}`, 'command-error');
+            }
+        }
+
+        terminalInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim();
+                if (command) {
+                    commandHistory.push(command);
+                    historyIndex = commandHistory.length;
+                    await executeCommand(command);
+                    terminalInput.value = '';
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    terminalInput.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    terminalInput.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    terminalInput.value = '';
+                }
+            }
+        });
+
+        // Keep focus on input
+        terminalInput.addEventListener('blur', () => {
+            setTimeout(() => terminalInput.focus(), 0);
+        });
+    </script>
+</body>
+</html>

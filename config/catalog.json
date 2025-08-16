@@ -547,6 +547,228 @@
         "RECLEN": 80,
         "ENCODING": "shift_jis",
         "DESCRIPTION": "Employee Information File"
+      },
+      "DEMO.SAM.CONVERTED": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 11,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T04:57:49.559133Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 29,
+          "CONVERSION_DATE": "2025-08-05T04:57:49.559114Z",
+          "record_length": 11
+        }
+      },
+      "DEMO.SAM.FIXED": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T00:57:22.751788Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 1,
+          "CONVERSION_DATE": "2025-08-05T00:57:22.751802Z"
+        }
+      },
+      "DEMO.SAM.FINAL": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T00:57:48.583713Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 1,
+          "CONVERSION_DATE": "2025-08-05T00:57:48.583728Z"
+        }
+      },
+      "DEMO.SAM.OUTPUT": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T00:58:00.722280Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 1,
+          "CONVERSION_DATE": "2025-08-05T00:58:00.722295Z"
+        }
+      },
+      "/tmp/a.out": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 4,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T05:06:29.944816Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 80,
+          "CONVERSION_DATE": "2025-08-05T05:06:29.944797Z",
+          "record_length": 4
+        }
+      },
+      "DEMO.SAM.FLAT": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 4,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T05:11:40.681622Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 80,
+          "CONVERSION_DATE": "2025-08-05T05:11:40.681610Z",
+          "record_length": 4
+        }
+      },
+      "TEST.SAM.FB": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 4,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T07:37:03.477488Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 80,
+          "CONVERSION_DATE": "2025-08-05T07:37:03.477404Z",
+          "record_length": 4
+        }
+      },
+      "TEST.SAM.FB80": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T07:39:49.514835Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T07:39:49.514820Z",
+          "record_length": 80
+        }
+      },
+      "DEMO.SAM.SOSI": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T07:56:30.240316Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T07:56:30.240297Z",
+          "record_length": 80
+        }
+      },
+      "DEMO.SAM.SOSI.FLAT": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T07:56:40.662334Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T07:56:40.662309Z",
+          "record_length": 80
+        }
+      },
+      "DEMO.SAM.REMOVE": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T07:56:46.662856Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/home/aspuser/app/volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T07:56:46.662845Z",
+          "record_length": 80
+        }
+      },
+      "DEMO.SOSI": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "ascii",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T07:59:24.965496Z",
+        "CONVERSION": {
+          "SOURCE_ENCODING": "JAK",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "volume/DISK01/LAYOUT/SAM001.LAYOUT",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T07:59:24.965472Z",
+          "record_length": 80
+        }
+      },
+      "SAM001.ASCII": {
+        "TYPE": "DATASET",
+        "RECFM": "FB",
+        "LRECL": 80,
+        "ENCODING": "JAK",
+        "DESCRIPTION": "Dataset converted from DEMO.SAM.ebc via UI",
+        "OUTPUT_FORMAT": "flat",
+        "JAPANESE_ENCODING": "utf-8",
+        "RECORDS_COUNT": 1,
+        "ORIGINAL_FILE": "DEMO.SAM.ebc",
+        "LAYOUT_USED": "SAM001",
+        "CONVERTED_AT": "2025-08-05T13:42:33.819Z"
+      },
+      "CL001": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "CL001",
+        "SOURCEFILE": "CL001.cl",
+        "DESCRIPTION": "CL001 - Basic CL command processor",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-16T02:32:40Z",
+        "UPDATED": "2025-08-16T02:32:40Z"
+      },
+      "CLTEST01": {
+        "TYPE": "PGM",
+        "PGMTYPE": "CL",
+        "PGMNAME": "CLTEST01",
+        "SOURCEFILE": "CLTEST01",
+        "DESCRIPTION": "CLTEST01 - Test CL program for cmdRunner Phase 2 verification",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-16T06:55:00Z",
+        "UPDATED": "2025-08-16T06:55:00Z"
       }
     },
     "PRODLIB": {
@@ -697,6 +919,21 @@
         "CLASS_NAME": "com.openasp.sub.SUB001",
         "PROGRAM_TYPE": "8BYTE_JAVA",
         "JAPANESE_SUPPORT": true,
+        "MAIN_METHOD": true,
+        "ASP_READY": true,
+        "DEPENDENCIES": "NONE",
+        "EXECUTION_MODE": "STANDALONE"
+      },
+      "TSTJAVA1": {
+        "TYPE": "PGM",
+        "PGMTYPE": "JAVA",
+        "PGMNAME": "TSTJAVA1",
+        "CLASSFILE": "TSTJAVA1.class",
+        "SOURCEFILE": "TSTJAVA1.java",
+        "DESCRIPTION": "TSTJAVA1 - Test Java program for cmdRunner Phase 2 verification (60 second sleep)",
+        "VERSION": "1.0",
+        "CREATED": "2025-08-16T06:55:00Z",
+        "UPDATED": "2025-08-16T06:55:00Z",
         "MAIN_METHOD": true,
         "ASP_READY": true,
         "DEPENDENCIES": "NONE",
@@ -869,6 +1106,42 @@
         "CREATED": "2025-07-21T10:00:00Z",
         "UPDATED": "2025-07-21T10:00:00Z"
       }
+    },
+    "PRODLIB": {
+      "SCHEMA.TEST": {
+        "TYPE": "DATASET",
+        "RECTYPE": "FB",
+        "RECLEN": 80,
+        "ENCODING": "shift_jis",
+        "DESCRIPTION": "Converted from EBCDIC (JAK)",
+        "UPDATED": "2025-08-05T08:07:33.269728Z",
+        "CONVERSION": {
+          "source_encoding": "JAK",
+          "target_encoding": "shift_jis",
+          "SOURCE_FILE": "/data/assets/ebcdic/DEMO.SAM.ebc",
+          "LAYOUT_FILE": "/tmp/sam001_schema.json",
+          "SCHEMA_FILE": "/tmp/sam001_schema.json",
+          "CONVERTED_RECORDS": 4,
+          "CONVERSION_DATE": "2025-08-05T08:07:33.269705Z",
+          "record_length": 80,
+          "SOSI_CONFIG": {
+            "so_code": 40,
+            "si_code": 41,
+            "sosi_handling": "SPACE",
+            "japanese_encoding": "sjis"
+          }
+        }
+      }
+    }
+  },
+  "TEST": {
+    "LIB1": {
+      "TESTDS": {}
+    }
+  },
+  "TEST_VOLUME": {
+    "TEST_LIB": {
+      "CONVERTED.DATA": {}
     }
   }
 }

@@ -1,483 +1,909 @@
-2025-08-03 11:29:28 [WARNING] Failed to load sessions: name 'active_terminals' is not defined
-2025-08-03 11:29:28 [WARNING] Encoding API not available: HTTPConnectionPool(host='localhost', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x74531919b280>: Failed to establish a new connection: [Errno 111] Connection refused'))
-2025-08-03 11:29:28 [INFO] OpenASP API Server v0.5.1 starting...
-2025-08-03 11:29:28 [INFO] Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
-2025-08-03 11:29:28 [INFO] Fixed configuration loading and error handling
-2025-08-03 11:29:29 [INFO] SMED directory: /home/aspuser/app/public/SMED_FILES
-2025-08-03 11:29:29 [INFO] Account file: /home/aspuser/app/src/account.json
-2025-08-03 11:29:29 [INFO] SMED-PGM file: /home/aspuser/app/src/smed_pgm.json
-2025-08-03 11:29:29 [INFO] MAP-PGM file: /home/aspuser/app/src/map_pgm.json
-2025-08-03 11:29:29 [INFO] JAR file: /home/aspuser/app/server/java_jars/ofasp.jar
-2025-08-03 11:29:29 [INFO] Loaded 4 user accounts
-2025-08-03 11:29:29 [INFO] Loaded SMED-PGM config: 20 valid maps
-2025-08-03 11:29:29 [INFO]   MENU: JAVA -> com.openasp.menu.MenuProgram
-2025-08-03 11:29:29 [INFO]   LOGO: JAVA -> com.openasp.login.LoginProgram
-2025-08-03 11:29:29 [INFO]   PGM1: JAVA -> com.openasp.core.PGM1
-2025-08-03 11:29:29 [INFO]   PGM2: JAVA -> com.openasp.core.PGM2
-2025-08-03 11:29:29 [INFO]   EIGYO001: JAVA -> com.openasp.eigyo.EIGYO001
-2025-08-03 11:29:29 [INFO]   EIGYO002: JAVA -> com.openasp.eigyo.EIGYO002
-2025-08-03 11:29:29 [INFO]   NOHINO001: COBOL -> /home/aspuser/app/server/cobol_modules/NOHIN001.so
-2025-08-03 11:29:29 [INFO]   NOHINO002: SHELL -> /home/aspuser/app/server/shell_modules/NOHIN002.sh
-2025-08-03 11:29:29 [INFO]   ZAIKO001: COBOL -> /home/aspuser/app/server/cobol_modules/ZAIKO001.so
-2025-08-03 11:29:29 [INFO]   BATCH001: SHELL -> /home/aspuser/app/server/shell_modules/BATCH001.sh
-2025-08-03 11:29:29 [INFO]   URIAGE001: JAVA -> com.openasp.uriage.URIAGE001
-2025-08-03 11:29:29 [INFO]   REPORT001: SHELL -> /home/aspuser/app/server/shell_modules/REPORT001.sh
-2025-08-03 11:29:29 [INFO]   USER001: JAVA -> com.openasp.user.UserManagement
-2025-08-03 11:29:29 [INFO]   SYSTEM001: JAVA -> com.openasp.system.SystemInfo
-2025-08-03 11:29:29 [INFO]   LOGOUT: JAVA -> com.openasp.system.LogoutProgram
-2025-08-03 11:29:29 [INFO]   MAIN001: JAVA -> com.openasp.sample.PGM000
-2025-08-03 11:29:29 [INFO]   MENU001: JAVA -> com.openasp.sample.PGM001
-2025-08-03 11:29:29 [INFO]   MENU003: JAVA -> com.openasp.sample.PGM002
-2025-08-03 11:29:29 [INFO]   MENU004: JAVA -> com.openasp.sample.PGM003
-2025-08-03 11:29:29 [INFO]   MENU005: JAVA -> com.openasp.sample.PGM004
-2025-08-03 11:29:29 [INFO] ? Configuration loaded successfully
-2025-08-03 11:29:29 [INFO] ?? SMED Files: 1
-2025-08-03 11:29:29 [INFO] ?? User Accounts: 4
-2025-08-03 11:29:29 [INFO] ???  SMED-PGM Maps: 20
-2025-08-03 11:29:29 [INFO] ? Java Available: True
-2025-08-03 11:29:29 [INFO] ?? JAR File: /home/aspuser/app/server/java_jars/ofasp.jar (EXISTS)
-2025-08-03 11:29:29 [INFO] ?? OpenASP SMED API Server ready!
-2025-08-03 11:29:29 [INFO] ?? WebSocket support enabled for real-time terminal communication
-2025-08-03 11:29:29 [WARNING] Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+2025-08-16 05:28:40 [WARNING] Failed to load sessions: name 'active_terminals' is not defined
+2025-08-16 05:28:40 [WARNING] Encoding API not available: HTTPConnectionPool(host='localhost', port=8081): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x77bd6f637c40>: Failed to establish a new connection: [Errno 111] Connection refused'))
+2025-08-16 05:28:40 [INFO] OpenASP API Server v0.5.1 starting...
+2025-08-16 05:28:40 [INFO] Enhanced with Multi-Type Program Support (JAVA, COBOL, SHELL)
+2025-08-16 05:28:40 [INFO] Fixed configuration loading and error handling
+2025-08-16 05:28:40 [INFO] SMED directory: /home/aspuser/app/public/SMED_FILES
+2025-08-16 05:28:40 [INFO] Account file: /home/aspuser/app/src/account.json
+2025-08-16 05:28:40 [INFO] SMED-PGM file: /home/aspuser/app/src/smed_pgm.json
+2025-08-16 05:28:40 [INFO] MAP-PGM file: /home/aspuser/app/src/map_pgm.json
+2025-08-16 05:28:40 [INFO] JAR file: /home/aspuser/app/server/java_jars/ofasp.jar
+2025-08-16 05:28:40 [INFO] Loaded 4 user accounts
+2025-08-16 05:28:40 [INFO] Loaded SMED-PGM config: 20 valid maps
+2025-08-16 05:28:40 [INFO]   MENU: JAVA -> com.openasp.menu.MenuProgram
+2025-08-16 05:28:40 [INFO]   LOGO: JAVA -> com.openasp.login.LoginProgram
+2025-08-16 05:28:40 [INFO]   PGM1: JAVA -> com.openasp.core.PGM1
+2025-08-16 05:28:40 [INFO]   PGM2: JAVA -> com.openasp.core.PGM2
+2025-08-16 05:28:40 [INFO]   EIGYO001: JAVA -> com.openasp.eigyo.EIGYO001
+2025-08-16 05:28:40 [INFO]   EIGYO002: JAVA -> com.openasp.eigyo.EIGYO002
+2025-08-16 05:28:40 [INFO]   NOHINO001: COBOL -> /home/aspuser/app/server/cobol_modules/NOHIN001.so
+2025-08-16 05:28:40 [INFO]   NOHINO002: SHELL -> /home/aspuser/app/server/shell_modules/NOHIN002.sh
+2025-08-16 05:28:40 [INFO]   ZAIKO001: COBOL -> /home/aspuser/app/server/cobol_modules/ZAIKO001.so
+2025-08-16 05:28:40 [INFO]   BATCH001: SHELL -> /home/aspuser/app/server/shell_modules/BATCH001.sh
+2025-08-16 05:28:40 [INFO]   URIAGE001: JAVA -> com.openasp.uriage.URIAGE001
+2025-08-16 05:28:40 [INFO]   REPORT001: SHELL -> /home/aspuser/app/server/shell_modules/REPORT001.sh
+2025-08-16 05:28:40 [INFO]   USER001: JAVA -> com.openasp.user.UserManagement
+2025-08-16 05:28:40 [INFO]   SYSTEM001: JAVA -> com.openasp.system.SystemInfo
+2025-08-16 05:28:40 [INFO]   LOGOUT: JAVA -> com.openasp.system.LogoutProgram
+2025-08-16 05:28:40 [INFO]   MAIN001: JAVA -> com.openasp.sample.PGM000
+2025-08-16 05:28:40 [INFO]   MENU001: JAVA -> com.openasp.sample.PGM001
+2025-08-16 05:28:40 [INFO]   MENU003: JAVA -> com.openasp.sample.PGM002
+2025-08-16 05:28:40 [INFO]   MENU004: JAVA -> com.openasp.sample.PGM003
+2025-08-16 05:28:40 [INFO]   MENU005: JAVA -> com.openasp.sample.PGM004
+2025-08-16 05:28:40 [INFO] ? Configuration loaded successfully
+2025-08-16 05:28:40 [INFO] ?? SMED Files: 1
+2025-08-16 05:28:40 [INFO] ?? User Accounts: 4
+2025-08-16 05:28:40 [INFO] ???  SMED-PGM Maps: 20
+2025-08-16 05:28:40 [INFO] ? Java Available: True
+2025-08-16 05:28:40 [INFO] ?? JAR File: /home/aspuser/app/server/java_jars/ofasp.jar (EXISTS)
+2025-08-16 05:28:40 [INFO] ?? OpenASP SMED API Server ready!
+2025-08-16 05:28:40 [INFO] ?? WebSocket support enabled for real-time terminal communication
+2025-08-16 05:28:40 [WARNING] Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
  * Serving Flask app 'api_server'
  * Debug mode: off
-2025-08-03 11:29:29 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2025-08-16 05:28:40 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:8000
  * Running on http://172.20.0.2:8000
-2025-08-03 11:29:29 [INFO] [33mPress CTRL+C to quit[0m
-2025-08-03 11:29:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:29:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:30:11 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:11 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:11 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:30:11 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:30:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:11] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:30:11 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:11 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:11 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:30:11 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:30:11 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:30:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:11] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:30:15 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/MAINMENU
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/MAINMENU
-2025-08-03 11:30:15 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
-2025-08-03 11:30:15 [INFO] SMED File DEBUG: SJIS read completed, length: 904
-2025-08-03 11:30:15 [INFO] SMED File DEBUG: Japanese part Unicode: [12513, 12452, 12531, 12531, 12513]
-2025-08-03 11:30:15 [INFO] SMED File DEBUG: Proper Japanese characters detected with SJIS
-2025-08-03 11:30:15 [INFO] Successfully loaded SMED content from DISK01/SMED/MAINMENU
-2025-08-03 11:30:15 [INFO] FINAL RESPONSE DEBUG: Content length: 904
-2025-08-03 11:30:15 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP ���C�������j���[   "'
-2025-08-03 11:30:15 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e41535020e383a1e382a4e383b3e383b3e383a1e3838be383a5e383bc20202022
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 904
-2025-08-03 11:30:15 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:15] "GET /api/smed/content/DISK01/SMED/MAINMENU HTTP/1.1" 200 -
-2025-08-03 11:30:19 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:19 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:19 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:30:19 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:30:19 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:30:19 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:30:19 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:30:19 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:19] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:30:22 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/MAINMENU
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/MAINMENU
-2025-08-03 11:30:22 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
-2025-08-03 11:30:22 [INFO] SMED File DEBUG: SJIS read completed, length: 904
-2025-08-03 11:30:22 [INFO] SMED File DEBUG: Japanese part Unicode: [12513, 12452, 12531, 12531, 12513]
-2025-08-03 11:30:22 [INFO] SMED File DEBUG: Proper Japanese characters detected with SJIS
-2025-08-03 11:30:22 [INFO] Successfully loaded SMED content from DISK01/SMED/MAINMENU
-2025-08-03 11:30:22 [INFO] FINAL RESPONSE DEBUG: Content length: 904
-2025-08-03 11:30:22 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP ���C�������j���[   "'
-2025-08-03 11:30:22 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e41535020e383a1e382a4e383b3e383b3e383a1e3838be383a5e383bc20202022
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 904
-2025-08-03 11:30:22 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:22] "GET /api/smed/content/DISK01/SMED/MAINMENU HTTP/1.1" 200 -
-2025-08-03 11:30:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:30:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:31:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:31:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:32:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:32:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:33:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:33:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:34:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:34:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:35:35 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:35:35 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:35:35 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:35:35 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:35:35 [INFO] 172.20.0.1 - - [03/Aug/2025 11:35:35] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:35:35 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:35:35 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:35:35 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:35:35 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:35:35 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:35:35 [INFO] 172.20.0.1 - - [03/Aug/2025 11:35:35] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:35:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:35:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:36:33 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:33 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:33 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:36:33 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:36:33 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:33] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:36:33 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:33 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:33 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:36:33 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:36:33 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:36:33 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:33] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:36:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:36:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:36:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:36:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:36:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:36:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:36:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:36:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:36:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:37:31 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:37:31 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:37:31 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:37:31 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:37:31 [INFO] 172.20.0.1 - - [03/Aug/2025 11:37:31] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:37:31 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:37:31 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:37:31 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:37:31 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:37:31 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:37:31 [INFO] 172.20.0.1 - - [03/Aug/2025 11:37:31] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:37:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:37:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:38:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:38:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:38:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:38:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:38:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:38:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:38:53 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:38:53 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:38:53 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:38:53 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:38:53 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:38:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:38:53] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:38:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:38:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:39:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:39:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:40:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:40:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:41:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:41:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:42:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:42:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:43:44 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:43:44 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:43:44 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:44] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:43:44 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:43:44 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:43:44 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:44] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:43:44 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:43:44 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:43:44 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:43:44 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:44] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:43:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:43:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:44:10 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:44:10 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:44:10 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:10] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:44:10 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:44:10 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:44:10 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:10] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:44:10 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] SMED File DEBUG: SJIS read completed, length: 842
-2025-08-03 11:44:10 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content length: 842
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:44:10 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 842
-2025-08-03 11:44:10 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:10] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:44:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:44:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:45:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:45:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:46:32 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:46:32 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:46:32 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:32] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:46:32 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:46:32 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:46:32 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:32] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:46:32 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:46:32 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:46:32 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:46:32 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:32] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:46:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:46:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:47:01 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:47:01 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:47:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:01] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:47:01 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:47:01 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:47:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:01] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:47:01 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:47:01 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:47:01 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:47:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:01] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:47:49 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/MAINMENU
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/MAINMENU
-2025-08-03 11:47:49 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/MAINMENU
-2025-08-03 11:47:49 [INFO] SMED File DEBUG: SJIS read completed, length: 904
-2025-08-03 11:47:49 [INFO] SMED File DEBUG: Japanese part Unicode: [12513, 12452, 12531, 12531, 12513]
-2025-08-03 11:47:49 [INFO] SMED File DEBUG: Proper Japanese characters detected with SJIS
-2025-08-03 11:47:49 [INFO] Successfully loaded SMED content from DISK01/SMED/MAINMENU
-2025-08-03 11:47:49 [INFO] FINAL RESPONSE DEBUG: Content length: 904
-2025-08-03 11:47:49 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP ���C�������j���[   "'
-2025-08-03 11:47:49 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e41535020e383a1e382a4e383b3e383b3e383a1e3838be383a5e383bc20202022
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 904
-2025-08-03 11:47:49 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:49] "GET /api/smed/content/DISK01/SMED/MAINMENU HTTP/1.1" 200 -
-2025-08-03 11:47:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:47:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:48:22 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:48:22 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:48:22 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:48:22 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:48:22 [INFO] 172.20.0.1 - - [03/Aug/2025 11:48:22] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:48:22 [INFO] ENDPOINT DEBUG: get_smed_content_from_volume called with DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Volume/library endpoint called: DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:48:22 [INFO] SMED File DEBUG: Reading file with SJIS encoding: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-CONSOLE DEBUG: Using SJIS encoding for: /home/aspuser/app/volume/DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:48:22 [INFO] SMED File DEBUG: SJIS read completed, length: 877
-2025-08-03 11:48:22 [INFO] Successfully loaded SMED content from DISK01/SMED/ENDUROASP_LOGO
-2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content length: 877
-2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample: 'OpenASP not found'
-2025-08-03 11:48:22 [INFO] FINAL RESPONSE DEBUG: Content sample UTF-8 bytes: 4f70656e415350206e6f7420666f756e64
-CONSOLE DEBUG: Final response content type: <class 'str'>, length: 877
-2025-08-03 11:48:22 [INFO] 172.20.0.1 - - [03/Aug/2025 11:48:22] "GET /api/smed/content/DISK01/SMED/ENDUROASP_LOGO HTTP/1.1" 200 -
-2025-08-03 11:48:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:48:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:04 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:04] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:05 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:05] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:07 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:07] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:09 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:09] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:11] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:13 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:13] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:15 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:15] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:17 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:17] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:19 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:19] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:21 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:21] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:23 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:23] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:25 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:25] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:27 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:27] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:29 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:29] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:31 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:31] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:33 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:33] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:35 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:35] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:37 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:37] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:39 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:39] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:41 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:41] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:43 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:43] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:45 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:45] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:47 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:47] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:49 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:49] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:51 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:51] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:53 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:53] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:55 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:55] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:57 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:57] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:49:59 [INFO] 172.20.0.1 - - [03/Aug/2025 11:49:59] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:01 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:01] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:03 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:03] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:05 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:05] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:07 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:07] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:09 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:09] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:11 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:11] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:13 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:13] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:15 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:15] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:17 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:17] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:19 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:19] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:21 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:21] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:23 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:23] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:25 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:25] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:50:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:50:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:51:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:51:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:52:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:52:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:53:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:53:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:54:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:54:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:55:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:55:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:56:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:56:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:57:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:57:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:58:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:58:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 11:59:58 [INFO] 172.20.0.1 - - [03/Aug/2025 11:59:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:00:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:00:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:01:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:01:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:02:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:02:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:03:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:03:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:04:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:04:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:05:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:05:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:06:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:06:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:07:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:07:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:08:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:08:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:09:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:09:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:10:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:10:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:11:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:11:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:12:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:12:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:13:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:13:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:14:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:14:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:15:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:15:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:16:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:16:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:17:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:17:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:18:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:18:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:19:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:19:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:20:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:20:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:21:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:21:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:22:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:22:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:23:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:23:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:24:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:24:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:25:58 [INFO] 172.20.0.1 - - [03/Aug/2025 12:25:58] "GET /api/logs HTTP/1.1" 200 -
-2025-08-03 12:26:29 [INFO] 127.0.0.1 - - [03/Aug/2025 12:26:29] "[33mGET /api/catalog/layout HTTP/1.1[0m" 404 -
+2025-08-16 05:28:40 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-16 05:29:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:29:31] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:29:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:29:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:29:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:30:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:30:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:30:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:30:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:30:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:31:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:31:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:31:30 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:31:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:31:30] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:32:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:32:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:32:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:32:45 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:45] "OPTIONS /api/cleanup-processes HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "OPTIONS /api/asp-command HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "OPTIONS /api/asp-command HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "[35m[1mGET /socket.io/?EIO=4&transport=websocket HTTP/1.1[0m" 500 -
+2025-08-16 05:32:50 [INFO] [WEBSOCKET] Client connected: DJ8vGO4MMaDHntUAAAAD
+2025-08-16 05:32:50 [INFO] [WEBSOCKET] Connection details: {'session_id': 'DJ8vGO4MMaDHntUAAAAD', 'origin': 'http://localhost:3005', 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 'remote_addr': '172.20.0.1', 'timestamp': '2025-08-16T05:32:50.910739'}
+2025-08-16 05:32:50 [INFO] [INFO] WEBSOCKET: Client connected
+2025-08-16 05:32:50 [ERROR] Error on request:
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/werkzeug/serving.py", line 370, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.10/site-packages/werkzeug/serving.py", line 336, in execute
+    write(b"")
+  File "/usr/local/lib/python3.10/site-packages/werkzeug/serving.py", line 261, in write
+    assert status_set is not None, "write() before start_response"
+AssertionError: write() before start_response
+2025-08-16 05:32:50 [INFO] [WEBSOCKET] Client connected: s-FSBDMz5f-030QWAAAE
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "OPTIONS /api/cleanup-processes HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] === ASP COMMAND ENDPOINT CALLED ===
+2025-08-16 05:32:50 [INFO] === ASP COMMAND ENDPOINT CALLED ===
+2025-08-16 05:32:50 [INFO] [WEBSOCKET] Connection details: {'session_id': 's-FSBDMz5f-030QWAAAE', 'origin': 'http://localhost:3005', 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 'remote_addr': '172.20.0.1', 'timestamp': '2025-08-16T05:32:50.914806'}
+2025-08-16 05:32:50 [INFO] Request data: {'command': 'WRKVOL', 'user': 'admin'}
+2025-08-16 05:32:50 [INFO] Request data: {'command': 'WRKVOL', 'user': 'admin'}
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "OPTIONS /api/logs HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] Process cleanup requested by user: admin, mode: all_main_programs, reason: web_terminal_unmount
+2025-08-16 05:32:50 [INFO] [INFO] WEBSOCKET: Client connected
+2025-08-16 05:32:50 [INFO] Parsed command: 'WRKVOL', user: 'admin'
+2025-08-16 05:32:50 [INFO] Parsed command: 'WRKVOL', user: 'admin'
+2025-08-16 05:32:50 [INFO] [INFO] PROCESS_CLEANUP: Cleanup requested: mode=all_main_programs, reason=web_terminal_unmount
+2025-08-16 05:32:50 [INFO] Received ASP command request: WRKVOL from user: admin
+2025-08-16 05:32:50 [INFO] [WEBSOCKET] Client connected: Podo0xFgWBEI41P7AAAG
+2025-08-16 05:32:50 [INFO] Received ASP command request: WRKVOL from user: admin
+2025-08-16 05:32:50 [INFO] [INFO] ASP_COMMAND: Executing command: WRKVOL
+2025-08-16 05:32:50 [INFO] [WEBSOCKET] Connection details: {'session_id': 'Podo0xFgWBEI41P7AAAG', 'origin': 'http://localhost:3005', 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36', 'remote_addr': '172.20.0.1', 'timestamp': '2025-08-16T05:32:50.980135'}
+2025-08-16 05:32:50 [INFO] Executing ASP command via cmdRunner: WRKVOL for user: admin
+2025-08-16 05:32:50 [INFO] [INFO] ASP_COMMAND: Executing command: WRKVOL
+2025-08-16 05:32:50 [INFO] [INFO] WEBSOCKET: Client connected
+2025-08-16 05:32:50 [INFO] Session: session_773ba458, Terminal: terminal_admin_053250
+2025-08-16 05:32:50 [INFO] [INFO] ASP System Command: [WebSocket Hub Connection] Connected to WebSocket Hub v2.0 - Terminal: webui, User: admin, Workstation: WSNAME00
+2025-08-16 05:32:50 [INFO] [INFO] ASP System Command: [WebSocket Hub Connection] Connected to WebSocket Hub v2.0 - Terminal: webui, User: admin, Workstation: WSNAME00
+2025-08-16 05:32:50 [INFO] Command name detected: WRKVOL
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:50] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:32:50 [INFO] Executing ASP command via cmdRunner: WRKVOL for user: admin
+2025-08-16 05:32:50 [INFO] Routing to aspcli: WRKVOL
+2025-08-16 05:32:51 [INFO] Session: session_76fd11d4, Terminal: terminal_admin_053250
+2025-08-16 05:32:51 [INFO] Executing ASP command via aspcli: WRKVOL for user: admin
+2025-08-16 05:32:51 [INFO] Command name detected: WRKVOL
+2025-08-16 05:32:51 [INFO] Routing to aspcli: WRKVOL
+2025-08-16 05:32:51 [INFO] Executing ASP command via aspcli: WRKVOL for user: admin
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] React client Hub registration received: Podo0xFgWBEI41P7AAAG
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] Registration data: {'terminal_id': 'webui', 'user': 'admin', 'wsname': 'WSNAME00', 'client_type': 'react_web_terminal', 'hub_version': 'v2.0'}
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] React client registered successfully: webui
+2025-08-16 05:32:51 [INFO] [INFO] HUB_TERMINAL: React terminal registered: webui
+2025-08-16 05:32:51 [INFO] [INFO] ASP System Command: [WebSocket Hub Connection] Connected to WebSocket Hub v2.0 - Terminal: webui, User: admin, Workstation: WSNAME00
+2025-08-16 05:32:51 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:51] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:32:51 [INFO] Process cleanup completed. Cleaned up 0 processes.
+2025-08-16 05:32:51 [INFO] [INFO] PROCESS_CLEANUP: Process cleanup completed. Cleaned up 0 processes.
+2025-08-16 05:32:51 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:51] "POST /api/cleanup-processes HTTP/1.1" 200 -
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] React client Hub registration received: Podo0xFgWBEI41P7AAAG
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] Registration data: {'terminal_id': 'webui', 'user': 'admin', 'wsname': 'WSNAME00', 'client_type': 'react_web_terminal', 'hub_version': 'v2.0'}
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] React client registered successfully: webui
+2025-08-16 05:32:51 [INFO] [INFO] HUB_TERMINAL: React terminal registered: webui
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] React client Hub registration received: Podo0xFgWBEI41P7AAAG
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] Registration data: {'terminal_id': 'webui', 'user': 'admin', 'wsname': 'WSNAME00', 'client_type': 'react_web_terminal', 'hub_version': 'v2.0'}
+2025-08-16 05:32:51 [INFO] [HUB_REGISTER] React client registered successfully: webui
+2025-08-16 05:32:51 [INFO] [INFO] HUB_TERMINAL: React terminal registered: webui
+2025-08-16 05:32:51 [INFO] ASP command completed successfully
+2025-08-16 05:32:51 [INFO] [INFO] ASP_COMMAND: Command completed successfully: WRKVOL
+2025-08-16 05:32:51 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:51] "POST /api/asp-command HTTP/1.1" 200 -
+2025-08-16 05:32:51 [INFO] ASP command completed successfully
+2025-08-16 05:32:51 [INFO] [INFO] ASP_COMMAND: Command completed successfully: WRKVOL
+2025-08-16 05:32:51 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:51] "POST /api/asp-command HTTP/1.1" 200 -
+2025-08-16 05:32:51 [INFO] === ASP COMMAND ENDPOINT CALLED ===
+2025-08-16 05:32:51 [INFO] Request data: {'command': 'WRKLIB', 'user': 'admin'}
+2025-08-16 05:32:51 [INFO] Parsed command: 'WRKLIB', user: 'admin'
+2025-08-16 05:32:51 [INFO] Received ASP command request: WRKLIB from user: admin
+2025-08-16 05:32:51 [INFO] [INFO] ASP_COMMAND: Executing command: WRKLIB
+2025-08-16 05:32:51 [INFO] Executing ASP command via cmdRunner: WRKLIB for user: admin
+2025-08-16 05:32:51 [INFO] Session: session_2b8834ca, Terminal: terminal_admin_053251
+2025-08-16 05:32:51 [INFO] Command name detected: WRKLIB
+2025-08-16 05:32:51 [INFO] Routing to aspcli: WRKLIB
+2025-08-16 05:32:51 [INFO] Executing ASP command via aspcli: WRKLIB for user: admin
+2025-08-16 05:32:51 [INFO] === ASP COMMAND ENDPOINT CALLED ===
+2025-08-16 05:32:51 [INFO] Request data: {'command': 'WRKLIB', 'user': 'admin'}
+2025-08-16 05:32:51 [INFO] Parsed command: 'WRKLIB', user: 'admin'
+2025-08-16 05:32:51 [INFO] Received ASP command request: WRKLIB from user: admin
+2025-08-16 05:32:51 [INFO] [INFO] ASP_COMMAND: Executing command: WRKLIB
+2025-08-16 05:32:51 [INFO] Executing ASP command via cmdRunner: WRKLIB for user: admin
+2025-08-16 05:32:51 [INFO] Session: session_ac5fb601, Terminal: terminal_admin_053251
+2025-08-16 05:32:51 [INFO] Command name detected: WRKLIB
+2025-08-16 05:32:51 [INFO] Routing to aspcli: WRKLIB
+2025-08-16 05:32:51 [INFO] Executing ASP command via aspcli: WRKLIB for user: admin
+2025-08-16 05:32:51 [INFO] ASP command completed successfully
+2025-08-16 05:32:51 [INFO] [INFO] ASP_COMMAND: Command completed successfully: WRKLIB
+2025-08-16 05:32:51 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:51] "POST /api/asp-command HTTP/1.1" 200 -
+2025-08-16 05:32:51 [INFO] ASP command completed successfully
+2025-08-16 05:32:51 [INFO] [INFO] ASP_COMMAND: Command completed successfully: WRKLIB
+2025-08-16 05:32:51 [INFO] 172.20.0.1 - - [16/Aug/2025 05:32:51] "POST /api/asp-command HTTP/1.1" 200 -
+2025-08-16 05:33:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:33:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:33:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:33:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:33:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:33:48 [INFO] [WEBSOCKET_HUB] Command received: CALL PGM-CL001.TESTLIB,VOL-DISK01 from terminal: webui
+2025-08-16 05:33:48 [INFO] Starting cmdRunner execution for: CALL PGM-CL001.TESTLIB,VOL-DISK01
+2025-08-16 05:33:48 [INFO] Importing cmdRunner from: /home/aspuser/app/server/system-cmds
+2025-08-16 05:33:48 [INFO] Dataset Manager initialized
+2025-08-16 05:33:48 [INFO] Communication loop started for PID 10495
+2025-08-16 05:33:48 [INFO] Process communicator initialized for cmdRunner_websocket_Podo0xFgWBEI41P7AAAG_10495 (PID: 10495)
+2025-08-16 05:33:48 [INFO] CmdRunner initialized: PID=10495, Session=websocket_Podo0xFgWBEI41P7AAAG, User=admin
+2025-08-16 05:33:48 [INFO] [PHASE2] Executing CALL command with fork: CALL PGM-CL001.TESTLIB,VOL-DISK01
+2025-08-16 05:33:48 [INFO] [PARENT] Forked child process: PID=10498
+2025-08-16 05:33:48 [INFO] [CHILD] Child process started: PID=10498, Parent=10495
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "GET /socket.io/?transport=polling&EIO=4&t=1755322428.723351 HTTP/1.1" 200 -
+http://localhost:8000 is not an accepted origin. (further occurrences of this error will be logged with level INFO)
+2025-08-16 05:33:48 [ERROR] http://localhost:8000 is not an accepted origin. (further occurrences of this error will be logged with level INFO)
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "[31m[1mGET /socket.io/?transport=websocket&EIO=4&sid=n2PMG_cAOJeTqePaAAAH&t=1755322428.7343273 HTTP/1.1[0m" 400 -
+2025-08-16 05:33:48 [INFO] [WEBSOCKET] Client connected: ftjK_U-HeidEOzDwAAAI
+2025-08-16 05:33:48 [INFO] [WEBSOCKET] Connection details: {'session_id': 'ftjK_U-HeidEOzDwAAAI', 'origin': 'unknown', 'user_agent': 'python-requests/2.32.4', 'remote_addr': '127.0.0.1', 'timestamp': '2025-08-16T05:33:48.746567'}
+2025-08-16 05:33:48 [INFO] [INFO] WEBSOCKET: Client connected
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "POST /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH HTTP/1.1" 200 -
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "GET /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH&t=1755322428.7396195 HTTP/1.1" 200 -
+2025-08-16 05:33:48 [INFO] [HUB_CLIENT_REG] Hub client registration received: ftjK_U-HeidEOzDwAAAI
+2025-08-16 05:33:48 [INFO] [HUB_CLIENT_REG] Registration data: {'client_type': 'hub_client', 'client_id': 'hub_client_124590679495952', 'capabilities': ['smed_data_transmission'], 'timestamp': '2025-08-16T05:33:48.754283'}
+2025-08-16 05:33:48 [INFO] [HUB_CLIENT_REG] Client registered successfully: hub_client_124590679495952
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "POST /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH HTTP/1.1" 200 -
+2025-08-16 05:33:48 [INFO] [INFO] HUB_CLIENT: Hub client registered: hub_client_124590679495952
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "GET /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH&t=1755322428.7523708 HTTP/1.1" 200 -
+2025-08-16 05:33:48 [INFO] [WEBSOCKET_HUB] Direct SMED data received: {'event': 'smed_data_direct', 'session_id': 'ftjK_U-HeidEOzDwAAAI', 'timestamp': '2025-08-16T05:33:48.769752', 'source': 'websocket_hub'}
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "POST /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH HTTP/1.1" 200 -
+2025-08-16 05:33:48 [INFO] [WEBSOCKET_HUB] Processing direct SMED data: {'event': 'smed_data_direct', 'session_id': 'ftjK_U-HeidEOzDwAAAI', 'timestamp': '2025-08-16T05:33:48.769752', 'source': 'websocket_hub', 'terminal_id': 'websocket_webui', 'map_file': 'MAIN001', 'fields_count': 7, 'program_name': 'MAIN001', 'source_type': 'json'}
+2025-08-16 05:33:48 [INFO] [WEBSOCKET_HUB] Centralized SMED transmission to terminal: websocket_webui
+2025-08-16 05:33:48 [INFO] [WEBSOCKET_HUB] Active terminals: ['Podo0xFgWBEI41P7AAAG', 'ftjK_U-HeidEOzDwAAAI']
+2025-08-16 05:33:48 [INFO] [WEBSOCKET_HUB] Terminal mappings: {'webui': 'Podo0xFgWBEI41P7AAAG'}
+2025-08-16 05:33:48 [WARNING] [WEBSOCKET_HUB] Terminal not connected to hub: websocket_webui
+2025-08-16 05:33:48 [WARNING] [WEBSOCKET_HUB] Available hub terminals: ['webui']
+2025-08-16 05:33:48 [INFO] [WARNING] WEBSOCKET_HUB: Terminal not in hub: websocket_webui
+2025-08-16 05:33:48 [INFO] [INFO] WEBSOCKET_HUB: Direct SMED data processed: websocket_webui
+2025-08-16 05:33:48 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:48] "GET /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH&t=1755322428.7666676 HTTP/1.1" 200 -
+2025-08-16 05:33:49 [INFO] [WEBSOCKET] Client disconnected: ftjK_U-HeidEOzDwAAAI
+2025-08-16 05:33:49 [INFO] [WEBSOCKET] Cleaning up terminal registration: hub_client_124590679495952
+2025-08-16 05:33:49 [INFO] [INFO] WEBSOCKET: Client disconnected
+2025-08-16 05:33:49 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:49] "POST /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH HTTP/1.1" 200 -
+2025-08-16 05:33:49 [INFO] 127.0.0.1 - - [16/Aug/2025 05:33:49] "GET /socket.io/?transport=polling&EIO=4&sid=n2PMG_cAOJeTqePaAAAH&t=1755322428.775031 HTTP/1.1" 200 -
+2025-08-16 05:34:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:34:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:34:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:34:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:34:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:34:48 [INFO] CmdRunner 10495 received signal 15, shutting down...
+2025-08-16 05:34:48 [INFO] Shutting down cmdRunner 10495
+2025-08-16 05:34:48 [INFO] CmdRunner 10495 received signal 15, shutting down...
+2025-08-16 05:34:48 [INFO] Shutting down cmdRunner 10495
+2025-08-16 05:34:48 [INFO] Cleaned up 0 datasets for PID 10495: []
+2025-08-16 05:34:48 [INFO] Cleaned up datasets: []
+2025-08-16 05:34:48 [INFO] Shutting down communicator for PID 10495
+2025-08-16 05:34:48 [INFO] CmdRunner 10495 shutdown complete
+2025-08-16 05:34:48 [INFO] [CHILD] CALL command completed: success=False
+2025-08-16 05:34:48 [INFO] 172.20.0.1 - - [16/Aug/2025 05:34:48] "OPTIONS /api/logs HTTP/1.1" 200 -
+2025-08-16 05:34:48 [INFO] [INFO] ASP System Command: [CALL PGM-CL001.TESTLIB,VOL-DISK01] [INFO] �R�}���h 'CALL' �����s����܂����B
+2025-08-16 05:34:48 [INFO] 172.20.0.1 - - [16/Aug/2025 05:34:48] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:34:49 [INFO] Cleaned up 0 datasets for PID 10495: []
+2025-08-16 05:34:49 [INFO] Cleaned up datasets: []
+2025-08-16 05:34:49 [INFO] Shutting down communicator for PID 10495
+2025-08-16 05:34:49 [INFO] Communication loop terminated for PID 10495
+2025-08-16 05:34:49 [INFO] CmdRunner 10495 shutdown complete
+2025-08-16 05:34:49 [INFO] Shutting down cmdRunner 10495
+2025-08-16 05:34:49 [INFO] Cleaned up 0 datasets for PID 10495: []
+2025-08-16 05:34:49 [INFO] Cleaned up datasets: []
+2025-08-16 05:34:49 [INFO] Shutting down communicator for PID 10495
+2025-08-16 05:34:49 [INFO] CmdRunner 10495 shutdown complete
+2025-08-16 05:34:50 [INFO] [INFO] WEBSOCKET_HUB: Command executed: CALL PGM-CL001.TESTLIB,VOL-DISK01
+2025-08-16 05:34:50 [INFO] [ERROR] ASP System Command: [Command Confirmation: CALL PGM-CL001.TESTLIB,VOL-DISK01] Command failed (Session: Podo0xFgWBEI41P7AAAG)
+2025-08-16 05:34:50 [INFO] 172.20.0.1 - - [16/Aug/2025 05:34:50] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] [WEBSOCKET_HUB] Command received: CALL PGM-CL001.TESTLIB,VOL-DISK01 from terminal: webui
+2025-08-16 05:34:57 [INFO] Starting cmdRunner execution for: CALL PGM-CL001.TESTLIB,VOL-DISK01
+2025-08-16 05:34:57 [INFO] Importing cmdRunner from: /home/aspuser/app/server/system-cmds
+2025-08-16 05:34:57 [INFO] Dataset Manager initialized
+2025-08-16 05:34:57 [INFO] Communication loop started for PID 10764
+2025-08-16 05:34:57 [INFO] Process communicator initialized for cmdRunner_websocket_Podo0xFgWBEI41P7AAAG_10764 (PID: 10764)
+2025-08-16 05:34:57 [INFO] CmdRunner initialized: PID=10764, Session=websocket_Podo0xFgWBEI41P7AAAG, User=admin
+2025-08-16 05:34:57 [INFO] [PHASE2] Executing CALL command with fork: CALL PGM-CL001.TESTLIB,VOL-DISK01
+2025-08-16 05:34:57 [INFO] [PARENT] Forked child process: PID=10767
+2025-08-16 05:34:57 [INFO] [CHILD] Child process started: PID=10767, Parent=10764
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "GET /socket.io/?transport=polling&EIO=4&t=1755322497.709567 HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "[31m[1mGET /socket.io/?transport=websocket&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ&t=1755322497.7221363 HTTP/1.1[0m" 400 -
+2025-08-16 05:34:57 [INFO] [WEBSOCKET] Client connected: JGh3dbAvPQN9CQpeAAAK
+2025-08-16 05:34:57 [INFO] [WEBSOCKET] Connection details: {'session_id': 'JGh3dbAvPQN9CQpeAAAK', 'origin': 'unknown', 'user_agent': 'python-requests/2.32.4', 'remote_addr': '127.0.0.1', 'timestamp': '2025-08-16T05:34:57.732810'}
+2025-08-16 05:34:57 [INFO] [INFO] WEBSOCKET: Client connected
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "POST /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "GET /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ&t=1755322497.7265158 HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] [HUB_CLIENT_REG] Hub client registration received: JGh3dbAvPQN9CQpeAAAK
+2025-08-16 05:34:57 [INFO] [HUB_CLIENT_REG] Registration data: {'client_type': 'hub_client', 'client_id': 'hub_client_130822934320400', 'capabilities': ['smed_data_transmission'], 'timestamp': '2025-08-16T05:34:57.739337'}
+2025-08-16 05:34:57 [INFO] [HUB_CLIENT_REG] Client registered successfully: hub_client_130822934320400
+2025-08-16 05:34:57 [INFO] [INFO] HUB_CLIENT: Hub client registered: hub_client_130822934320400
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "POST /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "GET /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ&t=1755322497.7375002 HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] [WEBSOCKET_HUB] Direct SMED data received: {'event': 'smed_data_direct', 'session_id': 'JGh3dbAvPQN9CQpeAAAK', 'timestamp': '2025-08-16T05:34:57.753233', 'source': 'websocket_hub'}
+2025-08-16 05:34:57 [INFO] [WEBSOCKET_HUB] Processing direct SMED data: {'event': 'smed_data_direct', 'session_id': 'JGh3dbAvPQN9CQpeAAAK', 'timestamp': '2025-08-16T05:34:57.753233', 'source': 'websocket_hub', 'terminal_id': 'websocket_webui', 'map_file': 'MAIN001', 'fields_count': 7, 'program_name': 'MAIN001', 'source_type': 'json'}
+2025-08-16 05:34:57 [INFO] [WEBSOCKET_HUB] Centralized SMED transmission to terminal: websocket_webui
+2025-08-16 05:34:57 [INFO] [WEBSOCKET_HUB] Active terminals: ['Podo0xFgWBEI41P7AAAG', 'JGh3dbAvPQN9CQpeAAAK']
+2025-08-16 05:34:57 [INFO] [WEBSOCKET_HUB] Terminal mappings: {'webui': 'Podo0xFgWBEI41P7AAAG'}
+2025-08-16 05:34:57 [WARNING] [WEBSOCKET_HUB] Terminal not connected to hub: websocket_webui
+2025-08-16 05:34:57 [WARNING] [WEBSOCKET_HUB] Available hub terminals: ['webui']
+2025-08-16 05:34:57 [INFO] [WARNING] WEBSOCKET_HUB: Terminal not in hub: websocket_webui
+2025-08-16 05:34:57 [INFO] [INFO] WEBSOCKET_HUB: Direct SMED data processed: websocket_webui
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "POST /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ HTTP/1.1" 200 -
+2025-08-16 05:34:57 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:57] "GET /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ&t=1755322497.7494135 HTTP/1.1" 200 -
+2025-08-16 05:34:58 [INFO] [WEBSOCKET] Client disconnected: JGh3dbAvPQN9CQpeAAAK
+2025-08-16 05:34:58 [INFO] [WEBSOCKET] Cleaning up terminal registration: hub_client_130822934320400
+2025-08-16 05:34:58 [INFO] [INFO] WEBSOCKET: Client disconnected
+2025-08-16 05:34:58 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:58] "POST /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ HTTP/1.1" 200 -
+2025-08-16 05:34:58 [INFO] 127.0.0.1 - - [16/Aug/2025 05:34:58] "GET /socket.io/?transport=polling&EIO=4&sid=EN5rnpkWDtGKAmEQAAAJ&t=1755322497.7599244 HTTP/1.1" 200 -
+2025-08-16 05:35:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:35:31] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:35:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:35:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:35:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:35:57 [INFO] CmdRunner 10764 received signal 15, shutting down...
+2025-08-16 05:35:57 [INFO] Shutting down cmdRunner 10764
+2025-08-16 05:35:57 [INFO] CmdRunner 10764 received signal 15, shutting down...
+2025-08-16 05:35:57 [INFO] Shutting down cmdRunner 10764
+2025-08-16 05:35:57 [INFO] Cleaned up 0 datasets for PID 10764: []
+2025-08-16 05:35:57 [INFO] Cleaned up datasets: []
+2025-08-16 05:35:57 [INFO] Shutting down communicator for PID 10764
+2025-08-16 05:35:57 [INFO] CmdRunner 10764 shutdown complete
+2025-08-16 05:35:57 [INFO] [CHILD] CALL command completed: success=False
+2025-08-16 05:35:57 [INFO] 172.20.0.1 - - [16/Aug/2025 05:35:57] "OPTIONS /api/logs HTTP/1.1" 200 -
+2025-08-16 05:35:57 [INFO] [INFO] ASP System Command: [CALL PGM-CL001.TESTLIB,VOL-DISK01] [INFO] �R�}���h 'CALL' �����s����܂����B
+2025-08-16 05:35:57 [INFO] 172.20.0.1 - - [16/Aug/2025 05:35:57] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:35:58 [INFO] Cleaned up 0 datasets for PID 10764: []
+2025-08-16 05:35:58 [INFO] Cleaned up datasets: []
+2025-08-16 05:35:58 [INFO] Shutting down communicator for PID 10764
+2025-08-16 05:35:58 [INFO] Communication loop terminated for PID 10764
+2025-08-16 05:35:58 [INFO] CmdRunner 10764 shutdown complete
+2025-08-16 05:35:58 [INFO] Shutting down cmdRunner 10764
+2025-08-16 05:35:58 [INFO] Cleaned up 0 datasets for PID 10764: []
+2025-08-16 05:35:58 [INFO] Cleaned up datasets: []
+2025-08-16 05:35:58 [INFO] Shutting down communicator for PID 10764
+2025-08-16 05:35:58 [INFO] CmdRunner 10764 shutdown complete
+2025-08-16 05:35:59 [INFO] [INFO] WEBSOCKET_HUB: Command executed: CALL PGM-CL001.TESTLIB,VOL-DISK01
+2025-08-16 05:35:59 [INFO] [ERROR] ASP System Command: [Command Confirmation: CALL PGM-CL001.TESTLIB,VOL-DISK01] Command failed (Session: Podo0xFgWBEI41P7AAAG)
+2025-08-16 05:35:59 [INFO] 172.20.0.1 - - [16/Aug/2025 05:35:59] "POST /api/logs HTTP/1.1" 200 -
+2025-08-16 05:36:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:36:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:36:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:36:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:36:31] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:37:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:37:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:37:30 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:37:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:37:30] "GET /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:38:30 [INFO] 172.20.0.1 - - [16/Aug/2025 05:38:30] "OPTIONS /api/dslock/query HTTP/1.1" 200 -
+2025-08-16 05:38:31 [INFO] Executing dslock query: ./dslockctl query
+2025-08-16 05:38:31 [INFO] 172.20.0.1 - - [16/Aug/2025 05:38:31] "GET /api/dslock/query HTTP/1.1" 200 -
+
+=== MAIN001 Java Execution Log (2025-08-16 05:41:29) ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: webui (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755322889556_0.8513782858878409
+[세션관리] - 터미널 ID: webui
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 05:41:29 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755322889.9074295 HTTP/1.1" 200 None
+2025-08-16 05:41:29 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:29 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI HTTP/1.1" 200 None
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI&t=1755322889.9193091 HTTP/1.1" 200 None
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_127710694511888
+2025-08-16 05:41:29 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] - Terminal: webui
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 05:41:29 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI&t=1755322889.928783 HTTP/1.1" 200 None
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI HTTP/1.1" 200 None
+2025-08-16 05:41:29 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_127710694511888', 'session_id': 'oEAMmtiPeMZllQC-AAAJ', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T05:41:29.935180'}
+2025-08-16 05:41:29 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI HTTP/1.1" 200 None
+2025-08-16 05:41:29 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI&t=1755322889.9393158 HTTP/1.1" 200 None
+2025-08-16 05:41:29 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': True, 'terminal_id': 'webui', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': 'oEAMmtiPeMZllQC-AAAJ', 'timestamp': '2025-08-16T05:41:29.944756', 'message': 'SMED data delivered via WebSocket Hub'}
+2025-08-16 05:41:29 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:30 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 05:41:30 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 05:41:30 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI HTTP/1.1" 200 None
+2025-08-16 05:41:30 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=cgFlgEf4bEE35jI2AAAI&t=1755322889.9469264 HTTP/1.1" 200 None
+2025-08-16 05:41:30 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_127710694511888
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: True
+[HUB_CONFIRM] Terminal: webui
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: webui
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_webui.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+[MAIN001] Still waiting... (15/86400 seconds)
+[MAIN001] Still waiting... (20/86400 seconds)
+[MAIN001] Still waiting... (25/86400 seconds)
+
+=== MAIN001 Execution Completed (Return Code: 143) ===
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 06:55:36) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 06:59:56) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 07:03:09) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 07:26:54) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 07:28:24) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 07:34:09) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 07:35:36) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== MAIN001 Java Execution Log (2025-08-16 09:09:08) ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: webui (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755335349100_0.35375848746424765
+[세션관리] - 터미널 ID: webui
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 09:09:09 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755335349.5039873 HTTP/1.1" 200 None
+2025-08-16 09:09:09 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:09 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ HTTP/1.1" 200 None
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ&t=1755335349.5336597 HTTP/1.1" 200 None
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 09:09:09 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_124351483172112
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] - Terminal: webui
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 09:09:09 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ HTTP/1.1" 200 None
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ&t=1755335349.5449886 HTTP/1.1" 200 None
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_124351483172112', 'session_id': 'qoPUFBrsrn-hSQejAAAR', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T09:09:09.552644'}
+2025-08-16 09:09:09 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:09 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ HTTP/1.1" 200 None
+2025-08-16 09:09:09 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ&t=1755335349.5569434 HTTP/1.1" 200 None
+2025-08-16 09:09:09 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': True, 'terminal_id': 'webui', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': 'qoPUFBrsrn-hSQejAAAR', 'timestamp': '2025-08-16T09:09:09.561555', 'message': 'SMED data delivered via WebSocket Hub'}
+2025-08-16 09:09:09 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:10 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 09:09:10 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:09:10 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ HTTP/1.1" 200 None
+2025-08-16 09:09:10 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=PFD_V6xvNxAtCD0nAAAQ&t=1755335349.5678244 HTTP/1.1" 200 None
+2025-08-16 09:09:10 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_124351483172112
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: True
+[HUB_CONFIRM] Terminal: webui
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: webui
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_webui.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+[MAIN001] Still waiting... (15/86400 seconds)
+[MAIN001] Still waiting... (20/86400 seconds)
+
+=== MAIN001 Execution Completed (Return Code: 143) ===
+
+=== MAIN001 Java Execution Log (2025-08-16 09:10:41) ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: webui (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755335441251_0.18120785249636695
+[세션관리] - 터미널 ID: webui
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 09:10:41 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755335441.6946933 HTTP/1.1" 200 None
+2025-08-16 09:10:41 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:41 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS HTTP/1.1" 200 None
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS&t=1755335441.7098346 HTTP/1.1" 200 None
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 09:10:41 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_133970415605008
+2025-08-16 09:10:41 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] - Terminal: webui
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS HTTP/1.1" 200 None
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS&t=1755335441.7219856 HTTP/1.1" 200 None
+2025-08-16 09:10:41 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_133970415605008', 'session_id': 'o8abcNZHultzJPDRAAAT', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T09:10:41.729720'}
+2025-08-16 09:10:41 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS HTTP/1.1" 200 None
+2025-08-16 09:10:41 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS&t=1755335441.733752 HTTP/1.1" 200 None
+2025-08-16 09:10:41 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': True, 'terminal_id': 'webui', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': 'o8abcNZHultzJPDRAAAT', 'timestamp': '2025-08-16T09:10:41.740501', 'message': 'SMED data delivered via WebSocket Hub'}
+2025-08-16 09:10:41 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:42 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 09:10:42 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:10:42 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS HTTP/1.1" 200 None
+2025-08-16 09:10:42 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=wWCYrBiApaiGULrXAAAS&t=1755335441.7446551 HTTP/1.1" 200 None
+2025-08-16 09:10:42 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_133970415605008
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: True
+[HUB_CONFIRM] Terminal: webui
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: webui
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_webui.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+
+=== MAIN001 Execution Completed (Return Code: 143) ===
+
+=== MAIN001 Java Execution Log (2025-08-16 09:22:42) ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: webui (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755336162740_0.9877509630882357
+[세션관리] - 터미널 ID: webui
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 09:22:43 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 09:22:43 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755336163.0707405 HTTP/1.1" 200 None
+2025-08-16 09:22:43 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:22:43 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 09:22:43 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU HTTP/1.1" 200 None
+2025-08-16 09:22:43 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU&t=1755336163.083641 HTTP/1.1" 200 None
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 09:22:43 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_124377575560464
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] - Terminal: webui
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 09:22:43 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:22:43 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU HTTP/1.1" 200 None
+2025-08-16 09:22:43 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU&t=1755336163.0923147 HTTP/1.1" 200 None
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_124377575560464', 'session_id': 'dKEe3pKmOeleakD3AAAV', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T09:22:43.100130'}
+2025-08-16 09:22:43 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:22:43 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU&t=1755336163.104502 HTTP/1.1" 200 None
+2025-08-16 09:22:43 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': True, 'terminal_id': 'webui', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': 'dKEe3pKmOeleakD3AAAV', 'timestamp': '2025-08-16T09:22:43.102762', 'message': 'SMED data delivered via WebSocket Hub'}
+2025-08-16 09:22:43 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:22:44 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 09:22:44 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:22:44 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU HTTP/1.1" 200 None
+2025-08-16 09:22:44 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=UjuNazh8z2yhYKepAAAU&t=1755336163.1108134 HTTP/1.1" 200 None
+2025-08-16 09:22:44 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_124377575560464
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: True
+[HUB_CONFIRM] Terminal: webui
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: webui
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_webui.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+[MAIN001] Still waiting... (15/86400 seconds)
+[MAIN001] Still waiting... (20/86400 seconds)
+
+=== MAIN001 Execution Completed (Return Code: 143) ===
+
+=== MAIN001 Java Execution Log (2025-08-16 09:29:19) ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: terminal_ASPUSER_092919 (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755336559872_0.18916352860410923
+[세션관리] - 터미널 ID: terminal_ASPUSER_092919
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 09:29:20 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755336560.2276871 HTTP/1.1" 200 None
+2025-08-16 09:29:20 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:20 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW HTTP/1.1" 200 None
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW&t=1755336560.2428176 HTTP/1.1" 200 None
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_125653757547744
+2025-08-16 09:29:20 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:20 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] - Terminal: terminal_ASPUSER_092919
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW HTTP/1.1" 200 None
+2025-08-16 09:29:20 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW&t=1755336560.2512703 HTTP/1.1" 200 None
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_125653757547744', 'session_id': 'HqaZe5NNRiO2l6YiAAAX', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T09:29:20.259309'}
+2025-08-16 09:29:20 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW HTTP/1.1" 200 None
+2025-08-16 09:29:20 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW&t=1755336560.262396 HTTP/1.1" 200 None
+2025-08-16 09:29:20 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': False, 'terminal_id': 'terminal_ASPUSER_092919', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': 'HqaZe5NNRiO2l6YiAAAX', 'timestamp': '2025-08-16T09:29:20.266331', 'message': 'SMED data failed to deliver via WebSocket Hub'}
+2025-08-16 09:29:20 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:21 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 09:29:21 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:29:21 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW HTTP/1.1" 200 None
+2025-08-16 09:29:21 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=rx5PLBW28xE4SFIWAAAW&t=1755336560.2680976 HTTP/1.1" 200 None
+2025-08-16 09:29:21 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_125653757547744
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: False
+[HUB_CONFIRM] Terminal: terminal_ASPUSER_092919
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: terminal_ASPUSER_092919
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_terminal_ASPUSER_092919.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+[MAIN001] Still waiting... (15/86400 seconds)
+[MAIN001] Still waiting... (20/86400 seconds)
+[MAIN001] Still waiting... (25/86400 seconds)
+[MAIN001] Still waiting... (30/86400 seconds)
+[MAIN001] Still waiting... (35/86400 seconds)
+[MAIN001] Still waiting... (40/86400 seconds)
+[MAIN001] Still waiting... (45/86400 seconds)
+[MAIN001] Still waiting... (50/86400 seconds)
+[MAIN001] Still waiting... (55/86400 seconds)
+
+=== MAIN001 Java Execution Log (2025-08-16 09:30:47) ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: terminal_ASPUSER_093047 (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755336647403_0.7054026667312592
+[세션관리] - 터미널 ID: terminal_ASPUSER_093047
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 09:30:47 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755336647.6850257 HTTP/1.1" 200 None
+2025-08-16 09:30:47 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:47 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY HTTP/1.1" 200 None
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY&t=1755336647.6961648 HTTP/1.1" 200 None
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 09:30:47 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_131346337191136
+2025-08-16 09:30:47 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] - Terminal: terminal_ASPUSER_093047
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY HTTP/1.1" 200 None
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY&t=1755336647.7045777 HTTP/1.1" 200 None
+2025-08-16 09:30:47 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_131346337191136', 'session_id': '1IA1uMNe1qn7I31cAAAZ', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T09:30:47.711285'}
+2025-08-16 09:30:47 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY HTTP/1.1" 200 None
+2025-08-16 09:30:47 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY&t=1755336647.7149875 HTTP/1.1" 200 None
+2025-08-16 09:30:47 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': False, 'terminal_id': 'terminal_ASPUSER_093047', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': '1IA1uMNe1qn7I31cAAAZ', 'timestamp': '2025-08-16T09:30:47.719030', 'message': 'SMED data failed to deliver via WebSocket Hub'}
+2025-08-16 09:30:47 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:48 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 09:30:48 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 09:30:48 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY HTTP/1.1" 200 None
+2025-08-16 09:30:48 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=OAi8AgEiCP76IvEhAAAY&t=1755336647.720973 HTTP/1.1" 200 None
+2025-08-16 09:30:48 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_131346337191136
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: False
+[HUB_CONFIRM] Terminal: terminal_ASPUSER_093047
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: terminal_ASPUSER_093047
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_terminal_ASPUSER_093047.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+[MAIN001] Still waiting... (15/86400 seconds)
+[MAIN001] Still waiting... (20/86400 seconds)
+[MAIN001] Still waiting... (25/86400 seconds)
+[MAIN001] Still waiting... (30/86400 seconds)
+[MAIN001] Still waiting... (35/86400 seconds)
+[MAIN001] Still waiting... (40/86400 seconds)
+[MAIN001] Still waiting... (45/86400 seconds)
+[MAIN001] Still waiting... (50/86400 seconds)
+[MAIN001] Still waiting... (55/86400 seconds)
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 09:32:20) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== TSTJAVA1 Java Execution Log (2025-08-16 09:41:12) ===
+TSTJAVA1 program started.
+Waiting for 60 seconds...
+
+=== MAIN001 Java Execution (2025-08-16 10:20:02) ===
+=== MAIN001 Java Execution Log (2025-08-16 10:19:45) ===
+Command: java -Dfile.encoding=UTF-8 -cp /home/aspuser/app/volume/DISK01/JAVA MAIN001
+Working directory: /home/aspuser/app/volume/DISK01/JAVA
+Input JSON: {"program": "MAIN001", "library": "JAVA", "volume": "DISK01", "user": "system"}
+=== Program Output ===
+*** MAIN001 - Employee Management Menu (Enhanced with Session Management) ***
+DSP File Handling with WebSocket Hub Integration
+SJIS encoding support for Korean text
+장기 개선 방안 적용: 모드 분리, 세션 관리, COBOL 시맨틱스
+
+[환경감지] 실행 환경 분석 중...
+[환경감지] 전달된 인수: []
+[환경감지] 옵션 파라미터 없음
+[환경감지] → WebUI Interactive 모드로 판단
+Terminal ID: webui (from environment)
+[세션관리] 세션 초기화 완료
+[세션관리] - 세션 ID: session_1755339585247_0.9183980990501183
+[세션관리] - 터미널 ID: webui
+[MAIN001] 실행 모드: WebUI Interactive 모드 - 지속적 세션
+[MAIN001Interactive] WebUI Interactive 모드 - 지속적 세션 관리
+[MAIN001] OPEN I-O DISPFILE - Initializing DSP connection
+[MAIN001] SYMBOLIC DESTINATION 'DSP' - WebSocket Hub communication active
+[MAIN001] SELECTED FUNCTION IS EMP-FUNC - Ready for user input
+[MAIN001] MAIN-LOOP - Starting main processing loop
+[MAIN001] MAIN-LOOP iteration: 1
+[MAIN001] WRITE DISPFILE FROM DISP-RECORD - Sending display to webUI
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Connecting to WebSocket Hub: http://localhost:8000
+2025-08-16 10:19:45 [DEBUG] Starting new HTTP connection (1): localhost:8000
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&t=1755339585.5126688 HTTP/1.1" 200 None
+2025-08-16 10:19:45 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:45 [DEBUG] Starting new HTTP connection (2): localhost:8000
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG HTTP/1.1" 200 None
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG&t=1755339585.5244038 HTTP/1.1" 200 None
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Connected to WebSocket Hub: http://localhost:8000
+2025-08-16 10:19:45 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Connection established, registering with hub...
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Registration data sent to hub: hub_client_128859906102592
+2025-08-16 10:19:45 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Sending SMED data to hub:
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] - Terminal: webui
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] - Map: MAIN001
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] - Fields: 7 fields
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] - Program: MAIN001
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] SMED data sent to WebSocket Hub successfully
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG HTTP/1.1" 200 None
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG&t=1755339585.532031 HTTP/1.1" 200 None
+2025-08-16 10:19:45 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Registration confirmed: {'success': True, 'client_id': 'hub_client_128859906102592', 'session_id': 'evXqns6E6_QoIoodAAAH', 'message': 'Hub Client registered successfully', 'timestamp': '2025-08-16T10:19:45.539855'}
+2025-08-16 10:19:45 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG HTTP/1.1" 200 None
+2025-08-16 10:19:45 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG&t=1755339585.5443242 HTTP/1.1" 200 None
+2025-08-16 10:19:45 [INFO] [HUB_CLIENT] Hub confirmation received: {'success': True, 'terminal_id': 'webui', 'map_file': 'MAIN001', 'fields_populated': 7, 'hub_session': 'evXqns6E6_QoIoodAAAH', 'timestamp': '2025-08-16T10:19:45.548838', 'message': 'SMED data delivered via WebSocket Hub'}
+2025-08-16 10:19:45 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:46 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+2025-08-16 10:19:46 [DEBUG] Resetting dropped connection: localhost
+2025-08-16 10:19:46 [DEBUG] http://localhost:8000 "POST /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG HTTP/1.1" 200 None
+2025-08-16 10:19:46 [DEBUG] http://localhost:8000 "GET /socket.io/?transport=polling&EIO=4&sid=X_LVoNqG_wFqmSL8AAAG&t=1755339585.5544627 HTTP/1.1" 200 None
+2025-08-16 10:19:46 [INFO] [HUB_CLIENT] Disconnected from WebSocket Hub
+[HUB_REGISTERED] Success: True
+[HUB_REGISTERED] Client ID: hub_client_128859906102592
+[HUB_REGISTERED] Message: Hub Client registered successfully
+[HUB_CONFIRM] Success: True
+[HUB_CONFIRM] Terminal: webui
+[HUB_CONFIRM] Map: MAIN001
+[HUB_CONFIRM] Fields: 7
+[SUCCESS] SMED data sent to WebSocket Hub
+[MAIN001] Display data sent to WebSocket Hub successfully
+[MAIN001] Menu displayed on terminal: webui
+[MAIN001] READ DISPFILE INTO DISP-RECORD - Waiting for user input
+[세션관리] 입력 버퍼 클리어 완료
+[세션관리] - 제거된 입력 수: 0
+[MAIN001] Interactive 모드: 이전 입력 버퍼 클리어 완료
+[MAIN001] 입력 버퍼가 클리어된 상태, 새로운 입력 대기
+[MAIN001] WebSocket timeout loaded from config: 86400 seconds
+[MAIN001] Waiting for WebSocket Hub input... (timeout: 86400 seconds)
+[MAIN001] Input file: /tmp/asp_input_webui.txt
+[MAIN001] Still waiting... (5/86400 seconds)
+[MAIN001] Still waiting... (10/86400 seconds)
+[MAIN001] Still waiting... (15/86400 seconds)
+
+=== Execution Completed (Return Code: 143) ===
+
+=== End MAIN001 Execution ===

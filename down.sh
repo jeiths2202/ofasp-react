@@ -125,7 +125,7 @@ kill_by_pattern "python.*src.api.app" "Python API Services"
 # 3. 포트 기반 프로세스 확인 및 종료
 log ""
 log "3. 포트 기반 프로세스 확인..."
-ports=(3000 3005 3007 8000 8080)
+ports=(3000 3003 3004 3005 3007 3008 8000 8080)
 
 for port in "${ports[@]}"; do
     pid=$(lsof -ti:$port 2>/dev/null || true)
@@ -178,7 +178,7 @@ fi
 # 포트 상태 확인
 log ""
 log "포트 상태 확인:"
-for port in 3000 3005 3007 8000 8080; do
+for port in 3000 3003 3004 3005 3007 3008 8000 8080; do
     if nc -z localhost "$port" 2>/dev/null; then
         log "⚠ 포트 $port: 여전히 사용 중"
     else

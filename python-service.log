@@ -28732,3 +28732,33 @@ Endpoints:
 2025-08-03 12:32:52 [INFO]  * Restarting with stat
 2025-08-03 12:32:53 [WARNING]  * Debugger is active!
 2025-08-03 12:32:53 [INFO]  * Debugger PIN: 492-333-292
+2025-08-04 01:37:26 [INFO]  * Detected change in '/home/aspuser/app/server/api_server.py', reloading
+EbcdicBatchConverter コードページパス: /home/aspuser/app/ofasp-refactor/public/codepagesで初期化されました
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-04 01:37:26 [INFO]  * Restarting with stat
+2025-08-04 01:37:27 [WARNING]  * Debugger is active!
+2025-08-04 01:37:27 [INFO]  * Debugger PIN: 492-333-292
+EbcdicBatchConverter コードページパス: /home/aspuser/app/ofasp-refactor/public/codepagesで初期化されました
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================

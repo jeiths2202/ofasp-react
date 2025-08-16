@@ -111,15 +111,15 @@ python -c "from functions.job_database import init_database; init_database()" 2>
 echo -e "${GREEN}[OK] Job database ready${NC}"
 
 # 1. Python EBCDIC Conversion Service startup (Port 3003)
-cd "$APP_ROOT/ofasp-refactor/python-service"
-if [ -f "src/api/app.py" ]; then
+cd "$APP_ROOT"
+if [ -f "python-conversion-service.py" ]; then
     start_service "[PYTHON] Python Conversion Service" 3003 \
-        "FLASK_PORT=3003 python -c \"from src.api.app import api; api.run()\"" \
+        "python python-conversion-service.py" \
         "$APP_ROOT/logs/python-service.log" \
         "$APP_ROOT/pids/python-service.pid"
     PYTHON_PID=$!
 else
-    echo -e "${RED}[NG] Python service app.py not found.${NC}"
+    echo -e "${RED}[NG] Python conversion service not found.${NC}"
 fi
 
 # 2. SMED Map Viewer startup (Port 3000)
@@ -158,6 +158,18 @@ else
     echo -e "${RED}[NG] asp-manager package.json not found.${NC}"
 fi
 
+# 4.1. ASP Manager Backend startup (Port 3008)
+cd "$APP_ROOT/asp-manager/server"
+if [ -f "fileApi.js" ]; then
+    start_service "[BACKEND] ASP Manager Backend" 3008 \
+        "node fileApi.js" \
+        "$APP_ROOT/logs/asp-manager-backend.log" \
+        "$APP_ROOT/pids/asp-manager-backend.pid"
+    MANAGER_BACKEND_PID=$!
+else
+    echo -e "${RED}[NG] asp-manager backend fileApi.js not found.${NC}"
+fi
+
 # 5. API Server startup (Port 8000)
 cd "$APP_ROOT/server"
 if [ -f "api_server.py" ]; then
@@ -170,17 +182,18 @@ else
     echo -e "${RED}[NG] api_server.py not found.${NC}"
 fi
 
-# 6. System API Server startup (Port 3004)
-cd "$APP_ROOT/ofasp-refactor/server"
-if [ -f "aspmgr_web.py" ]; then
-    start_service "[SYSTEM] System API Server" 3004 \
-        "ASPMGR_WEB_PORT=3004 python aspmgr_web.py" \
-        "$APP_ROOT/logs/system-api.log" \
-        "$APP_ROOT/pids/system-api.pid"
-    SYSTEM_API_PID=$!
-else
-    echo -e "${RED}[NG] aspmgr_web.py not found.${NC}"
-fi
+# 6. System API Server startup (Port 3004) - DISABLED (file not found)
+# cd "$APP_ROOT/ofasp-refactor/server"
+# if [ -f "aspmgr_web.py" ]; then
+#     start_service "[SYSTEM] System API Server" 3004 \
+#         "ASPMGR_WEB_PORT=3004 python aspmgr_web.py" \
+#         "$APP_ROOT/logs/system-api.log" \
+#         "$APP_ROOT/pids/system-api.pid"
+#     SYSTEM_API_PID=$!
+# else
+echo -e "${YELLOW}[SKIP] System API Server - aspmgr_web.py not found, skipping.${NC}"
+SYSTEM_API_PID=""
+# fi
 
 # Wait for service startup
 echo -e "\n${YELLOW}[WAIT] Waiting for service startup...${NC}"
@@ -195,8 +208,14 @@ check_service "Python Conversion Service" 3003 "$APP_ROOT/logs/python-service.lo
 check_service "SMED Map Viewer" 3000 "$APP_ROOT/logs/smed-viewer.log"
 check_service "OpenASP Refactor" 3005 "$APP_ROOT/logs/ofasp-refactor.log"
 check_service "ASP Manager" 3007 "$APP_ROOT/logs/asp-manager.log"
+check_service "ASP Manager Backend" 3008 "$APP_ROOT/logs/asp-manager-backend.log"
 check_service "API Server" 8000 "$APP_ROOT/logs/api-server.log"
-check_service "System API Server" 3004 "$APP_ROOT/logs/system-api.log"
+# Only check System API Server if it was started
+if [ -n "$SYSTEM_API_PID" ]; then
+    check_service "System API Server" 3004 "$APP_ROOT/logs/system-api.log"
+else
+    echo -e "${YELLOW}[SKIP] System API Server status check - service not started${NC}"
+fi
 
 # Save process information
 echo -e "\n${YELLOW}[SAVE] Saving process information...${NC}"
@@ -205,6 +224,7 @@ PYTHON_SERVICE_PID=$PYTHON_PID
 SMED_VIEWER_PID=$SMED_PID
 REFACTOR_APP_PID=$REFACTOR_PID
 MANAGER_APP_PID=$MANAGER_PID
+MANAGER_BACKEND_PID=$MANAGER_BACKEND_PID
 API_SERVER_PID=$API_SERVER_PID
 SYSTEM_API_PID=$SYSTEM_API_PID
 STARTED_AT="$(date)"
@@ -216,9 +236,15 @@ echo ""
 echo "[MOBILE] Main service connection URLs:"
 echo "   - SMED Map Viewer: http://localhost:3000"
 echo "   - Python Conversion Service: http://localhost:3003"
-echo "   - System API Server: http://localhost:3004"
+# Only show System API Server if it was started
+if [ -n "$SYSTEM_API_PID" ]; then
+    echo "   - System API Server: http://localhost:3004"
+else
+    echo "   - System API Server: DISABLED (aspmgr_web.py not found)"
+fi
 echo "   - OpenASP Refactor: http://localhost:3005"
 echo "   - ASP Manager: http://localhost:3007"
+echo "   - ASP Manager Backend: http://localhost:3008"
 echo "   - API Server: http://localhost:8000"
 echo ""
 echo "[LIST] Log files:"
@@ -226,6 +252,7 @@ echo "   - Python Service: $APP_ROOT/logs/python-service.log"
 echo "   - SMED Viewer: $APP_ROOT/logs/smed-viewer.log"
 echo "   - Refactor: $APP_ROOT/logs/ofasp-refactor.log"
 echo "   - Manager: $APP_ROOT/logs/asp-manager.log"
+echo "   - Manager Backend: $APP_ROOT/logs/asp-manager-backend.log"
 echo "   - System API: $APP_ROOT/logs/system-api.log"
 echo "   - API Server: $APP_ROOT/logs/api-server.log"
 echo ""

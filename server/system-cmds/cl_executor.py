@@ -21,6 +21,15 @@ from asp_commands import (
     get_pgmec, reset_pgmec, set_pgmec
 )
 
+# Import dslock-based override functions
+try:
+    from functions.ovrf import OVRF
+    from functions.dltovr import DLTOVR
+    DSLOCK_AVAILABLE = True
+except ImportError:
+    DSLOCK_AVAILABLE = False
+    print("[WARN] dslock_suite functions not available")
+
 # Command mapping from CL commands to ASP command handlers
 COMMAND_MAP = {
     # File operations
@@ -52,6 +61,13 @@ COMMAND_MAP = {
     "RCVMSG": RCVMSG,
 }
 
+# Add dslock-based override commands if available
+if DSLOCK_AVAILABLE:
+    COMMAND_MAP.update({
+        "OVRF": OVRF,
+        "DLTOVR": DLTOVR,
+    })
+
 def format_command_line(command: str, params: Dict[str, str]) -> str:
     """
     Format parsed instruction back into ASP command line format
@@ -72,6 +88,8 @@ def format_command_line(command: str, params: Dict[str, str]) -> str:
         return format_chglibl_command(command, params)
     elif command == "CALL":
         return format_call_command(command, params)
+    elif command in ["OVRF", "DLTOVR"]:
+        return format_override_command(command, params)
     else:
         # Default formatting for other commands
         return format_default_command(command, params)
@@ -161,6 +179,20 @@ def format_call_command(command: str, params: Dict[str, str]) -> str:
     
     return f"{command} {','.join(param_parts)}"
 
+def format_override_command(command: str, params: Dict[str, str]) -> str:
+    """Format OVRF/DLTOVR commands for dslock integration"""
+    param_parts = []
+    
+    # OVRF FILE(logical-name) TOFILE(physical-file) TYPE(*DATA)
+    # DLTOVR FILE(logical-name)
+    for key, value in params.items():
+        if value is None:
+            param_parts.append(key)
+        else:
+            param_parts.append(f"{key}({value})")
+    
+    return f"{command} {' '.join(param_parts)}"
+
 def format_default_command(command: str, params: Dict[str, str]) -> str:
     """Default command formatting"""
     param_parts = []
@@ -187,6 +219,12 @@ def execute_instruction(instruction: Dict[str, Union[str, Dict[str, str]]]) -> b
     
     # Get command handler
     handler = COMMAND_MAP.get(command)
+    
+    # Debug logging for OVRF command
+    if command == "OVRF":
+        print(f"[DEBUG] OVRF command detected - handler: {handler}")
+        print(f"[DEBUG] DSLOCK_AVAILABLE: {DSLOCK_AVAILABLE}")
+        print(f"[DEBUG] OVRF in COMMAND_MAP: {'OVRF' in COMMAND_MAP}")
     
     if not handler:
         print(f"[SKIP] Unknown command: {command}")

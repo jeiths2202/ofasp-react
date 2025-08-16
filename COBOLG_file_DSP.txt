@@ -1,0 +1,136 @@
+CL(制御言語)에서 데이터셋을 할당하고 COBOL 프로그램에서 이를 읽어 표시 파일에 출력하는 샘플은 ASP 시스템의 COBOL G와 CL 명령어를 활용합니다.
+전체 과정 개요 이 시나리오는 다음과 같은 주요 단계를 포함합니다:
+1. 데이터셋 준비: COBOL 프로그램이 읽을 실제 데이터셋(파일)을 준비합니다. 일반적으로 순 편성 파일(Sequential File)이 사용될 수 있습니다.
+2. 표시 파일 정의 (SMED): 화면 레이아웃을 정의하는 표준 메시지 정의체(SMED: Standard Message Edit Description)를 FORM 소프트웨어를 사용하여 작성합니다. SMED는 화면 크기, 위치, 입출력 항목 그룹화 정보 등을 포함하며, COBOL G 프로그램이 처리 로직 변경 없이 화면 디자인을 변경할 수 있도록 합니다.
+3. COBOL G 프로그램 작성: SMED 및 입력 데이터셋을 사용하여 데이터를 읽고 화면에 표시하는 COBOL G 프로그램을 작성합니다.
+4. CL 프로그램 작성: COBOL G 프로그램을 호출하고, COBOL 프로그램이 올바른 데이터셋과 표시 파일에 접근할 수 있도록 OVRF (Override File) 및 OVRDSPF (Override Display File) 명령어를 사용하여 파일을 할당합니다.
+1. COBOL G 프로그램 (COBDSPFL) 작성 COBOL G 프로그램은 데이터셋(INFILE)에서 레코드를 읽고, 읽은 데이터를 표시 파일(DSPF)의 정의된 영역에 매핑하여 화면에 출력합니다. 표시 파일은 COBOL G의 후지쯔 고유 확장 기능입니다.
+주요 COBOL 요소:
+• FILE-CONTROL: SELECT 문을 사용하여 논리 파일명(예: INFILE, DSPF)을 시스템의 실제 파일 식별명(예: DA-S-INFILE, GS-DSPF)에 연결합니다.
+    ◦ INFILE: DA (자기 디스크), S (물리 순 파일 인터페이스)는 일반적인 순 편성 파일 정의에 사용됩니다.
+    ◦ DSPF: GS-DSPF는 디스플레이 장치에 할당되며, SYMBOLIC DESTINATION IS "DSP"는 디스플레이 장치를 대상으로 함을 명시합니다.
+• FILE SECTION: FD (File Description)와 01 레벨 항목으로 파일의 레코드 구조를 정의합니다.
+    ◦ DSPF의 레코드 구조는 COPY 문을 사용하여 표준 메시지 정의체(SMED)(MITDSP라는 가상의 SMED 사용)를 포함시킵니다. OF XMDLIB는 SMED가 저장된 등록집(라이브러리)을 지정합니다. JOINING DSP AS PREFIX는 SMED 항목명에 접두사(DSP-)를 붙여 이름 충돌을 방지합니다.
+• WORKING-STORAGE SECTION: 프로그램 내부에서 사용될 변수나 표시 파일 제어 항목(예: DSP-SMED-NAME, DSP-GROUP-NAME)을 정의합니다. FORMAT 절은 표준 메시지 정의체 이름을 지정합니다.
+• PROCEDURE DIVISION: 파일 열기(OPEN), 데이터 읽기(READ), 화면 출력(WRITE) 등의 로직을 구현합니다.
+    ◦ OPEN INPUT INFILE: INFILE을 입력 모드로 엽니다.
+    ◦ OPEN I-O DSPF: DSPF를 입출력 모드로 엽니다. 표시 파일은 입출력 모드로 열 수 있습니다.
+    ◦ 화면(맵) 출력: WRITE DSPF-RECORD 문을 사용하여 SMED에 정의된 화면 레이아웃을 출력합니다. COBOL G는 ACCEPT 문으로 대화형 메시지나 데이터를 입력받고 DISPLAY 문으로 출력할 수 있습니다. DISPLAY와 ACCEPT는 주로 시스템 콘솔과의 입출력에 사용되며, 표시 파일과의 상호작용은 READ/WRITE 문을 통해 레코드 단위로 이루어집니다.
+    ◦ 데이터 읽기 및 출력: READ INFILE을 통해 데이터셋에서 레코드를 읽고, 읽은 데이터를 화면 항목에 MOVE한 다음, WRITE DSPF-RECORD를 통해 화면에 출력합니다.
+    ◦ FILE STATUS를 통해 입출력 동작의 상태를 확인하는 것이 권장됩니다.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. COBDSPFL.
+       AUTHOR. YOURNAME.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INFILE ASSIGN TO DA-S-INFILE.
+           SELECT DSPF   ASSIGN TO GS-DSPF
+               ORGANIZATION IS SEQUENTIAL
+               PROCESSING MODE IS DISPLAY
+               SYMBOLIC DESTINATION IS "DSP".
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INFILE
+           LABEL RECORD STANDARD.
+       01  INFILE-REC.
+           05  IN-ITEM-ID          PIC X(10).
+           05  IN-ITEM-NAME        PIC X(20).
+           05  IN-ITEM-QTY         PIC 9(05).
+
+       FD  DSPF.
+           (* MITDSP 표준 메시지 정의체(SMED)를 COBOL 프로그램으로 COPY 함 *)
+           (* XMDLIB는 SMED 등록집(라이브러리)을 지정합니다. *)
+           (* JOINING DSP AS PREFIX를 사용하여 COPY 시 항목명에 'DSP-' 접두사를 붙입니다. *)
+           COPY MITDSP OF XMDLIB JOINING DSP AS PREFIX.
+           (* 예시: SMED에 'ITEM-ID'라는 항목이 있다면, COBOL에서 'DSP-ITEM-ID'로 참조됨 *)
+
+       WORKING-STORAGE SECTION.
+       01  WS-CONTROL-FIELDS.
+           05  WS-DSPF-FORMAT-NAME   PIC X(08) VALUE 'MITDSP'. (* 사용할 SMED 이름 *)
+           05  WS-DSPF-GROUP-NAME    PIC X(08) VALUE 'GROUP1'. (* SMED 내 정의된 그룹 이름 *)
+           05  WS-FILE-STATUS        PIC X(02). (* 파일 입출력 상태 저장 *)
+           05  WS-EOF-FLAG           PIC X(01) VALUE 'N'.
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           OPEN INPUT INFILE.
+           OPEN I-O DSPF.
+
+           (* 1. 표시 파일에 화면 맵 출력 *)
+           (* SMED에서 정의한 화면 레이아웃을 표시 파일로 WRITE하여 화면에 표시합니다. *)
+           MOVE WS-DSPF-FORMAT-NAME TO DSP-FORMAT-NAME OF DSPF-RECORD.
+           MOVE WS-DSPF-GROUP-NAME TO DSP-GROUP-NAME OF DSPF-RECORD.
+           WRITE DSPF-RECORD.
+           MOVE FILE-STATUS OF DSPF TO WS-FILE-STATUS.
+           IF WS-FILE-STATUS NOT = '00' THEN
+               DISPLAY 'DSPF 초기 WRITE 오류: ' WS-FILE-STATUS
+               PERFORM END-PROGRAM
+           END-IF.
+
+           (* 2. 데이터셋에서 레코드를 읽고 표시 파일에 출력 *)
+           PERFORM UNTIL WS-EOF-FLAG = 'Y'
+               READ INFILE INTO INFILE-REC
+                   AT END
+                       MOVE 'Y' TO WS-EOF-FLAG
+                   NOT AT END
+                       (* 데이터셋에서 읽은 데이터를 표시 파일의 해당 항목으로 이동 *)
+                       MOVE IN-ITEM-ID     OF INFILE-REC TO DSP-ITEM-ID OF DSPF-RECORD.
+                       MOVE IN-ITEM-NAME   OF INFILE-REC TO DSP-ITEM-NAME OF DSPF-RECORD.
+                       MOVE IN-ITEM-QTY    OF INFILE-REC TO DSP-ITEM-QTY OF DSPF-RECORD.
+
+                       (* 데이터를 채운 표시 파일 레코드를 화면에 출력 *)
+                       WRITE DSPF-RECORD.
+                       MOVE FILE-STATUS OF DSPF TO WS-FILE-STATUS.
+                       IF WS-FILE-STATUS NOT = '00' THEN
+                           DISPLAY 'DSPF 데이터 WRITE 오류: ' WS-FILE-STATUS
+                           PERFORM END-PROGRAM
+                       END-IF.
+               END-READ
+           END-PERFORM.
+
+       END-PROGRAM.
+           CLOSE INFILE.
+           CLOSE DSPF.
+           STOP RUN.
+2. CL 프로그램 (CLCALLCOB) 작성 CL 프로그램은 COBOL G 프로그램을 호출하기 전에 필요한 파일 할당을 수행합니다.
+주요 CL 명령어:
+• DEFLIBL: COBOL 프로그램 및 관련 정의체(SMED, 데이터 파일)가 저장된 라이브러리(SAMPLLIB 등)를 시스템이 찾을 수 있도록 라이브러리 목록을 설정합니다.
+• OVRF (Override File): COBOL 프로그램의 SELECT 문에 지정된 논리적인 파일명(INFILE)을 실제 물리적인 데이터셋(MYDATA.DAT에 대한 SAMPLLIB 내의 파일)에 연결합니다. 이는 COBOL 프로그램의 유연성을 높여줍니다. 일반적인 파일에 대한 OVRF 명령은 소스에 명시적으로 설명되어 있지 않지만, OVRDSPF (표시 파일 오버라이드) 및 OVRPRTF (프린터 파일 오버라이드)와 같은 오버라이드 개념이 존재함을 통해 유추할 수 있습니다.
+• OVRDSPF (Override Display File): COBOL 프로그램의 SELECT 문에 지정된 논리적인 표시 파일명(DSPF)을 실제 디스플레이 파일 기술자 엔티티(MYDSPFDESC에 대한 SAMPLLIB 내의 파일)에 연결합니다. DEV(XLU1)는 연결할 디스플레이 장치 이름을 지정합니다. 워크스테이션에서 화면 표시를 위해 일반적으로 XLU1이 사용됩니다.
+• CALL: 컴파일된 COBOL 프로그램(COBDSPFL.SAMPLLIB)을 실행합니다.
+• DLTOVR (Delete Override): 프로그램 실행 후 설정된 오버라이드를 해제하여 리소스를 정리합니다.
+       PGM
+
+       (* 1. 라이브러리 목록 설정 *)
+       (* SAMPLLIB는 COBOL 프로그램, SMED, 데이터 파일이 모두 저장되어 있다고 가정하는 라이브러리입니다. *)
+       DEFLIBL OBJL(SAMPLLIB) FILEL(SAMPLLIB)
+
+       (* 2. COBOL 프로그램에서 'INFILE'로 참조할 데이터셋을 실제 파일에 할당 *)
+       (* MYDATA.DAT는 SAMPLLIB 라이브러리에 존재하는 실제 순 편성 데이터셋 파일입니다. *)
+       OVRF FILE(INFILE) TOFILE(MYDATA.DAT.SAMPLLIB) TYPE(*DATA)
+
+       (* 3. COBOL 프로그램에서 'DSPF'로 참조할 표시 파일을 실제 디스플레이 장치에 할당 *)
+       (* MYDSPFDESC는 SAMPLLIB 라이브러리에 존재하는 표시 파일 기술자 엔티티 이름입니다. *)
+       (* DEV(XLU1)는 워크스테이션의 디스플레이 장치를 나타냅니다. *)
+       OVRDSPF FILE(DSPF) TOFILE(MYDSPFDESC.SAMPLLIB) DEV(XLU1)
+
+       (* 4. COBOL G 프로그램 호출 *)
+       CALL PGM(COBDSPFL.SAMPLLIB)
+
+       (* 5. 할당된 파일 오버라이드 해제 *)
+       DLTOVR FILE(INFILE)
+       DLTOVR FILE(DSPF)
+
+       ENDPGM
+사전 준비 (환경 및 컴파일) 이 샘플을 실행하기 위해서는 다음과 같은 준비가 필요합니다.
+• 데이터셋 생성: MYDATA.DAT라는 순 편성 파일을 생성하고, COBOL 프로그램에서 읽을 데이터를 미리 넣어두어야 합니다. (예: CRTFILE 명령 등)
+• SMED 생성: MITDSP라는 이름의 표준 메시지 정의체(SMED)를 FORM 소프트웨어를 사용하여 화면 레이아웃과 항목들을 정의해야 합니다. 여기에는 DSP-ITEM-ID, DSP-ITEM-NAME, DSP-ITEM-QTY와 같은 COBOL 프로그램에서 사용할 항목들이 포함되어야 합니다. 생성된 SMED는 GETTRS 명령을 사용하여 ASP 라이브러리(SAMPLLIB)로 가져와야 합니다.
+• 표시 파일 기술자 생성: MYDSPFDESC라는 이름의 디스플레이 파일 기술자를 CRTDSPF 명령을 사용하여 생성하고 SAMPLLIB에 저장해야 합니다. 이 기술자는 MITDSP SMED를 참조하도록 설정해야 합니다.
+• COBOL G 프로그램 컴파일: 작성된 COBDSPFL COBOL 소스 파일을 COBOLG 명령어를 사용하여 컴파일하여 실행 가능한 오브젝트(COBDSPFL.SAMPLLIB)를 생성합니다.
+    ◦ COBOLG SRC(COBDSPFL.SRCLIB) STORE(*YES) OBJLIB(SAMPLLIB) MEDLIB(SAMPLLIB)
+• CL 프로그램 컴파일: 작성된 CLCALLCOB CL 소스 파일을 CL 명령어를 사용하여 컴파일하여 실행 가능한 오브젝트(CLCALLCOB.SAMPLLIB)를 생성합니다.
+    ◦ CL SRC(CLCALLCOB.SRCLIB) STORE(*YES) OBJLIB(SAMPLLIB)
+이 과정들을 통해 CL 프로그램이 데이터셋과 표시 파일을 적절히 할당하고 COBOL 프로그램이 이를 활용하여 화면에 데이터를 출력할 수 있습니다.

@@ -285,7 +285,7 @@ def _call_java_program(volume: str, library: str, program: str,
             "user": "system"  # Default user
         })
         
-        # Execute the Java program with environment variables
+        # Execute the Java program with environment variables - REAL SUBPROCESS EXECUTION
         try:
             # Get current environment and add ASP-specific variables
             if DSLOCK_JAVA_AVAILABLE:
@@ -314,32 +314,90 @@ def _call_java_program(volume: str, library: str, program: str,
                 else:
                     print(f"[CALL_DEBUG] No override mappings to export")
             
-            # All Java programs output to API server log
-            with open(log_file, 'a', encoding='utf-8') as f:
-                f.write(f"\n=== {program} Java Execution Log ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===\n")
-                f.flush()
-                result = subprocess.run(cmd, input=input_json, stdout=f, stderr=subprocess.STDOUT, text=True, 
-                                      cwd=program_path, env=env, timeout=60, encoding='utf-8')
-                f.write(f"\n=== {program} Execution Completed (Return Code: {result.returncode}) ===\n")
-                f.flush()
-                # stdout이 파일로 리다이렉트되었으므로 빈 문자열로 설정
-                result.stdout = ""
+            print(f"[JAVA_EXEC] REAL SUBPROCESS EXECUTION - Starting Java program: {' '.join(cmd)}")
+            print(f"[JAVA_EXEC] Working directory: {program_path}")
+            print(f"[JAVA_EXEC] Current PID: {os.getpid()}")
             
-            print(f"[INFO] Java program executed")
+            # ACTUAL SUBPROCESS EXECUTION - NO MORE FAKE SUCCESS
+            # Create real subprocess with output capture for ps visibility
+            log_path = f"/tmp/java_exec_{program}_{os.getpid()}_{int(datetime.now().timestamp())}.log"
+            
+            print(f"[JAVA_EXEC] Creating real Java subprocess with output log: {log_path}")
+            
+            # Start Java program as actual background process
+            with open(log_path, 'w', encoding='utf-8') as log_f:
+                log_f.write(f"=== {program} Java Execution Log ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===\n")
+                log_f.write(f"Command: {' '.join(cmd)}\n")
+                log_f.write(f"Working directory: {program_path}\n")
+                log_f.write(f"Input JSON: {input_json}\n")
+                log_f.write("=== Program Output ===\n")
+                log_f.flush()
+                
+                # Execute with real subprocess - this will show in ps -ef
+                result = subprocess.run(
+                    cmd, 
+                    input=input_json, 
+                    stdout=log_f, 
+                    stderr=subprocess.STDOUT, 
+                    text=True, 
+                    cwd=program_path, 
+                    env=env, 
+                    timeout=60, 
+                    encoding='utf-8'
+                )
+                
+                log_f.write(f"\n=== Execution Completed (Return Code: {result.returncode}) ===\n")
+                log_f.flush()
+            
+            print(f"[JAVA_EXEC] Java subprocess completed with return code: {result.returncode}")
+            print(f"[JAVA_EXEC] Output logged to: {log_path}")
+            
+            # Read the output from log file for processing
+            program_output = ""
+            try:
+                with open(log_path, 'r', encoding='utf-8') as f:
+                    program_output = f.read()
+                print(f"[JAVA_EXEC] Read {len(program_output)} characters from output log")
+            except Exception as read_e:
+                print(f"[JAVA_EXEC] Warning: Could not read output log: {read_e}")
+            
+            # Copy output to main API server log
+            try:
+                with open(log_file, 'a', encoding='utf-8') as api_log:
+                    api_log.write(f"\n=== {program} Java Execution ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===\n")
+                    api_log.write(program_output)
+                    api_log.write(f"\n=== End {program} Execution ===\n")
+                print(f"[JAVA_EXEC] Output copied to API server log: {log_file}")
+            except Exception as copy_e:
+                print(f"[JAVA_EXEC] Warning: Could not copy to API log: {copy_e}")
+            
+            print(f"[INFO] Java program executed with REAL subprocess")
             print(f"[INFO] Return code: {result.returncode}")
             
-            if result.stdout:
-                print(f"[OUTPUT] {result.stdout}")
-                # Process output for SMED integration
-                _process_java_output(result.stdout, volume, library, program)
+            # Process output for SMED integration if available
+            if program_output:
+                print(f"[OUTPUT] Processing Java output for SMED integration")
+                # Extract just the program output part (after "=== Program Output ===")
+                output_lines = program_output.split("=== Program Output ===\n", 1)
+                if len(output_lines) > 1:
+                    actual_output = output_lines[1].split("\n=== Execution Completed")[0]
+                    _process_java_output(actual_output, volume, library, program)
+                else:
+                    _process_java_output(program_output, volume, library, program)
             
-            if result.stderr:
-                print(f"[ERROR] {result.stderr}")
+            # Clean up temporary log file after processing
+            try:
+                os.remove(log_path)
+                print(f"[JAVA_EXEC] Cleaned up temporary log: {log_path}")
+            except:
+                pass  # Ignore cleanup errors
             
             if result.returncode != 0:
+                print(f"[ERROR] Java program failed with return code: {result.returncode}")
                 set_pgmec(result.returncode)
                 return False
             
+            print(f"[JAVA_EXEC] Java program completed successfully")
             return True
             
         except subprocess.TimeoutExpired:
@@ -358,11 +416,75 @@ def _call_java_program(volume: str, library: str, program: str,
 
 def _call_cobol_program(volume: str, library: str, program: str, 
                        program_info: Dict[str, Any], parameters: str) -> bool:
-    """Execute COBOL program (placeholder)"""
-    print("[INFO] COBOL program execution not yet implemented")
-    print(f"[INFO] Program: {program}")
-    print(f"[INFO] Parameters: {parameters}")
-    return True
+    """Execute COBOL program - REAL IMPLEMENTATION REQUIRED"""
+    try:
+        program_path = os.path.join(VOLUME_ROOT, volume, library)
+        cobol_file = program_info.get('COBOLFILE', program)
+        cobol_path = os.path.join(program_path, cobol_file)
+        
+        print(f"[COBOL_EXEC] Attempting to execute COBOL program: {program}")
+        print(f"[COBOL_EXEC] Program path: {cobol_path}")
+        print(f"[COBOL_EXEC] Parameters: {parameters}")
+        
+        # Check if COBOL executable exists
+        if not os.path.exists(cobol_path):
+            print(f"[ERROR] COBOL executable not found: {cobol_path}")
+            set_pgmec(999)
+            return False
+        
+        # Make executable
+        os.chmod(cobol_path, 0o755)
+        
+        # Prepare command
+        cmd = [cobol_path]
+        
+        # Add parameters
+        if parameters:
+            param_list = _parse_parameters(parameters)
+            cmd.extend(param_list)
+        
+        print(f"[COBOL_EXEC] Executing COBOL command: {' '.join(cmd)}")
+        
+        # Set environment variables
+        env = os.environ.copy()
+        env['ASP_VOLUME'] = volume
+        env['ASP_LIBRARY'] = library
+        env['ASP_PROGRAM'] = program
+        
+        try:
+            # Execute COBOL program as real subprocess
+            result = subprocess.run(cmd, capture_output=True, text=True, 
+                                  cwd=program_path, env=env, timeout=60)
+            
+            print(f"[COBOL_EXEC] COBOL program executed")
+            print(f"[COBOL_EXEC] Return code: {result.returncode}")
+            
+            if result.stdout:
+                print(f"[COBOL_OUTPUT] {result.stdout}")
+            
+            if result.stderr:
+                print(f"[COBOL_ERROR] {result.stderr}")
+            
+            if result.returncode != 0:
+                print(f"[ERROR] COBOL program failed with return code: {result.returncode}")
+                set_pgmec(result.returncode)
+                return False
+            
+            return True
+            
+        except subprocess.TimeoutExpired:
+            print("[ERROR] COBOL program execution timed out")
+            set_pgmec(999)
+            return False
+        except Exception as e:
+            print(f"[ERROR] COBOL execution failed: {e}")
+            set_pgmec(999)
+            return False
+        
+    except Exception as e:
+        print(f"[ERROR] COBOL program call failed: {e}")
+        set_pgmec(999)
+        return False
 
 def _call_shell_program(volume: str, library: str, program: str, 
                        program_info: Dict[str, Any], parameters: str) -> bool:

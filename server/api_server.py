@@ -12,10 +12,12 @@ import json
 import subprocess
 import threading
 import time
+import signal
 import ctypes
 import psutil
 import shutil
 import requests
+import multiprocessing
 from pathlib import Path
 from datetime import datetime
 
@@ -3199,7 +3201,7 @@ def handle_position_render_unsubscribe(data):
 
 @socketio.on('hub_command')
 def handle_hub_command(data):
-    """Handle command execution via WebSocket Hub"""
+    """Handle command execution via WebSocket Hub using cmdRunner"""
     session_id = request.sid
     command = data.get('command', '')
     terminal_id = data.get('terminal_id', 'webui')
@@ -3209,23 +3211,17 @@ def handle_hub_command(data):
     logger.info(f"[WEBSOCKET_HUB] Command received: {command} from terminal: {terminal_id}")
     
     try:
-        # Import CALL function dynamically to avoid circular imports
-        import sys
-        import os
+        # Route through cmdRunner for proper process management
+        # Generate session info for cmdRunner
+        websocket_session_id = f"websocket_{session_id}"
+        websocket_terminal_id = terminal_id
         
-        # Add system-cmds to path
-        sys_cmds_path = os.path.join(os.path.dirname(__file__), 'system-cmds')
-        if sys_cmds_path not in sys.path:
-            sys.path.insert(0, sys_cmds_path)
+        # Execute command via cmdRunner (reuse execute_with_cmdrunner function)
+        result = execute_with_cmdrunner(command, websocket_session_id, websocket_terminal_id, user)
         
-        # Import and execute CALL command
-        from functions.call import CALL
-        
-        # Set terminal ID in environment for Java programs to access
-        os.environ['ASP_TERMINAL_ID'] = terminal_id
-        
-        # Execute command
-        success = CALL(command)
+        success = result.get('success', False)
+        output = result.get('output', '')
+        error = result.get('error', '')
         
         # Send confirmation
         emit('command_confirmation', {
@@ -3234,7 +3230,9 @@ def handle_hub_command(data):
             'terminal_id': terminal_id,
             'session_id': session_id,
             'timestamp': datetime.now().isoformat(),
-            'message': f'Command {"executed successfully" if success else "failed"}'
+            'message': f'Command {"executed successfully" if success else "failed"}',
+            'output': output,
+            'error': error
         })
         
         add_log('INFO', 'WEBSOCKET_HUB', f'Command executed: {command}', {
@@ -4128,15 +4126,20 @@ def compile_java():
 def asp_command():
     """Execute ASP system command"""
     try:
+        logger.info("=== ASP COMMAND ENDPOINT CALLED ===")
         data = request.get_json()
+        logger.info(f"Request data: {data}")
         
         if not data:
+            logger.error("No request body provided")
             return jsonify({'error': 'Request body required'}), 400
         
         command = data.get('command', '').strip()
         user = data.get('user', 'unknown')
+        logger.info(f"Parsed command: '{command}', user: '{user}'")
         
         if not command:
+            logger.error("No command parameter provided")
             return jsonify({'error': 'Command parameter required'}), 400
         
         logger.info(f"Received ASP command request: {command} from user: {user}")
@@ -4171,7 +4174,125 @@ def asp_command():
         return jsonify({'error': error_msg}), 500
 
 def execute_asp_command(command, user):
-    """Execute ASP command using aspcli.py"""
+    """Execute ASP command using cmdRunner with enhanced process management"""
+    try:
+        import uuid
+        import multiprocessing
+        from datetime import datetime
+        
+        # Generate session identifiers
+        session_id = f"session_{uuid.uuid4().hex[:8]}"
+        terminal_id = f"terminal_{user}_{datetime.now().strftime('%H%M%S')}"
+        
+        logger.info(f"Executing ASP command via cmdRunner: {command} for user: {user}")
+        logger.info(f"Session: {session_id}, Terminal: {terminal_id}")
+        
+        # Parse command to determine execution strategy
+        command_parts = command.strip().split()
+        if not command_parts:
+            raise Exception("Empty command")
+        
+        command_name = command_parts[0].upper()
+        
+        # Use cmdRunner for CALL commands (enhanced process management)
+        logger.info(f"Command name detected: {command_name}")
+        if command_name == "CALL":
+            logger.info(f"Routing to cmdRunner: {command}")
+            return execute_with_cmdrunner(command, session_id, terminal_id, user)
+        else:
+            # Use direct execution for other commands (backwards compatibility)
+            logger.info(f"Routing to aspcli: {command}")
+            return execute_with_aspcli(command, user)
+        
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"ASP command execution error: {error_msg}")
+        return {
+            'success': False,
+            'output': '',
+            'error': error_msg
+        }
+
+def execute_with_cmdrunner(command, session_id, terminal_id, user):
+    """Execute command using cmdRunner with fork-based process management"""
+    try:
+        logger.info(f"Starting cmdRunner execution for: {command}")
+        # Import cmdRunner
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        sys.path.append(os.path.join(script_dir, 'system-cmds'))
+        logger.info(f"Importing cmdRunner from: {script_dir}/system-cmds")
+        from cmd_runner import run_cmd_runner
+        
+        # Create communication pipe
+        parent_conn, child_conn = multiprocessing.Pipe()
+        
+        # Fork cmdRunner process
+        child_pid = os.fork()
+        
+        if child_pid == 0:
+            # Child process - run cmdRunner
+            try:
+                parent_conn.close()  # Close parent end in child
+                exit_code = run_cmd_runner(session_id, terminal_id, user, command, child_conn)
+                os._exit(exit_code)
+            except Exception as e:
+                logger.error(f"CmdRunner child process error: {e}")
+                os._exit(999)
+        
+        else:
+            # Parent process - wait for result
+            child_conn.close()  # Close child end in parent
+            
+            try:
+                # Wait for result with timeout
+                if parent_conn.poll(timeout=60):  # 60 second timeout
+                    result = parent_conn.recv()
+                    
+                    # Wait for child process to complete
+                    pid, status = os.waitpid(child_pid, 0)
+                    
+                    logger.info(f"CmdRunner completed: PID={child_pid}, Return={result.get('return_code', 999)}")
+                    
+                    return {
+                        'success': result.get('success', False),
+                        'output': result.get('output', ''),
+                        'error': result.get('error', ''),
+                        'execution_time': result.get('execution_time', 0),
+                        'allocated_datasets': result.get('allocated_datasets', [])
+                    }
+                else:
+                    # Timeout - kill child process
+                    try:
+                        os.kill(child_pid, signal.SIGTERM)
+                        time.sleep(2)
+                        os.kill(child_pid, signal.SIGKILL)
+                    except OSError:
+                        pass
+                    
+                    try:
+                        os.waitpid(child_pid, 0)
+                    except OSError:
+                        pass
+                    
+                    return {
+                        'success': False,
+                        'output': '',
+                        'error': 'Command execution timeout (60s)'
+                    }
+                    
+            finally:
+                parent_conn.close()
+    
+    except Exception as e:
+        logger.error(f"CmdRunner execution failed: {e}")
+        return {
+            'success': False,
+            'output': '',
+            'error': f"CmdRunner failed: {str(e)}"
+        }
+
+def execute_with_aspcli(command, user):
+    """Execute command using traditional aspcli.py (backwards compatibility)"""
     try:
         # ASP 명령어 실행을 위한 스크립트 경로
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -4186,7 +4307,7 @@ def execute_asp_command(command, user):
         env['LC_ALL'] = 'C.UTF-8'
         env['LANG'] = 'C.UTF-8'
         
-        logger.info(f"Executing ASP command: {command} for user: {user}")
+        logger.info(f"Executing ASP command via aspcli: {command} for user: {user}")
         
         # Parse command to extract command name and parameters
         command_parts = command.strip().split()

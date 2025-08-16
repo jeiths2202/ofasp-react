@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage';
 import SmedMapPage from './pages/SmedMapPage';
 import ChatPage from './pages/ChatPage';
 import LogManagementPage from './pages/LogManagementPage';
+import SystemManagerPage from './pages/SystemManagerPage';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import { MenuItem, Tab, Theme } from './types';
 
@@ -94,6 +95,7 @@ function App() {
     { id: 'accounts', label: 'アカウント管理', icon: <UserGroupIcon /> },
     { id: 'smed-maps', label: 'SMEDマップ管理', icon: <DocumentTextIcon />, badge: 3 },
     { id: 'programs', label: 'プログラム管理', icon: <CpuChipIcon /> },
+    { id: 'catalog', label: 'カタログ管理', icon: <ClipboardDocumentListIcon /> },
     { id: 'log-management', label: 'ログ管理', icon: <ClipboardDocumentListIcon /> },
     { id: 'chat', label: 'チャット', icon: <ChatBubbleLeftRightIcon /> },
   ];
@@ -176,6 +178,9 @@ function App() {
         break;
       case 'smed-maps':
         content = <SmedMapPage isDarkMode={theme.mode === 'dark'} />;
+        break;
+      case 'catalog':
+        content = <SystemManagerPage />;
         break;
       default:
         content = (

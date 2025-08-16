@@ -133,7 +133,7 @@ log "서비스 상태 확인"
 log "=========================================="
 
 # 포트 확인
-ports=("3000:ASP-Manager" "3005:OFASP-Refactor" "3007:Main-App" "8000:API-Server" "8080:EBCDIC-Service")
+ports=("3000:SMED-Map-Viewer" "3003:Python-Service" "3004:System-API" "3005:OFASP-Refactor" "3007:ASP-Manager" "3008:Manager-Backend" "8000:API-Server")
 
 for port_service in "${ports[@]}"; do
     port="${port_service%:*}"

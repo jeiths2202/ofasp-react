@@ -1,13 +1,500 @@
-2025-07-20 07:44:06,773 - conversion_service - INFO - EbcdicConverter initialized with codepage path: /home/aspuser/app/ofasp-refactor/public/codepages
-2025-07-20 07:44:06,775 - api_service - INFO - Flask application initialized with configuration
-2025-07-20 07:44:06,778 - api_service - INFO - Starting conversion service on 0.0.0.0:3003
- * Serving Flask app 'src.api.app'
- * Debug mode: off
-[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+ * Serving Flask app 'python-conversion-service'
+ * Debug mode: on
+2025-08-16 05:39:52 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:3003
  * Running on http://172.20.0.2:3003
-[33mPress CTRL+C to quit[0m
-127.0.0.1 - - [20/Jul/2025 07:44:16] "[33mGET / HTTP/1.1[0m" 404 -
-127.0.0.1 - - [23/Jul/2025 16:03:29] "[33mPOST /scan-directory HTTP/1.1[0m" 404 -
-Terminated
+2025-08-16 05:39:52 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-16 05:39:52 [INFO]  * Restarting with stat
+2025-08-16 05:39:53 [WARNING]  * Debugger is active!
+2025-08-16 05:39:53 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 05:40:02 [INFO] 127.0.0.1 - - [16/Aug/2025 05:40:02] "[33mGET / HTTP/1.1[0m" 404 -
+2025-08-16 07:19:05 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/dataset_manager.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:19:05 [INFO]  * Restarting with stat
+2025-08-16 07:19:06 [WARNING]  * Debugger is active!
+2025-08-16 07:19:06 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:20:21 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:20:21 [INFO]  * Restarting with stat
+2025-08-16 07:20:21 [WARNING]  * Debugger is active!
+2025-08-16 07:20:21 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:20:42 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:20:42 [INFO]  * Restarting with stat
+2025-08-16 07:20:43 [WARNING]  * Debugger is active!
+2025-08-16 07:20:43 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:20:51 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:20:51 [INFO]  * Restarting with stat
+2025-08-16 07:20:51 [WARNING]  * Debugger is active!
+2025-08-16 07:20:51 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:21:00 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:21:00 [INFO]  * Restarting with stat
+2025-08-16 07:21:00 [WARNING]  * Debugger is active!
+2025-08-16 07:21:00 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:21:23 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:21:23 [INFO]  * Restarting with stat
+2025-08-16 07:21:23 [WARNING]  * Debugger is active!
+2025-08-16 07:21:23 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:21:30 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:21:30 [INFO]  * Restarting with stat
+2025-08-16 07:21:30 [WARNING]  * Debugger is active!
+2025-08-16 07:21:30 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:21:38 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:21:38 [INFO]  * Restarting with stat
+2025-08-16 07:21:38 [WARNING]  * Debugger is active!
+2025-08-16 07:21:38 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:21:46 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:21:46 [INFO]  * Restarting with stat
+2025-08-16 07:21:46 [WARNING]  * Debugger is active!
+2025-08-16 07:21:46 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:42:38 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:42:38 [INFO]  * Restarting with stat
+2025-08-16 07:42:38 [WARNING]  * Debugger is active!
+2025-08-16 07:42:38 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:43:11 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:43:11 [INFO]  * Restarting with stat
+2025-08-16 07:43:12 [WARNING]  * Debugger is active!
+2025-08-16 07:43:12 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:44:06 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/call.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:44:06 [INFO]  * Restarting with stat
+2025-08-16 07:44:06 [WARNING]  * Debugger is active!
+2025-08-16 07:44:06 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:45:02 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:45:02 [INFO]  * Restarting with stat
+2025-08-16 07:45:02 [WARNING]  * Debugger is active!
+2025-08-16 07:45:02 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:46:29 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/call.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:46:29 [INFO]  * Restarting with stat
+2025-08-16 07:46:29 [WARNING]  * Debugger is active!
+2025-08-16 07:46:29 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:48:19 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:48:19 [INFO]  * Restarting with stat
+2025-08-16 07:48:19 [WARNING]  * Debugger is active!
+2025-08-16 07:48:19 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:48:42 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:48:42 [INFO]  * Restarting with stat
+2025-08-16 07:48:42 [WARNING]  * Debugger is active!
+2025-08-16 07:48:42 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:48:57 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:48:57 [INFO]  * Restarting with stat
+2025-08-16 07:48:58 [WARNING]  * Debugger is active!
+2025-08-16 07:48:58 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:49:19 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:49:19 [INFO]  * Restarting with stat
+2025-08-16 07:49:19 [WARNING]  * Debugger is active!
+2025-08-16 07:49:19 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 07:49:37 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 07:49:37 [INFO]  * Restarting with stat
+2025-08-16 07:49:37 [WARNING]  * Debugger is active!
+2025-08-16 07:49:37 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:00:11 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:00:11 [INFO]  * Restarting with stat
+2025-08-16 08:00:11 [WARNING]  * Debugger is active!
+2025-08-16 08:00:11 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:00:47 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:00:47 [INFO]  * Restarting with stat
+2025-08-16 08:00:48 [WARNING]  * Debugger is active!
+2025-08-16 08:00:48 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:26:27 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:26:27 [INFO]  * Restarting with stat
+2025-08-16 08:26:27 [WARNING]  * Debugger is active!
+2025-08-16 08:26:27 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:26:57 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:26:57 [INFO]  * Restarting with stat
+2025-08-16 08:26:57 [WARNING]  * Debugger is active!
+2025-08-16 08:26:57 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:27:43 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:27:43 [INFO]  * Restarting with stat
+2025-08-16 08:27:44 [WARNING]  * Debugger is active!
+2025-08-16 08:27:44 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:43:25 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/ovrf.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:43:25 [INFO]  * Restarting with stat
+2025-08-16 08:43:25 [WARNING]  * Debugger is active!
+2025-08-16 08:43:25 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 08:43:32 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/functions/dltovr.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 08:43:32 [INFO]  * Restarting with stat
+2025-08-16 08:43:32 [WARNING]  * Debugger is active!
+2025-08-16 08:43:32 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 09:41:05 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/cl_executor.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 09:41:06 [INFO]  * Restarting with stat
+2025-08-16 09:41:06 [WARNING]  * Debugger is active!
+2025-08-16 09:41:06 [INFO]  * Debugger PIN: 492-333-292
+2025-08-16 10:05:27 [INFO]  * Detected change in '/home/aspuser/app/server/system-cmds/cmd_runner.py', reloading
+EbcdicBatchConverter ÉRÅ[ÉhÉyÅ[ÉWÉpÉX: /home/aspuser/app/ofasp-refactor/public/codepagesÇ≈èâä˙âªÇ≥ÇÍÇ‹ÇµÇΩ
+EBCDIC Batch Converter loaded successfully
+============================================================
+Python EBCDIC Conversion Service
+============================================================
+Starting on port 3003
+Converter available: True
+Endpoints:
+  GET  /health
+  GET  /api/v1/info
+  POST /api/v1/convert/ebcdic-to-ascii
+  POST /api/v1/convert/ascii-to-ebcdic
+============================================================
+2025-08-16 10:05:28 [INFO]  * Restarting with stat
+2025-08-16 10:05:28 [WARNING]  * Debugger is active!
+2025-08-16 10:05:28 [INFO]  * Debugger PIN: 492-333-292

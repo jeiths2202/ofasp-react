@@ -1,0 +1,46 @@
+PGM PARM(&ACTION &FILENAME)
+  DCL VAR(&ACTION) TYPE(*CHAR) LEN(6)
+  DCL VAR(&FILENAME) TYPE(*CHAR) LEN(20)
+  DCL VAR(&MSG) TYPE(*CHAR) LEN(100)
+  
+  MONMSG MSGID(CPF0000) EXEC(GOTO CMDLBL(ERROR))
+  
+  /* File utility CL commands (CRTFILE/DLTFILE operations) */
+  CHGVAR VAR(&MSG) VALUE('File operation: ' *CAT &ACTION *CAT ' on file: ' *CAT &FILENAME)
+  SNDPGMMSG MSG(&MSG)
+  
+  /* Process based on action */
+  SELECT
+    WHEN COND(&ACTION *EQ 'CRTFILE') THEN(DO)
+      CRTPF FILE(TESTLIB/&FILENAME) RCDLEN(80) TEXT('File created by FILEUTIL CL')
+      CHGVAR VAR(&MSG) VALUE('File created successfully: ' *CAT &FILENAME)
+      SNDPGMMSG MSG(&MSG)
+    ENDDO
+    
+    WHEN COND(&ACTION *EQ 'DLTFILE') THEN(DO)
+      DLTF FILE(TESTLIB/&FILENAME)
+      CHGVAR VAR(&MSG) VALUE('File deleted successfully: ' *CAT &FILENAME)
+      SNDPGMMSG MSG(&MSG)
+    ENDDO
+    
+    WHEN COND(&ACTION *EQ 'CPYFILE') THEN(DO)
+      CPYF FROMFILE(TESTLIB/EMPLOYEE) TOFILE(TESTLIB/&FILENAME) CRTFILE(*YES)
+      CHGVAR VAR(&MSG) VALUE('File copied successfully to: ' *CAT &FILENAME)
+      SNDPGMMSG MSG(&MSG)
+    ENDDO
+    
+    OTHERWISE CMD(DO)
+      CHGVAR VAR(&MSG) VALUE('Unknown action: ' *CAT &ACTION)
+      SNDPGMMSG MSG(&MSG)
+    ENDDO
+  ENDSELECT
+  
+  SNDPGMMSG MSG('File utility operation completed')
+  RETURN
+  
+  ERROR:
+    CHGVAR VAR(&MSG) VALUE('Error in file operation: ' *CAT &ACTION *CAT ' - ' *CAT &FILENAME)
+    SNDPGMMSG MSG(&MSG)
+    MONMSG MSGID(CPF0000)
+  
+ENDPGM
